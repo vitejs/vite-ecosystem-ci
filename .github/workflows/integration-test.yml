@@ -1,5 +1,5 @@
 # build and test on linux, windows, mac with node 12, 14, 16
-name: CI
+name: integration-test
 on:
   workflow_dispatch:
     inputs:
@@ -47,11 +47,11 @@ jobs:
           ref: github.event.inputs.vite_plugin_svelte_ref
           path: 'vite-plugin-svelte'
       - name: 'link local vite to vite-plugin-svelte'
-          working-directory: 'vite-plugin-svelte'
-          run: |
-            mv package.json package.orig.json
-            jq -r '.devDependencies.vite="${{github.workspace}}/vite", .pnpm.overrides.vite="${{github.workspace}}/vite"' package.orig.json > package.json
-            rm package.json
+        working-directory: 'vite-plugin-svelte'
+        run: |
+          mv package.json package.orig.json
+          jq -r '.devDependencies.vite="${{github.workspace}}/vite", .pnpm.overrides.vite="${{github.workspace}}/vite"' package.orig.json > package.json
+          rm package.json
       - name: 'build and test vite-plugin-svelte'
         working-directory: 'vite-plugin-svelte'
         run: |
