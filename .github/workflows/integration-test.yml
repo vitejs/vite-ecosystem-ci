@@ -50,8 +50,8 @@ jobs:
         working-directory: 'vite-plugin-svelte'
         run: |
           mv package.json package.orig.json
-          jq -r '.devDependencies.vite="${{github.workspace}}/vite", .pnpm.overrides.vite="${{github.workspace}}/vite"' package.orig.json > package.json
-          rm package.json
+          jq -r '.devDependencies.vite="${{github.workspace}}/vite"|.pnpm.overrides.vite="${{github.workspace}}/vite"' package.orig.json > package.json
+          rm package.orig.json
       - name: 'build and test vite-plugin-svelte'
         working-directory: 'vite-plugin-svelte'
         run: |
