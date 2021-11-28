@@ -37,7 +37,7 @@ jobs:
       - name: 'build and test vite'
         working-directory: 'vite'
         run: |
-          pnpm install --frozen-lockfile --prefer-offline --ignore-scripts
+          pnpm install --frozen-lockfile
           pnpm build
           pnpm test
       - name: 'checkout vite-plugin-svelte'
