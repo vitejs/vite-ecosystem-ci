@@ -4,7 +4,7 @@ This repository is used to run integration tests for vite and svelte
 
 ## via github workflow
 
-* go to [action](./actions/workflows/integration-test.yml)
+* go to [action](../../actions/workflows/integration-test.yml)
 * click 'Run workflow' button on top right of the list
 * select options in popup and start
 
