@@ -17,7 +17,10 @@ on:
         description: 'vite-plugin-svelte git ref'
         required: true
         default: 'main'
-
+      sveltekit_ref:
+        description: 'sveltekit git ref'
+        required: true
+        default: 'master'
 jobs:
   integration-test:
     timeout-minutes: 30
@@ -58,7 +61,7 @@ jobs:
         working-directory: 'vite-plugin-svelte'
         run: |
           mv package.json package.orig.json
-          jq -r '.devDependencies.vite="${{github.workspace}}/vite"|.pnpm.overrides.vite="${{github.workspace}}/vite"' package.orig.json > package.json
+          jq -r '.devDependencies.vite="${{github.workspace}}/vite/packages/vite"|.pnpm.overrides.vite="${{github.workspace}}/vite/packages/vite"' package.orig.json > package.json
           rm package.orig.json
       - name: 'build and test vite-plugin-svelte'
         working-directory: 'vite-plugin-svelte'
@@ -66,3 +69,21 @@ jobs:
           pnpm install --prefer-offline --ignore-scripts
           pnpm build:ci
           pnpm test:ci
+      - name: 'checkout sveltekit'
+        uses: actions/checkout@v2
+        with:
+          repository: 'sveltejs/kit'
+          ref: '${{github.event.inputs.sveltekit_ref}}'
+          path: 'kit'
+      - name: 'link local vite and vite-plugin-svelte to sveltekit'
+        working-directory: 'kit'
+        run: |
+          mv package.json package.orig.json
+          jq -r '.devDependencies.vite="${{github.workspace}}/vite/packages/vite"|.pnpm.overrides.vite="${{github.workspace}}/vite/packages/vite"|.devDependencies."@sveltejs/vite-plugin-svelte"="${{github.workspace}}/vite-plugin-svelte/packages/vite-plugin-svelte"|.pnpm.overrides."@sveltejs/vite-plugin-svelte"="${{github.workspace}}/vite-plugin-svelte/packages/vite-plugin-svelte"' package.orig.json > package.json
+          rm package.orig.json
+      - name: 'build and test sveltekit'
+        working-directory: 'kit'
+        run: |
+          pnpm install --prefer-offline
+          pnpm build --filter ./packages --filter !./packages/create-svelte/templates
+          pnpm test
