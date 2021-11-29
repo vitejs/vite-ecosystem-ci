@@ -122,7 +122,7 @@ jobs:
           rm package.orig.json
           pnpm install --prefer-frozen-lockfile --prefer-offline
           pnpm build --filter ./packages --filter !./packages/create-svelte/templates
-      - name: 'install, build and test sveltekit'
+      - name: 'sveltekit integration tests'
         working-directory: 'kit'
         run: |
           pnpm test
