@@ -13,8 +13,8 @@ on:
         description: 'vite git ref'
         required: true
         default: 'main'
-      vite_skip_test:
-        description: 'skip vite tests'
+      vite_skip_verify:
+        description: 'skip vite verification'
         required: true
         type: boolean
         default: false
@@ -22,6 +22,11 @@ on:
         description: 'vite-plugin-svelte git ref'
         required: true
         default: 'main'
+      vite_plugin_svelte_skip_verify:
+        description: 'skip vite-plugin-svelte verification'
+        required: true
+        type: boolean
+        default: false
       vite_plugin_svelte_skip_test:
         description: 'skip vite-plugin-svelte tests'
         required: true
@@ -31,6 +36,11 @@ on:
         description: 'sveltekit git ref'
         required: true
         default: 'master'
+      sveltekit_skip_verify:
+        description: 'skip sveltekit verification'
+        required: true
+        type: boolean
+        default: false
 jobs:
   integration-test:
     timeout-minutes: 30
@@ -56,7 +66,7 @@ jobs:
           pnpm install --frozen-lockfile
           pnpm run ci-build-vite
       - name: 'test vite'
-        if: ${{!github.event.inputs.vite_skip_test}}
+        if: ${{!github.event.inputs.vite_skip_verify}}
         working-directory: 'vite'
         run: |
           pnpm run build-plugin-vue
@@ -69,18 +79,22 @@ jobs:
           repository: 'sveltejs/vite-plugin-svelte'
           ref: '${{github.event.inputs.vite_plugin_svelte_ref}}'
           path: 'vite-plugin-svelte'
-      - name: 'link local vite to vite-plugin-svelte'
+      - name: 'vite-plugin-svelte verification tests'
+        if: ${{!github.event.inputs.vite_plugin_svelte_skip_verify}}
+        working-directory: 'vite-plugin-svelte'
+        run: |
+          pnpm install --frozen-lockfile --prefer-offline
+          pnpm build:ci
+          pnpm test:ci
+      - name: 'link local vite to vite-plugin-svelte and build'
         working-directory: 'vite-plugin-svelte'
         run: |
           mv package.json package.orig.json
           jq -r '.devDependencies.vite="${{github.workspace}}/vite/packages/vite"|.pnpm.overrides.vite="${{github.workspace}}/vite/packages/vite"' package.orig.json > package.json
           rm package.orig.json
-      - name: 'install and build vite-plugin-svelte'
-        working-directory: 'vite-plugin-svelte'
-        run: |
           pnpm install --prefer-frozen-lockfile --prefer-offline
           pnpm build:ci
-      - name: 'test vite-plugin-svelte'
+      - name: 'vite-plugin-svelte integration tests'
         if: ${{!github.event.inputs.vite_plugin_svelte_skip_test}}
         working-directory: 'vite-plugin-svelte'
         run: |
@@ -91,15 +105,22 @@ jobs:
           repository: 'sveltejs/kit'
           ref: '${{github.event.inputs.sveltekit_ref}}'
           path: 'kit'
-      - name: 'link local vite and vite-plugin-svelte to sveltekit'
+      - name: 'sveltekit verification tests'
+        if: ${{!github.event.inputs.sveltekit_skip_verify}}
+        working-directory: 'kit'
+        run: |
+          pnpm install --frozen-lockfile --prefer-offline
+          pnpm build --filter ./packages --filter !./packages/create-svelte/templates
+          pnpm test
+      - name: 'link local vite and vite-plugin-svelte to sveltekit and build'
         working-directory: 'kit'
         run: |
           mv package.json package.orig.json
           jq -r '.devDependencies.vite="${{github.workspace}}/vite/packages/vite"|.pnpm.overrides.vite="${{github.workspace}}/vite/packages/vite"|.devDependencies."@sveltejs/vite-plugin-svelte"="${{github.workspace}}/vite-plugin-svelte/packages/vite-plugin-svelte"|.pnpm.overrides."@sveltejs/vite-plugin-svelte"="${{github.workspace}}/vite-plugin-svelte/packages/vite-plugin-svelte"' package.orig.json > package.json
           rm package.orig.json
+          pnpm install --prefer-frozen-lockfile --prefer-offline
+          pnpm build --filter ./packages --filter !./packages/create-svelte/templates
       - name: 'install, build and test sveltekit'
         working-directory: 'kit'
         run: |
-          pnpm install --prefer-frozen-lockfile --prefer-offline
-          pnpm build --filter ./packages --filter !./packages/create-svelte/templates
           pnpm test
