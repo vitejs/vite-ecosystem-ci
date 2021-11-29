@@ -22,6 +22,11 @@ on:
         description: 'vite-plugin-svelte git ref'
         required: true
         default: 'main'
+      vite_plugin_svelte_skip_test:
+        description: 'skip vite-plugin-svelte tests'
+        required: true
+        type: boolean
+        default: false
       sveltekit_ref:
         description: 'sveltekit git ref'
         required: true
@@ -70,11 +75,15 @@ jobs:
           mv package.json package.orig.json
           jq -r '.devDependencies.vite="${{github.workspace}}/vite/packages/vite"|.pnpm.overrides.vite="${{github.workspace}}/vite/packages/vite"' package.orig.json > package.json
           rm package.orig.json
-      - name: 'build and test vite-plugin-svelte'
+      - name: 'install and build vite-plugin-svelte'
         working-directory: 'vite-plugin-svelte'
         run: |
           pnpm install --prefer-frozen-lockfile --prefer-offline
           pnpm build:ci
+      - name: 'test vite-plugin-svelte'
+        if: ${{!github.event.inputs.vite_plugin_svelte_skip_test}}
+        working-directory: 'vite-plugin-svelte'
+        run: |
           pnpm test:ci
       - name: 'checkout sveltekit'
         uses: actions/checkout@v2
@@ -88,7 +97,7 @@ jobs:
           mv package.json package.orig.json
           jq -r '.devDependencies.vite="${{github.workspace}}/vite/packages/vite"|.pnpm.overrides.vite="${{github.workspace}}/vite/packages/vite"|.devDependencies."@sveltejs/vite-plugin-svelte"="${{github.workspace}}/vite-plugin-svelte/packages/vite-plugin-svelte"|.pnpm.overrides."@sveltejs/vite-plugin-svelte"="${{github.workspace}}/vite-plugin-svelte/packages/vite-plugin-svelte"' package.orig.json > package.json
           rm package.orig.json
-      - name: 'build and test sveltekit'
+      - name: 'install, build and test sveltekit'
         working-directory: 'kit'
         run: |
           pnpm install --prefer-frozen-lockfile --prefer-offline
