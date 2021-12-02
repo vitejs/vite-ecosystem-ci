@@ -7,4 +7,4 @@ on:
 
 jobs:
   integration-test:
-    uses: ./.github/workflows/integration-test.yml@main
+    uses: '${{ github.repository }}/.github/workflows/integration-test.yml@main'
