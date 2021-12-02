@@ -7,4 +7,4 @@ on:
 
 jobs:
   integration-test:
-    uses: '${{ github.repository }}/.github/workflows/integration-test.yml@main'
+    uses: 'dominikg/svelte-vite-integration-test/.github/workflows/integration-test.yml@main'

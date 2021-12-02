@@ -43,7 +43,7 @@ on:
 
 jobs:
   integration-test:
-    uses: '${{ github.repository }}/.github/workflows/integration-test.yml@main'
+    uses: 'dominikg/svelte-vite-integration-test/.github/workflows/integration-test.yml@main'
     with: ${{ github.events.inputs }}
 
 #      vite_ref: ${{github.events.inputs.vite_ref}}
