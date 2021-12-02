@@ -7,7 +7,9 @@ env:
   NODE_OPTIONS: --max-old-space-size=6144
 
 on:
-  workflow_call:
+  schedule:
+    - cron: '0 5 * * 1,3,5' # monday,wednesday,friday 5AM
+  workflow_dispatch:
     inputs:
       vite_ref:
         description: 'vite git ref'
@@ -85,7 +87,7 @@ jobs:
           ref: '${{inputs.vite_plugin_svelte_ref}}'
           path: 'vite-plugin-svelte'
       - name: 'vite-plugin-svelte verification tests'
-        if: ${{ inputs.vite_plugin_svelte_skip_verify != false }}
+        if: ${{ github.event.inputs.vite_plugin_svelte_skip_verify != false }}
         working-directory: 'vite-plugin-svelte'
         run: |
           pnpm install --frozen-lockfile --prefer-offline
@@ -101,7 +103,7 @@ jobs:
           pnpm install --prefer-frozen-lockfile --prefer-offline
           pnpm build:ci
       - name: 'vite-plugin-svelte integration tests'
-        if: ${{ inputs.vite_plugin_svelte_skip_test != false }}
+        if: ${{ github.event.inputs.vite_plugin_svelte_skip_test != false }}
         working-directory: 'vite-plugin-svelte'
         run: |
           pnpm test:ci
@@ -112,7 +114,7 @@ jobs:
           ref: '${{inputs.sveltekit_ref}}'
           path: 'kit'
       - name: 'sveltekit verification tests'
-        if: ${{ inputs.sveltekit_skip_verify != false }}
+        if: ${{ github.event.inputs.sveltekit_skip_verify != false }}
         working-directory: 'kit'
         run: |
           pnpm install --frozen-lockfile --prefer-offline
