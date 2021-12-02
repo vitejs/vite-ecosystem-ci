@@ -44,12 +44,11 @@ on:
 jobs:
   integration-test:
     uses: 'dominikg/svelte-vite-integration-test/.github/workflows/integration-test.yml@main'
-    with: ${{ github.events.inputs }}
-
-#      vite_ref: ${{github.events.inputs.vite_ref}}
-#      vite_skip_verify: ${{github.events.inputs.vite_skip_verify}}
-#      vite_plugin_svelte_ref: ${{github.events.inputs.vite_plugin_svelte_ref}}
-#      vite_plugin_svelte_skip_verify: ${{github.events.inputs.vite_plugin_svelte_skip_verify}}
-#      vite_plugin_svelte_skip_test: ${{github.events.inputs.vite_plugin_svelte_skip_test}}
-#      sveltekit_ref: ${{github.events.inputs.sveltekit_ref}}
-#      sveltekit_skip_verify: ${{github.events.inputs.sveltekit_skip_verify}}
+    with:
+      vite_ref: ${{github.events.inputs.vite_ref}}
+      vite_skip_verify: ${{github.events.inputs.vite_skip_verify}}
+      vite_plugin_svelte_ref: ${{github.events.inputs.vite_plugin_svelte_ref}}
+      vite_plugin_svelte_skip_verify: ${{github.events.inputs.vite_plugin_svelte_skip_verify}}
+      vite_plugin_svelte_skip_test: ${{github.events.inputs.vite_plugin_svelte_skip_test}}
+      sveltekit_ref: ${{github.events.inputs.sveltekit_ref}}
+      sveltekit_skip_verify: ${{github.events.inputs.sveltekit_skip_verify}}
