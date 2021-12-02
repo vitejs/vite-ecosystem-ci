@@ -1,0 +1,10 @@
+# integration tests for vite and svelte
+name: integration-test-schedule-dispatch
+
+on:
+  schedule:
+    - cron: '0 5 * * 1,3,5' # monday,wednesday,friday 5AM
+
+jobs:
+  integration-test:
+    uses: ./.github/workflows/integration-test.yml@main

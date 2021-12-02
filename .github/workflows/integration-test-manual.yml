@@ -1,0 +1,55 @@
+# integration tests for vite and svelte
+name: integration-test-manual-dispatch
+
+on:
+  workflow_dispatch:
+    inputs:
+      vite_ref:
+        description: 'vite git ref'
+        required: true
+        type: string
+        default: 'main'
+      vite_skip_verify:
+        description: 'skip vite verification'
+        required: true
+        type: boolean
+        default: false
+      vite_plugin_svelte_ref:
+        description: 'vite-plugin-svelte git ref'
+        required: true
+        default: 'main'
+        type: string
+      vite_plugin_svelte_skip_verify:
+        description: 'skip vite-plugin-svelte verification'
+        required: true
+        type: boolean
+        default: false
+      vite_plugin_svelte_skip_test:
+        description: 'skip vite-plugin-svelte tests'
+        required: true
+        type: boolean
+        default: false
+      sveltekit_ref:
+        description: 'sveltekit git ref'
+        required: true
+        type: string
+        default: 'master'
+      sveltekit_skip_verify:
+        description: 'skip sveltekit verification'
+        required: true
+        type: boolean
+        default: false
+
+
+jobs:
+  integration-test:
+    uses: ./.github/workflows/integration-test.yml@main
+    with: ${{ github.events.inputs }}
+
+#      vite_ref: ${{github.events.inputs.vite_ref}}
+#      vite_skip_verify: ${{github.events.inputs.vite_skip_verify}}
+#      vite_plugin_svelte_ref: ${{github.events.inputs.vite_plugin_svelte_ref}}
+#      vite_plugin_svelte_skip_verify: ${{github.events.inputs.vite_plugin_svelte_skip_verify}}
+#      vite_plugin_svelte_skip_test: ${{github.events.inputs.vite_plugin_svelte_skip_test}}
+#      sveltekit_ref: ${{github.events.inputs.sveltekit_ref}}
+#      sveltekit_skip_verify: ${{github.events.inputs.sveltekit_skip_verify}}
