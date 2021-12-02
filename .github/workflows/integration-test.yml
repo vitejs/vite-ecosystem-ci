@@ -73,7 +73,7 @@ jobs:
           pnpm install --frozen-lockfile
           pnpm run ci-build-vite
       - name: 'vite verification tests'
-        if: ${{inputs.vite_skip_verify != false}}
+        if: ${{ github.event.inputs.vite_skip_verify != false }}
         working-directory: 'vite'
         run: |
           pnpm run build-plugin-vue
