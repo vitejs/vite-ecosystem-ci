@@ -13,37 +13,37 @@ on:
     inputs:
       vite_ref:
         description: 'vite git ref'
-        required: false
+        required: true
         type: string
         default: 'main'
       vite_skip_verify:
         description: 'skip vite verification'
-        required: false
+        required: true
         type: boolean
         default: false
       vite_plugin_svelte_ref:
         description: 'vite-plugin-svelte git ref'
-        required: false
+        required: true
         default: 'main'
         type: string
       vite_plugin_svelte_skip_verify:
         description: 'skip vite-plugin-svelte verification'
-        required: false
+        required: true
         type: boolean
         default: false
       vite_plugin_svelte_skip_test:
         description: 'skip vite-plugin-svelte tests'
-        required: false
+        required: true
         type: boolean
         default: false
       sveltekit_ref:
         description: 'sveltekit git ref'
-        required: false
+        required: true
         type: string
         default: 'master'
       sveltekit_skip_verify:
         description: 'skip sveltekit verification'
-        required: false
+        required: true
         type: boolean
         default: false
 
