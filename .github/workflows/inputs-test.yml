@@ -55,7 +55,7 @@ jobs:
         os: [ubuntu-latest]
     steps:
       - name: 'print inputs'
-        run: echo ${{ toJSON(github.event.inputs) }}
+        run: echo '${{ toJSON(github.event.inputs) }}'
       - name: 'run only for vite_run_verify true'
-        if: ${{ github.event.inputs.vite_run_verify }}
+        if: ${{ github.event.inputs.vite_run_verify == 'true' }}
         run: echo vite run verify = ${{ github.event.inputs.vite_run_verify }}
