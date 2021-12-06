@@ -1,0 +1,61 @@
+# integration tests for vite and svelte
+name: integration-test
+
+on:
+  workflow_dispatch:
+    inputs:
+      vite_ref:
+        description: 'vite git ref'
+        required: true
+        type: string
+        default: 'main'
+      vite_run_verify:
+        description: 'run vite verification'
+        required: true
+        type: boolean
+        default: true
+      vite_plugin_svelte_ref:
+        description: 'vite-plugin-svelte git ref'
+        required: true
+        default: 'main'
+        type: string
+      vite_plugin_svelte_run_verify:
+        description: 'run vite-plugin-svelte verification'
+        required: true
+        type: boolean
+        default: true
+      vite_plugin_svelte_run_test:
+        description: 'run vite-plugin-svelte tests'
+        required: true
+        type: boolean
+        default: true
+      sveltekit_ref:
+        description: 'sveltekit git ref'
+        required: true
+        type: string
+        default: 'master'
+      sveltekit_run_verify:
+        description: 'run sveltekit verification'
+        required: true
+        type: boolean
+        default: true
+      sveltekit_run_test:
+        description: 'run sveltekit test'
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  integration-test:
+    timeout-minutes: 60
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node: [14]
+        os: [ubuntu-latest]
+    steps:
+      - name: 'print inputs'
+        run: echo ${{ toJSON(github.event.inputs) }}
+      - name: 'run only for vite_run_verify true'
+        if: ${{ github.event.inputs.vite_run_verify }}
+        run: echo vite run verify = ${{ github.event.inputs.vite_run_verify }}
