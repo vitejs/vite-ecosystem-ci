@@ -1,5 +1,5 @@
 # integration tests for vite and svelte
-name: integration-test
+name: input-test
 
 on:
   workflow_dispatch:
