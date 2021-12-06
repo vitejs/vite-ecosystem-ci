@@ -61,6 +61,8 @@ jobs:
         node: [14]
         os: [ubuntu-latest]
     steps:
+      - name: 'print inputs'
+        run: echo inputs = '${{ toJSON(github.event.inputs) }}'
       - uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node }}
@@ -69,7 +71,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: 'vitejs/vite'
-          ref: '${{inputs.vite_ref}}'
+          ref: '${{ github.event.inputs.vite_ref }}'
           path: 'vite'
       - name: 'install and build vite'
         working-directory: 'vite'
@@ -88,7 +90,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: 'sveltejs/vite-plugin-svelte'
-          ref: '${{inputs.vite_plugin_svelte_ref}}'
+          ref: '${{ github.event.inputs.vite_plugin_svelte_ref }}'
           path: 'vite-plugin-svelte'
       - name: 'vite-plugin-svelte verification tests'
         if: ${{ github.event.inputs.vite_plugin_svelte_run_verify == 'true' }}
@@ -115,7 +117,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: 'sveltejs/kit'
-          ref: '${{inputs.sveltekit_ref}}'
+          ref: '${{ github.event.inputs.sveltekit_ref }}'
           path: 'kit'
       - name: 'sveltekit verification tests'
         if: ${{ github.event.inputs.sveltekit_run_verify == 'true' }}
