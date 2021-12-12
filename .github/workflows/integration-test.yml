@@ -17,7 +17,7 @@ on:
         type: string
         default: 'main'
       vite_skip_verify:
-        description: 'run vite verification'
+        description: 'skip vite verification'
         required: true
         type: boolean
         default: false
@@ -27,12 +27,12 @@ on:
         default: 'main'
         type: string
       vite_plugin_svelte_skip_verify:
-        description: 'run vite-plugin-svelte verification'
+        description: 'skip vite-plugin-svelte verification'
         required: true
         type: boolean
         default: false
       vite_plugin_svelte_skip_test:
-        description: 'run vite-plugin-svelte tests'
+        description: 'skip vite-plugin-svelte tests'
         required: true
         type: boolean
         default: false
@@ -42,12 +42,12 @@ on:
         type: string
         default: 'master'
       sveltekit_skip_verify:
-        description: 'run sveltekit verification'
+        description: 'skip sveltekit verification'
         required: true
         type: boolean
         default: false
       sveltekit_skip_test:
-        description: 'run sveltekit test'
+        description: 'skip sveltekit test'
         required: true
         type: boolean
         default: false
