@@ -16,41 +16,41 @@ on:
         required: true
         type: string
         default: 'main'
-      vite_run_verify:
+      vite_skip_verify:
         description: 'run vite verification'
         required: true
         type: boolean
-        default: true
+        default: false
       vite_plugin_svelte_ref:
         description: 'vite-plugin-svelte git ref'
         required: true
         default: 'main'
         type: string
-      vite_plugin_svelte_run_verify:
+      vite_plugin_svelte_skip_verify:
         description: 'run vite-plugin-svelte verification'
         required: true
         type: boolean
-        default: true
-      vite_plugin_svelte_run_test:
+        default: false
+      vite_plugin_svelte_skip_test:
         description: 'run vite-plugin-svelte tests'
         required: true
         type: boolean
-        default: true
+        default: false
       sveltekit_ref:
         description: 'sveltekit git ref'
         required: true
         type: string
         default: 'master'
-      sveltekit_run_verify:
+      sveltekit_skip_verify:
         description: 'run sveltekit verification'
         required: true
         type: boolean
-        default: true
-      sveltekit_run_test:
+        default: false
+      sveltekit_skip_test:
         description: 'run sveltekit test'
         required: true
         type: boolean
-        default: true
+        default: false
 
 jobs:
   integration-test:
@@ -79,7 +79,7 @@ jobs:
           pnpm install --frozen-lockfile
           pnpm run ci-build-vite
       - name: 'vite verification tests'
-        if: ${{ github.event.inputs.vite_run_verify == 'true' }}
+        if: ${{ github.event.inputs.vite_skip_verify != 'true' }}
         working-directory: 'vite'
         run: |
           pnpm run build-plugin-vue
@@ -93,7 +93,7 @@ jobs:
           ref: '${{ github.event.inputs.vite_plugin_svelte_ref }}'
           path: 'vite-plugin-svelte'
       - name: 'vite-plugin-svelte verification tests'
-        if: ${{ github.event.inputs.vite_plugin_svelte_run_verify == 'true' }}
+        if: ${{ github.event.inputs.vite_plugin_svelte_skip_verify != 'true' }}
         working-directory: 'vite-plugin-svelte'
         run: |
           pnpm install --frozen-lockfile --prefer-offline
@@ -109,7 +109,7 @@ jobs:
           pnpm install --prefer-frozen-lockfile --prefer-offline
           pnpm build:ci
       - name: 'vite-plugin-svelte integration tests'
-        if: ${{ github.event.inputs.vite_plugin_svelte_run_test == 'true' }}
+        if: ${{ github.event.inputs.vite_plugin_svelte_skip_test != 'true' }}
         working-directory: 'vite-plugin-svelte'
         run: |
           pnpm test:ci
@@ -120,7 +120,7 @@ jobs:
           ref: '${{ github.event.inputs.sveltekit_ref }}'
           path: 'kit'
       - name: 'sveltekit verification tests'
-        if: ${{ github.event.inputs.sveltekit_run_verify == 'true' }}
+        if: ${{ github.event.inputs.sveltekit_skip_verify != 'true' }}
         working-directory: 'kit'
         run: |
           pnpm install --frozen-lockfile --prefer-offline
@@ -136,7 +136,7 @@ jobs:
           pnpm install --prefer-frozen-lockfile --prefer-offline
           pnpm build --filter ./packages --filter !./packages/create-svelte/templates
       - name: 'sveltekit integration tests'
-        if: ${{ github.event.inputs.sveltekit_run_test == 'true' }}
+        if: ${{ github.event.inputs.sveltekit_skip_test != 'true' }}
         working-directory: 'kit'
         run: |
           pnpm test
