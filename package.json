@@ -1,0 +1,22 @@
+{
+  "name": "vite-ecosystem-ci",
+  "version": "0.0.1",
+  "description": "Vite Ecosystem CI",
+  "scripts": {
+    "test:svelte": "node svelte/test.js",
+    "test:vitest": "node vitest/test.js"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitejs/vite-ecosystem-ci.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vitejs/vite-ecosystem-ci/issues"
+  },
+  "homepage": "https://github.com/vitejs/vite-ecosystem-ci#readme",
+  "dependencies": {
+    "zx": "^4.2.0"
+  }
+}
