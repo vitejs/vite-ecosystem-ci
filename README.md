@@ -10,7 +10,7 @@ Workflows are sheduled to run automatically every Monday, Wednesday and Friday
 
 ### manually
 
-* open [workflows](../../actions/workflows/) and select an action, eg [svelte](../../actions/workflows/svelte.yml)
+* open [workflows](../../actions/) and select an action, eg [svelte](../../actions/workflows/svelte.yml)
 * click 'Run workflow' button on top right of the list
 * select options in popup and start
 
@@ -25,7 +25,7 @@ Workflows are sheduled to run automatically every Monday, Wednesday and Friday
 
 ## Discord
 
-Results are posted automatically to #ecosystem-ci on [vite discord](https://chat.vitejs.dev/)
+Results are posted automatically to `#ecosystem-ci` on [vite discord](https://chat.vitejs.dev/)
 
 ### on your own server
 
