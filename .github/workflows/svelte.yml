@@ -53,7 +53,7 @@ on:
         default: false
 
 jobs:
-  integration-test:
+  svelte:
     timeout-minutes: 60
     runs-on: ${{ matrix.os }}
     strategy:
