@@ -21,6 +21,13 @@ Workflows are sheduled to run automatically every Monday, Wednesday and Friday
 * set options for refs and skip
 * run with `./integration-test.sh`
 
+# how to add a new integration test
+
+* copy the [template](../../actions/workflows/workflow-template.yml.txt) and edit to your needs
+* create a new project directory and add a shell script version if you want to be able to run it locally too
+
+In case the template doesn't fit your needs, you can build your own. There are other ways to do this and contributions are very welcome.
+
 # reporting results
 
 ## Discord
