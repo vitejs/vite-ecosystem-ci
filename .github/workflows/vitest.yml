@@ -1,0 +1,100 @@
+# integration tests for vite and vitest
+name: vite-ecosystem-ci-vitest
+
+env:
+  # 7 GiB by default on GitHub, setting to 6 GiB
+  # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+  NODE_OPTIONS: --max-old-space-size=6144
+
+on:
+  schedule:
+    - cron: '0 5 * * 1,3,5' # monday,wednesday,friday 5AM
+  workflow_dispatch:
+    inputs:
+      vite_ref:
+        description: 'vite git ref'
+        required: true
+        type: string
+        default: 'main'
+      vite_skip_verify:
+        description: 'skip vite verification'
+        required: true
+        type: boolean
+        default: false
+      project_git_ref:
+        description: 'vitest git ref'
+        required: true
+        default: 'main'
+        type: string
+      project_skip_verify:
+        description: 'skip vitest verification'
+        required: true
+        type: boolean
+        default: false
+      project_skip_test:
+        description: 'skip vitest tests'
+        required: true
+        type: boolean
+        default: false
+
+jobs:
+  vitest:
+    timeout-minutes: 60
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node: [14]
+        os: [ubuntu-latest]
+    steps:
+      - name: 'print inputs'
+        run: echo inputs = '${{ toJSON(github.event.inputs) }}'
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm i -g pnpm@6
+      - name: 'checkout vite'
+        uses: actions/checkout@v2
+        with:
+          repository: 'vitejs/vite'
+          ref: '${{ github.event.inputs.vite_ref }}'
+          path: 'vite'
+      - name: 'install and build vite'
+        working-directory: 'vite'
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm run ci-build-vite
+      - name: 'vite verification tests'
+        if: ${{ github.event.inputs.vite_skip_verify != 'true' }}
+        working-directory: 'vite'
+        run: |
+          pnpm run build-plugin-vue
+          pnpm run build-plugin-react
+          pnpm run test-serve -- --runInBand
+          pnpm run test-build -- --runInBand
+      - name: 'checkout vitest'
+        uses: actions/checkout@v2
+        with:
+          repository: 'vitest-dev/vitest'
+          ref: '${{ github.event.inputs.project_git_ref }}'
+          path: 'vitest'
+      - name: 'vitest verification tests'
+        if: ${{ github.event.inputs.project_skip_verify != 'true' }}
+        working-directory: 'vitest'
+        run: |
+          pnpm install --frozen-lockfile --prefer-offline
+          pnpm build
+          pnpm test:run
+      - name: 'link local vite to vitest and build'
+        working-directory: 'vitest'
+        run: |
+          git clean -fdx
+          mv package.json package.orig.json
+          jq -r '.devDependencies.vite="${{github.workspace}}/vite/packages/vite"|.pnpm.overrides.vite="${{github.workspace}}/vite/packages/vite"' package.orig.json > package.json
+          rm package.orig.json
+          pnpm install --prefer-frozen-lockfile --prefer-offline
+          pnpm build
+      - name: 'vitest integration tests'
+        if: ${{ github.event.inputs.project_skip_test != 'true' }}
+        working-directory: 'vitest'
+        run: |
+          pnpm test:run
