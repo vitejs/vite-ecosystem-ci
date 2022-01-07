@@ -22,14 +22,14 @@ export async function workInLatest({ repo, folder, ref = 'main' }) {
   await $`git pull origin "${ref}"`
 }
 
-export async function testInLatest({ repo, folder, task, ref = 'main', verify = true, test = true }) {
+export async function testInLatest({ repo, folder, task, overrides, ref = 'main', verify = true, test = true }) {
   await workInLatest({ repo, folder, ref })
   if (verify) {
     await $`pnpm install --frozen-lockfile --prefer-offline`
     await task()
   }
   if (test) {
-    await overrideVite()
+    await overrideVite(overrides)
     await $`pnpm install --prefer-frozen-lockfile --prefer-offline`
     await task()
   }    
@@ -49,10 +49,10 @@ export async function updateVite({ verify = false } = {}) {
   }
 }
 
-export async function overrideVite() {
+export async function overrideVite(overrides) {
   await $`git clean -fdxq`
   await $`mv package.json package.orig.json`
-  await $`jq -r ".devDependencies.vite=\\"${vitePath}/packages/vite\\"|.pnpm.overrides.vite=\\"${vitePath}/packages/vite\\"" package.orig.json > package.json`
+  await $`jq -r ".devDependencies.vite=\\"${vitePath}/packages/vite\\"|.pnpm.overrides.vite=\\"${vitePath}/packages/vite\\"${overrides ? '|' + overrides : ''}" package.orig.json > package.json`
   await $`rm package.orig.json`
 }
 
