@@ -25,18 +25,24 @@ export async function setupRepo({ repo, folder, ref = 'main' }) {
   await $`git pull origin "${ref}"`
 }
 
-export async function runInRepo({ repo, folder, buildTask, testTask, overrides, ref = 'main', verify = true, test = true }) {
+function pnpmCommand(task) {
+  return typeof task === 'string' ? async() => $`pnpm ${task}` : task
+}
+
+export async function runInRepo({ repo, folder, build, test, overrides, ref = 'main', verify = true }) {
+  build = pnpmCommand(build)
+  test = pnpmCommand(test)
   await setupRepo({ repo, folder, ref })
-  if (verify && testTask) {
+  if (verify && test) {
     await $`pnpm install --frozen-lockfile --prefer-offline`
-    await buildTask()
-    await testTask()
+    await build()
+    await test()
   }
   await addLocalPackageOverrides(folder, overrides)
   await $`pnpm install --prefer-frozen-lockfile --prefer-offline`
-  await buildTask()
-  if(test && testTask) {
-    await testTask()
+  await build()
+  if (test) {
+    await test()
   }
 }
 

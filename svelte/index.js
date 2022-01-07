@@ -8,20 +8,18 @@ export async function test({ workspace }) {
   await runInRepo({
     repo: 'git@github.com:sveltejs/vite-plugin-svelte.git',
     folder: pluginPath,
+    build: 'build:ci',
+    test: 'test:ci',
     verify: true,
-    test: true,
-    buildTask: async() => $`pnpm build:ci`,
-    testTask: async() => $`pnpm test:ci`,
   })
 
   await runInRepo({
     repo: 'git@github.com:sveltejs/kit.git',
     ref: 'master',
     folder: resolve(workspace, 'kit'),
-    verify: true,
-    test: true,
     overrides: {"@sveltejs/vite-plugin-svelte":`${pluginPath}/packages/vite-plugin-svelte`},
-    buildTask: async() => $`pnpm build --filter ./packages --filter !./packages/create-svelte/templates`,
-    testTask: async() => $`pnpm test`,
+    build: 'build --filter ./packages --filter !./packages/create-svelte/templates',
+    test: 'test',
+    verify: true,
   })
 }
