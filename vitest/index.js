@@ -1,12 +1,12 @@
-import { resolve } from 'path'
 import { runInRepo } from '../utils.js'
 
 export async function test({ workspace }) {
+  
   await runInRepo({
-    repo: 'git@github.com:vitest-dev/vitest',
-    folder: resolve(workspace, 'vitest'),
+    repo: 'vitest-dev/vitest',
     build: 'build',
     test: 'test:run',
     verify: true,
+    workspace,
   })
 }
