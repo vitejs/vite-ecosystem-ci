@@ -5,12 +5,15 @@ import { fileURLToPath } from 'url';
 
 export let root
 export let vitePath
+export let workspace
 
 export async function setup() {
   await $`set -e`
   await $`export NODE_OPTIONS="--max-old-space-size=6144"`
   root = dirnameFrom(import.meta.url)
-  vitePath = path.resolve(root, './vite')
+  workspace = path.resolve(root, 'workspace')
+  vitePath = path.resolve(workspace, 'vite')
+  return { root, workspace, vitePath }
 }
 
 export async function setupRepo({ repo, folder, ref = 'main' }) {
