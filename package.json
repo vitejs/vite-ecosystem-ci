@@ -3,8 +3,9 @@
   "version": "0.0.1",
   "description": "Vite Ecosystem CI",
   "scripts": {
-    "test:svelte": "node svelte/index.js",
-    "test:vitest": "node vitest/index.js"
+    "test": "node index.js",
+    "test:svelte": "node index.js svelte",
+    "test:vitest": "node index.js vitest"
   },
   "type": "module",
   "repository": {
