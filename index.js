@@ -1,7 +1,7 @@
 import { resolve } from 'path'
 import { setup, setupVite } from './utils.js'
 
-const suites = ['svelte', 'vitest']
+const suites = ['svelte', 'vitest', 'iles']
 
 // this script requires git, pnpm and jq to be installed and in path
 
