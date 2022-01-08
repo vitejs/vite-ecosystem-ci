@@ -10,6 +10,7 @@ export let workspace
 export async function setup() {
   await $`set -e`
   await $`export NODE_OPTIONS="--max-old-space-size=6144"`
+  process.env.CI=true
   root = dirnameFrom(import.meta.url)
   workspace = path.resolve(root, 'workspace')
   vitePath = path.resolve(workspace, 'vite')
