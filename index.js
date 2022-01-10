@@ -17,10 +17,10 @@ const { root, vitePath, workspace } = await setup()
 if(!skipViteBuild) {
   await setupVite({ verify: false })
 }
-
 for(const suite of suitesToRun) {
   await run(suite)
 }
+
 
 async function run(suite) {
   const { test } = await import(`./${suite}/index.js`)
@@ -28,12 +28,15 @@ async function run(suite) {
 }
 
 function parseArgs() {
-  let suitesToRun = process.argv.slice(2);
-  const skipViteBuild = suitesToRun.includes('--skipViteBuild')
-  if(skipViteBuild){
-    suitesToRun = suitesToRun.filter(x => x !== '--skipViteBuild')
+  let args = process.argv.slice(2);
+  const viteBuildOnly = args.includes('--viteBuildOnly')
+  if(viteBuildOnly) {
+    return {suitesToRun: [], skipViteBuild: false}
   }
-  if (!suitesToRun.length) {
+  const skipViteBuild = args.includes('--skipViteBuild')
+
+  let suitesToRun = args.filter(x => x.startsWith('--'))
+  if(suitesToRun.length === 0) {
     suitesToRun = suites
   }
   return { suitesToRun, skipViteBuild }

@@ -21,7 +21,7 @@ jobs:
           node-version: 16
       - run: npm i -g pnpm
       - run: pnpm i --frozen-lockfile
-      - run: node index.js # checkout, install and build vite
+      - run: node index.js --viteBuildOnly # checkout, install and build vite
       - name: pack vite
         shell: bash
         run: tar -czf vite.tar.gz --exclude="node_modules" vite
