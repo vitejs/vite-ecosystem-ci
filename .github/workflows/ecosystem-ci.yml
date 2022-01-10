@@ -24,7 +24,7 @@ jobs:
       - run: node index.js --viteBuildOnly # checkout, install and build vite
       - name: pack vite
         shell: bash
-        run: tar -czf vite.tar.gz --exclude="node_modules" vite
+        run: tar -czf vite.tar.gz --exclude="node_modules" workspace/vite/
       - uses: actions/upload-artifact@v2
         with:
           name: vite-${{github.run_id}}
