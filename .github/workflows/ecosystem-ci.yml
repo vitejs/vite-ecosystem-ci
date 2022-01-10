@@ -31,6 +31,7 @@ jobs:
           path: vite.tar.gz
           retention-days: 1
   test-ecosystem:
+    needs: build-vite
     runs-on: ubuntu-latest
     strategy:
       matrix:
