@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        project: [svelte, vitest, windicss]
+        project: [iles, svelte, vitest, windicss]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
