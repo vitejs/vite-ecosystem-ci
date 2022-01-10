@@ -35,7 +35,7 @@ function parseArgs() {
   }
   const skipViteBuild = args.includes('--skipViteBuild')
 
-  let suitesToRun = args.filter(x => x.startsWith('--'))
+  let suitesToRun = args.filter(x => x && !x.startsWith('--'))
   if(suitesToRun.length === 0) {
     suitesToRun = suites
   }
