@@ -18,12 +18,16 @@ export async function setup() {
 }
 
 export async function setupRepo({ repo, dir, ref = 'main' }) {
+  if( !repo.includes(':') ) {
+    repo = `https://github.com/${repo}.git`
+  }
+
   if (! fs.existsSync(dir)) {
-    await $`git clone ${repo} ${dir}`
+    await $`git clone --depth=1 ${repo} ${dir}`
   }
   cd(dir)
   await $`git clean -fdxq`
-  await $`git pull origin "${ref}"`
+  await $`git pull --depth=1 origin "${ref}"`
 }
 
 function pnpmCommand(task) {
@@ -33,9 +37,7 @@ function pnpmCommand(task) {
 export async function runInRepo({ repo, workspace, folder, build, test, overrides, ref = 'main', verify = true }) {
   build = pnpmCommand(build)
   test = pnpmCommand(test)
-  if( !repo.includes(':') ) {
-    repo = `git@github.com:${repo}.git`
-  }
+
   if( !folder ) {
     // Use the repository name as the folder
     folder = repo.split('/')[1].slice(0,-4)
@@ -57,7 +59,7 @@ export async function runInRepo({ repo, workspace, folder, build, test, override
 }
 
 export async function setupVite({ verify = false } = {}) {
-  await setupRepo({ repo: 'git@github.com:vitejs/vite.git', dir: vitePath })
+  await setupRepo({ repo: 'vitejs/vite', dir: vitePath })
   await $`pnpm install --frozen-lockfile`
   await $`pnpm run ci-build-vite`
   await $`pnpm run build-plugin-vue`

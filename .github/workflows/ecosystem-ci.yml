@@ -1,0 +1,54 @@
+# integration tests for vite and svelte
+name: vite-ecosystem-ci-svelte
+
+env:
+  # 7 GiB by default on GitHub, setting to 6 GiB
+  # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+  NODE_OPTIONS: --max-old-space-size=6144
+
+on:
+  schedule:
+    - cron: '0 5 * * 1,3,5' # monday,wednesday,friday 5AM
+  workflow_dispatch:
+
+jobs:
+  build-vite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - run: npm i -g pnpm
+      - run: pnpm i --frozen-lockfile
+      - run: node index.js --viteBuildOnly # checkout, install and build vite
+      - name: pack vite
+        shell: bash
+        run: tar -czf vite.tar.gz --exclude="node_modules" workspace/vite/
+      - uses: actions/upload-artifact@v2
+        with:
+          name: vite-${{github.run_id}}
+          path: vite.tar.gz
+          retention-days: 1
+  test-ecosystem:
+    needs: build-vite
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: [iles, svelte, vitest, windicss]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - run: npm i -g pnpm
+      - run: pnpm i --frozen-lockfile
+      - uses: actions/download-artifact@v2
+        with:
+          name: vite-${{github.run_id}}
+      - name: unpack vite
+        shell: bash
+        run: tar -xzf vite.tar.gz
+      - run: node index.js --skipViteBuild ${{ matrix.project }}
+
