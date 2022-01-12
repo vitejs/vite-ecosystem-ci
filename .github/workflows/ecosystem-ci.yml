@@ -1,4 +1,4 @@
-# integration tests for vite and svelte
+# integration tests for vite ecosystem projects - scheduled or manual run for all suites
 name: vite-ecosystem-ci
 
 env:
@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        project: [iles, svelte, vitest, windicss]
+        suite: [iles, svelte, vitepress, vitest, windicss]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
@@ -50,5 +50,5 @@ jobs:
       - name: unpack vite
         shell: bash
         run: tar -xzf vite.tar.gz
-      - run: node index.js --skipViteBuild ${{ matrix.project }}
+      - run: node index.js --skipViteBuild ${{ matrix.suite }}
 
