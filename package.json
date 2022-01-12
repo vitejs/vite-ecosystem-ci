@@ -16,6 +16,6 @@
   },
   "homepage": "https://github.com/vitejs/vite-ecosystem-ci#readme",
   "dependencies": {
-    "zx": "^4.2.0"
+    "execa": "^6.0.0"
   }
 }

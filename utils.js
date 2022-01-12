@@ -1,20 +1,39 @@
-import { $, cd } from 'zx'
 import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url';
+import { execaCommand } from 'execa';
 
 export let root
 export let vitePath
 export let workspace
+export let cwd
+export let env
+
+function cd(dir){
+  cwd = path.resolve(cwd,dir);
+}
+
+async function $(literals, ...values) {
+  const cmd = literals.reduce((result,current,i)=> result+current+(values?.[i] != null ? `${values[i]}` : ''),'')
+  console.log(`${cwd} $> ${cmd}`)
+  return execaCommand(cmd, {
+    env,
+    stdio: "inherit",
+    cwd
+  })
+}
 
 export async function setup() {
-  await $`set -e`
-  await $`export NODE_OPTIONS="--max-old-space-size=6144"`
-  process.env.CI=true
   root = dirnameFrom(import.meta.url)
   workspace = path.resolve(root, 'workspace')
   vitePath = path.resolve(workspace, 'vite')
-  return { root, workspace, vitePath }
+  cwd = process.cwd()
+  env = {
+    ...process.env,
+    CI: true,
+    NODE_OPTIONS: '--max-old-space-size=6144', // GITHUB CI has 7GB max, stay below
+  }
+  return { root, workspace, vitePath, cwd , env }
 }
 
 export async function setupRepo({ repo, dir, ref = 'main' }) {
@@ -27,7 +46,7 @@ export async function setupRepo({ repo, dir, ref = 'main' }) {
   }
   cd(dir)
   await $`git clean -fdxq`
-  await $`git pull --depth=1 origin "${ref}"`
+  await $`git pull --depth=1 origin ${ref}`
 }
 
 function pnpmCommand(task) {
@@ -39,8 +58,8 @@ export async function runInRepo({ repo, workspace, folder, build, test, override
   test = pnpmCommand(test)
 
   if( !folder ) {
-    // Use the repository name as the folder
-    folder = repo.split('/')[1].slice(0,-4)
+    // Use the repository name as the folder, omit possible org name
+    folder = repo.substring(repo.lastIndexOf('/')+1)
   }
   const dir = path.resolve(workspace, folder)
   await setupRepo({ repo, dir, ref })
