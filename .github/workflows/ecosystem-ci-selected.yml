@@ -1,0 +1,32 @@
+# integration tests for vite ecosystem - single run of selected testsuite
+name: vite-ecosystem-ci-selected
+
+env:
+  # 7 GiB by default on GitHub, setting to 6 GiB
+  # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+  NODE_OPTIONS: --max-old-space-size=6144
+
+on:
+  workflow_dispatch:
+    inputs:
+      test:
+        description: 'testsuite to run'
+        required: true
+        type: choice
+        options:
+          - iles
+          - svelte
+          - vitepress
+          - vitest
+          - windicss
+jobs:
+  execute-selected-suite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - run: npm i -g pnpm
+      - run: pnpm i --frozen-lockfile
+      - run: node index.js ${{ github.event.inputs.test }}

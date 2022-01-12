@@ -10,23 +10,24 @@ Workflows are sheduled to run automatically every Monday, Wednesday and Friday
 
 ### manually
 
-* open [workflows](../../actions/) and select an action, eg [svelte](../../actions/workflows/svelte.yml)
+* open [workflow](../../actions/workflows/ecosystem-ci-selected.yml)
 * click 'Run workflow' button on top right of the list
-* select options in popup and start
+* select suite to run in dropdown
+* start workflow
 
 ## via shell script
 
 * clone this repo
-* cd into a project directory and run it's shell script eg [svelte](./svelte)
-* set options for refs and skip
-* run with `./integration-test.sh`
+* run `pnpm i`
+* run `pnpm test` to run all suites
+* or `pnpm test <suitename>` to select a suite
 
 # how to add a new integration test
 
-* copy the [template](../../actions/workflows/workflow-template.yml.txt) and edit to your needs
-* create a new project directory and add a shell script version if you want to be able to run it locally too
+* check out the existing [tests](./tests) and add one yourself. Thanks to some utilities it is really easy
+* once you are confidente the suite works, add it to the lists of suites in the [workflows](../../actions/)
 
-In case the template doesn't fit your needs, you can build your own. There are other ways to do this and contributions are very welcome.
+> the current utilities focus on pnpm based projects. Consider switching to pnpm or contribute utilities for other pms
 
 # reporting results
 
