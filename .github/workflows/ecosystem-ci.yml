@@ -1,5 +1,5 @@
 # integration tests for vite and svelte
-name: vite-ecosystem-ci-svelte
+name: vite-ecosystem-ci
 
 env:
   # 7 GiB by default on GitHub, setting to 6 GiB
