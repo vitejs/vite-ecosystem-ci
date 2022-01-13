@@ -42,7 +42,7 @@ export async function setupRepo({repo, dir, branch = 'main', tag, commit}) {
 	}
 
 	if (!fs.existsSync(dir)) {
-		await $`git clone --depth=1 --no-tags --branch ${tag || branch} ${repo} ${dir}`
+		await $`git -c advice.detachedHead=false clone --depth=1 --no-tags --branch ${tag || branch} ${repo} ${dir}`
 	}
 	cd(dir)
 	await $`git clean -fdxq`
