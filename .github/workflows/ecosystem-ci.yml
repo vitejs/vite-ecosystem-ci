@@ -38,7 +38,6 @@ jobs:
       - run: npm i -g pnpm
       - run: pnpm i --frozen-lockfile
       - name: build branch
-        if: ${{github.event.inputs.}}
         run: node ecosystem-ci.js build-vite --${{ github.event.inputs.refType || github.event.client_payload.refType || 'branch' }} ${{ github.event.inputs.ref || github.event.client_payload.ref || 'main' }}
       - name: pack vite
         shell: bash
