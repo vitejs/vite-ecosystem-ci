@@ -21,6 +21,11 @@ Workflows are sheduled to run automatically every Monday, Wednesday and Friday
 * run `pnpm i`
 * run `pnpm test` to run all suites
 * or `pnpm test <suitename>` to select a suite
+* or `node ecosystem-ci.js`
+
+You can pass `--tag v2.8.0-beta.1`, `--branch somebranch` or `--commit abcd1234` arg to select a specific vite version.
+
+The repositories are checked out into `workspace` subdirectory as shallow clones
 
 # how to add a new integration test
 
@@ -39,7 +44,7 @@ Results are posted automatically to `#ecosystem-ci` on [vite discord](https://ch
 
 * Go to `Server settings > Integrations > Webhooks` and click `New Webhook`
 * Give it a name, icon and a channel to post to
-* copy the webhook url 
+* copy the webhook url
 * get in touch with admins of this repo so they can add the webhook
 
 #### how to add a discord webhook here

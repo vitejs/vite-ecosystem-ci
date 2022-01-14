@@ -9,7 +9,21 @@ env:
 on:
   workflow_dispatch:
     inputs:
-      test:
+      refType:
+        description: 'type of vite ref to use'
+        required: true
+        type: choice
+        options:
+          - branch
+          - tag
+          - commit
+        default: 'branch'
+      ref:
+        description: 'vite ref to use'
+        required: true
+        type: string
+        default: 'main'
+      suite:
         description: 'testsuite to run'
         required: true
         type: choice
@@ -29,4 +43,4 @@ jobs:
           node-version: 16
       - run: npm i -g pnpm
       - run: pnpm i --frozen-lockfile
-      - run: node index.js ${{ github.event.inputs.test }}
+      - run: node ecosystem-ci.js --${{ github.event.inputs.refType }} ${{ github.event.inputs.ref }} ${{ github.event.inputs.suite }}

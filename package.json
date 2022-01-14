@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Vite Ecosystem CI",
   "scripts": {
-    "test": "node index.js"
+    "test": "node ecosystem-ci.js"
   },
   "type": "module",
   "repository": {
@@ -16,6 +16,7 @@
   },
   "homepage": "https://github.com/vitejs/vite-ecosystem-ci#readme",
   "dependencies": {
+    "cac": "^6.7.12",
     "execa": "^6.0.0"
   }
 }
