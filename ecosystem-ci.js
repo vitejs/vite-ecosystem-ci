@@ -33,7 +33,7 @@ cli.command('build-vite', 'build vite only')
 
 cli.command('run-suites [...suites]', 'run single suite with pre-built vite')
 	.option('--verify', 'verify checkout by running tests before using local vite', {default: false})
-	.action(async (suites) => {
+	.action(async (suites, options) => {
 		const suitesToRun = getSuitesToRun(suites)
 		for (const suite of suitesToRun) {
 			await run(suite, options)

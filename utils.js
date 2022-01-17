@@ -139,6 +139,7 @@ export async function bisectVite({good, runSuite}) {
 				continue // see if next commit can be skipped too
 			}
 			const error = await runSuite()
+			cd(vitePath)
 			const bisectOut = await $`git bisect ${error ? 'bad' : 'good'}`
 			bisecting = bisectOut.substring(0, 10).toLowerCase() === 'bisecting:' // as long as git prints 'bisecting: ' there are more revisions to test
 		}
@@ -146,6 +147,7 @@ export async function bisectVite({good, runSuite}) {
 		console.log('error while bisecting',e);
 	} finally {
 		try {
+			cd(vitePath)
 			await $`git bisect reset`
 		} catch (e) {
 			console.log('Error while resetting bisect', e)

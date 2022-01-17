@@ -11,11 +11,6 @@ on:
     - cron: '0 5 * * 1,3,5' # monday,wednesday,friday 5AM
   workflow_dispatch:
     inputs:
-      ref:
-        description: 'vite ref to use'
-        required: true
-        type: string
-        default: 'main'
       refType:
         description: 'type of ref'
         required: true
@@ -25,6 +20,11 @@ on:
           - tag
           - commit
         default: 'branch'
+      ref:
+        description: 'vite ref to use'
+        required: true
+        type: string
+        default: 'main'
   repository_dispatch:
     types: [ecosystem-ci]
 jobs:
