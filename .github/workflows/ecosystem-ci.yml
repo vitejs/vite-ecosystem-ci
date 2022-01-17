@@ -28,27 +28,7 @@ on:
   repository_dispatch:
     types: [ecosystem-ci]
 jobs:
-  build-vite:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: 16
-      - run: npm i -g pnpm
-      - run: pnpm i --frozen-lockfile
-      - name: build branch
-        run: node ecosystem-ci.js build-vite --${{ github.event.inputs.refType || github.event.client_payload.refType || 'branch' }} ${{ github.event.inputs.ref || github.event.client_payload.ref || 'main' }}
-      - name: pack vite
-        shell: bash
-        run: tar -czf vite.tar.gz --exclude="node_modules" workspace/vite/
-      - uses: actions/upload-artifact@v2
-        with:
-          name: vite-${{github.run_id}}
-          path: vite.tar.gz
-          retention-days: 1
   test-ecosystem:
-    needs: build-vite
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -61,11 +41,5 @@ jobs:
           node-version: 16
       - run: npm i -g pnpm
       - run: pnpm i --frozen-lockfile
-      - uses: actions/download-artifact@v2
-        with:
-          name: vite-${{github.run_id}}
-      - name: unpack vite
-        shell: bash
-        run: tar -xzf vite.tar.gz
-      - run: node ecosystem-ci.js run-suites ${{ matrix.suite }}
+      - run: node ecosystem-ci.js --${{ github.event.inputs.refType || github.event.client_payload.refType || 'branch' }} ${{ github.event.inputs.ref || github.event.client_payload.ref || 'main' }} ${{ matrix.suite }}
 
