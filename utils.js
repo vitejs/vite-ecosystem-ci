@@ -16,11 +16,16 @@ function cd(dir) {
 async function $(literals, ...values) {
 	const cmd = literals.reduce((result, current, i) => result + current + (values?.[i] != null ? `${values[i]}` : ''), '')
 	console.log(`${cwd} $> ${cmd}`)
-	return execaCommand(cmd, {
+	const proc = execaCommand(cmd, {
 		env,
-		stdio: "inherit",
+		stdio: "pipe",
 		cwd
 	})
+	process.stdin.pipe(proc.stdin)
+	proc.stdout.pipe(process.stdout)
+	proc.stderr.pipe(process.stderr)
+	const result = await proc
+	return result.stdout
 }
 
 export async function setup() {
@@ -36,18 +41,26 @@ export async function setup() {
 	return {root, workspace, vitePath, cwd, env}
 }
 
-export async function setupRepo({repo, dir, branch = 'main', tag, commit}) {
+export async function setupRepo({repo, dir, branch = 'main', tag, commit, shallow = true}) {
 	if (!repo.includes(':')) {
 		repo = `https://github.com/${repo}.git`
 	}
 
 	if (!fs.existsSync(dir)) {
-		await $`git -c advice.detachedHead=false clone --depth=1 --no-tags --branch ${tag || branch} ${repo} ${dir}`
+		await $`git -c advice.detachedHead=false clone ${shallow ? '--depth=1 --no-tags' : ''} --branch ${tag || branch} ${repo} ${dir}`
 	}
 	cd(dir)
 	await $`git clean -fdxq`
-	await $`git fetch --depth 1 --no-tags origin ${tag ? `tag ${tag}` : `${commit || branch}`}`
-	await $`git -c advice.detachedHead=false checkout ${tag ? `tags/${tag}` : `${commit || branch}`}`
+	await $`git fetch ${shallow ? '--depth=1 --no-tags' : '--tags'} origin ${tag ? `tag ${tag}` : `${commit || branch}`}`
+	if (shallow) {
+		await $`git -c advice.detachedHead=false checkout ${tag ? `tags/${tag}` : `${commit || branch}`}`
+	} else {
+		await $`git checkout ${branch}`
+		await $`git merge FETCH_HEAD`
+		if (tag || commit) {
+			await $`git reset --hard ${tag || commit}`
+		}
+	}
 }
 
 function pnpmCommand(task) {
@@ -64,7 +77,8 @@ export async function runInRepo({
 		branch = 'main',
 		tag,
 		commit,
-		verify = true
+		verify = true,
+		skipGit = false
 	}) {
 	build = pnpmCommand(build)
 	test = pnpmCommand(test)
@@ -74,7 +88,12 @@ export async function runInRepo({
 		folder = repo.substring(repo.lastIndexOf('/') + 1)
 	}
 	const dir = path.resolve(workspace, folder)
-	await setupRepo({repo, dir, branch, tag, commit})
+	if (!skipGit) {
+		await setupRepo({repo, dir, branch, tag, commit})
+	} else {
+		cd(dir)
+	}
+
 	if (verify && test) {
 		await $`pnpm install --frozen-lockfile --prefer-offline`
 		await build()
@@ -89,8 +108,12 @@ export async function runInRepo({
 	return {dir}
 }
 
-export async function setupVite({verify = false, branch = 'main', tag, commit} = {}) {
-	await setupRepo({repo: 'vitejs/vite', dir: vitePath, branch, tag, commit})
+export async function setupViteRepo({branch = 'main', tag, commit, shallow = true} = {}) {
+	await setupRepo({repo: 'vitejs/vite', dir: vitePath, branch, tag, commit, shallow})
+}
+
+export async function buildVite({verify = false}) {
+	cd(vitePath)
 	await $`pnpm install --frozen-lockfile`
 	await $`pnpm run ci-build-vite`
 	await $`pnpm run build-plugin-vue`
@@ -98,6 +121,35 @@ export async function setupVite({verify = false, branch = 'main', tag, commit} =
 	if (verify) {
 		await $`pnpm run test-serve -- --runInBand`
 		await $`pnpm run test-build -- --runInBand`
+	}
+}
+
+export async function bisectVite({good, runSuite}) {
+	try {
+		cd(vitePath)
+		await $`git bisect start`
+		await $`git bisect bad`
+		await $`git bisect good ${good}`
+		let bisecting = true
+		while (bisecting) {
+			const commitMsg = await $`git log -1 --format=%s`
+			const isNonCodeCommit = commitMsg.match(/^(?:release|docs)[:(]/)
+			if(isNonCodeCommit){
+				await $`git bisect skip`
+				continue // see if next commit can be skipped too
+			}
+			const error = await runSuite()
+			const bisectOut = await $`git bisect ${error ? 'bad' : 'good'}`
+			bisecting = bisectOut.substring(0, 10).toLowerCase() === 'bisecting:' // as long as git prints 'bisecting: ' there are more revisions to test
+		}
+	} catch(e) {
+		console.log('error while bisecting',e);
+	} finally {
+		try {
+			await $`git bisect reset`
+		} catch (e) {
+			console.log('Error while resetting bisect', e)
+		}
 	}
 }
 
