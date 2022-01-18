@@ -1,12 +1,13 @@
-import { runInRepo } from '../utils.js'
+import {runInRepo} from '../utils.js'
 
-export async function test({ workspace }) {
-  
-  await runInRepo({
-    repo: 'windicss/vite-plugin-windicss',
-    build: 'build',
-    test: 'test',
-    verify: true,
-    workspace,
-  })
+export async function test({workspace, verify = true, skipGit}) {
+
+	await runInRepo({
+		repo: 'windicss/vite-plugin-windicss',
+		build: 'build',
+		test: 'test',
+		verify,
+		workspace,
+		skipGit
+	})
 }
