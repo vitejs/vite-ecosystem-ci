@@ -1,7 +1,7 @@
 import path from 'path'
 import fs from 'fs'
-import {fileURLToPath} from 'url';
-import {execaCommand} from 'execa';
+import { fileURLToPath } from 'url'
+import { execaCommand } from 'execa'
 
 export let root
 export let vitePath
@@ -10,15 +10,19 @@ export let cwd
 export let env
 
 function cd(dir) {
-	cwd = path.resolve(cwd, dir);
+	cwd = path.resolve(cwd, dir)
 }
 
 async function $(literals, ...values) {
-	const cmd = literals.reduce((result, current, i) => result + current + (values?.[i] != null ? `${values[i]}` : ''), '')
+	const cmd = literals.reduce(
+		(result, current, i) =>
+			result + current + (values?.[i] != null ? `${values[i]}` : ''),
+		''
+	)
 	console.log(`${cwd} $> ${cmd}`)
 	const proc = execaCommand(cmd, {
 		env,
-		stdio: "pipe",
+		stdio: 'pipe',
 		cwd
 	})
 	process.stdin.pipe(proc.stdin)
@@ -28,7 +32,7 @@ async function $(literals, ...values) {
 	return result.stdout
 }
 
-export async function setup() {
+export async function setupUtils() {
 	root = dirnameFrom(import.meta.url)
 	workspace = path.resolve(root, 'workspace')
 	vitePath = path.resolve(workspace, 'vite')
@@ -36,24 +40,37 @@ export async function setup() {
 	env = {
 		...process.env,
 		CI: true,
-		NODE_OPTIONS: '--max-old-space-size=6144', // GITHUB CI has 7GB max, stay below
+		NODE_OPTIONS: '--max-old-space-size=6144' // GITHUB CI has 7GB max, stay below
 	}
-	return {root, workspace, vitePath, cwd, env}
+	return { root, workspace, vitePath, cwd, env }
 }
 
-export async function setupRepo({repo, dir, branch = 'main', tag, commit, shallow = true}) {
+export async function setupRepo({
+	repo,
+	dir,
+	branch = 'main',
+	tag,
+	commit,
+	shallow = true
+}) {
 	if (!repo.includes(':')) {
 		repo = `https://github.com/${repo}.git`
 	}
 
 	if (!fs.existsSync(dir)) {
-		await $`git -c advice.detachedHead=false clone ${shallow ? '--depth=1 --no-tags' : ''} --branch ${tag || branch} ${repo} ${dir}`
+		await $`git -c advice.detachedHead=false clone ${
+			shallow ? '--depth=1 --no-tags' : ''
+		} --branch ${tag || branch} ${repo} ${dir}`
 	}
 	cd(dir)
 	await $`git clean -fdxq`
-	await $`git fetch ${shallow ? '--depth=1 --no-tags' : '--tags'} origin ${tag ? `tag ${tag}` : `${commit || branch}`}`
+	await $`git fetch ${shallow ? '--depth=1 --no-tags' : '--tags'} origin ${
+		tag ? `tag ${tag}` : `${commit || branch}`
+	}`
 	if (shallow) {
-		await $`git -c advice.detachedHead=false checkout ${tag ? `tags/${tag}` : `${commit || branch}`}`
+		await $`git -c advice.detachedHead=false checkout ${
+			tag ? `tags/${tag}` : `${commit || branch}`
+		}`
 	} else {
 		await $`git checkout ${branch}`
 		await $`git merge FETCH_HEAD`
@@ -68,18 +85,18 @@ function pnpmCommand(task) {
 }
 
 export async function runInRepo({
-		repo,
-		workspace,
-		folder,
-		build,
-		test,
-		overrides,
-		branch = 'main',
-		tag,
-		commit,
-		verify = true,
-		skipGit = false
-	}) {
+	repo,
+	workspace,
+	folder,
+	build,
+	test,
+	overrides,
+	branch = 'main',
+	tag,
+	commit,
+	verify = true,
+	skipGit = false
+}) {
 	build = pnpmCommand(build)
 	test = pnpmCommand(test)
 
@@ -89,7 +106,7 @@ export async function runInRepo({
 	}
 	const dir = path.resolve(workspace, folder)
 	if (!skipGit) {
-		await setupRepo({repo, dir, branch, tag, commit})
+		await setupRepo({ repo, dir, branch, tag, commit })
 	} else {
 		cd(dir)
 	}
@@ -105,14 +122,26 @@ export async function runInRepo({
 	if (test) {
 		await test()
 	}
-	return {dir}
+	return { dir }
 }
 
-export async function setupViteRepo({branch = 'main', tag, commit, shallow = true} = {}) {
-	await setupRepo({repo: 'vitejs/vite', dir: vitePath, branch, tag, commit, shallow})
+export async function setupViteRepo({
+	branch = 'main',
+	tag,
+	commit,
+	shallow = true
+} = {}) {
+	await setupRepo({
+		repo: 'vitejs/vite',
+		dir: vitePath,
+		branch,
+		tag,
+		commit,
+		shallow
+	})
 }
 
-export async function buildVite({verify = false}) {
+export async function buildVite({ verify = false }) {
 	cd(vitePath)
 	await $`pnpm install --frozen-lockfile`
 	await $`pnpm run ci-build-vite`
@@ -124,7 +153,7 @@ export async function buildVite({verify = false}) {
 	}
 }
 
-export async function bisectVite({good, runSuite}) {
+export async function bisectVite({ good, runSuite }) {
 	try {
 		cd(vitePath)
 		await $`git bisect start`
@@ -134,7 +163,7 @@ export async function bisectVite({good, runSuite}) {
 		while (bisecting) {
 			const commitMsg = await $`git log -1 --format=%s`
 			const isNonCodeCommit = commitMsg.match(/^(?:release|docs)[:(]/)
-			if(isNonCodeCommit){
+			if (isNonCodeCommit) {
 				await $`git bisect skip`
 				continue // see if next commit can be skipped too
 			}
@@ -143,8 +172,8 @@ export async function bisectVite({good, runSuite}) {
 			const bisectOut = await $`git bisect ${error ? 'bad' : 'good'}`
 			bisecting = bisectOut.substring(0, 10).toLowerCase() === 'bisecting:' // as long as git prints 'bisecting: ' there are more revisions to test
 		}
-	} catch(e) {
-		console.log('error while bisecting',e);
+	} catch (e) {
+		console.log('error while bisecting', e)
 	} finally {
 		try {
 			cd(vitePath)
@@ -158,7 +187,7 @@ export async function bisectVite({good, runSuite}) {
 export async function addLocalPackageOverrides(dir, overrides = {}) {
 	overrides.vite = `${vitePath}/packages/vite`
 	await $`git clean -fdxq` // remove current install
-	const pkgFile = path.join(dir, 'package.json');
+	const pkgFile = path.join(dir, 'package.json')
 	const pkg = JSON.parse(await fs.promises.readFile(pkgFile, 'utf-8'))
 	if (!pkg.pnpm) {
 		pkg.pnpm = {}
