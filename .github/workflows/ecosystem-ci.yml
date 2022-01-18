@@ -8,23 +8,23 @@ env:
 
 on:
   schedule:
-    - cron: '0 5 * * 1,3,5' # monday,wednesday,friday 5AM
+    - cron: "0 5 * * 1,3,5" # monday,wednesday,friday 5AM
   workflow_dispatch:
     inputs:
       refType:
-        description: 'type of ref'
+        description: "type of ref"
         required: true
         type: choice
         options:
           - branch
           - tag
           - commit
-        default: 'branch'
+        default: "branch"
       ref:
-        description: 'vite ref to use'
+        description: "vite ref to use"
         required: true
         type: string
-        default: 'main'
+        default: "main"
   repository_dispatch:
     types: [ecosystem-ci]
 jobs:
@@ -42,4 +42,3 @@ jobs:
       - run: npm i -g pnpm
       - run: pnpm i --frozen-lockfile
       - run: node ecosystem-ci.js --${{ github.event.inputs.refType || github.event.client_payload.refType || 'branch' }} ${{ github.event.inputs.ref || github.event.client_payload.ref || 'main' }} ${{ matrix.suite }}
-
