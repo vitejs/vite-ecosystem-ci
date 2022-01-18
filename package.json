@@ -3,9 +3,29 @@
   "version": "0.0.1",
   "description": "Vite Ecosystem CI",
   "scripts": {
+    "prepare": "pnpm exec simple-git-hooks",
+    "lint": "eslint --ignore-path .gitignore '**/*.js'",
+    "lint:fix": "pnpm run lint -- --fix",
+    "format": "prettier --ignore-path .gitignore --check .",
+    "format:fix": "pnpm run format -- --write",
     "test": "node ecosystem-ci.js"
   },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm exec lint-staged --concurrent false"
+  },
+  "lint-staged": {
+    "*": [
+      "prettier --write --ignore-unknown"
+    ],
+    "**/*.js": [
+      "eslint"
+    ]
+  },
+  "packageManager": "pnpm@6",
   "type": "module",
+  "engines": {
+    "node": "^14.13.1 || ^16"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/vitejs/vite-ecosystem-ci.git"
@@ -18,5 +38,13 @@
   "dependencies": {
     "cac": "^6.7.12",
     "execa": "^6.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.7.0",
+    "eslint-define-config": "^1.2.2",
+    "eslint-plugin-node": "^11.1.0",
+    "lint-staged": "^12.1.7",
+    "prettier": "^2.5.1",
+    "simple-git-hooks": "^2.7.0"
   }
 }

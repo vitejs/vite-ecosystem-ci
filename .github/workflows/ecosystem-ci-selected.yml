@@ -10,21 +10,21 @@ on:
   workflow_dispatch:
     inputs:
       refType:
-        description: 'type of vite ref to use'
+        description: "type of vite ref to use"
         required: true
         type: choice
         options:
           - branch
           - tag
           - commit
-        default: 'branch'
+        default: "branch"
       ref:
-        description: 'vite ref to use'
+        description: "vite ref to use"
         required: true
         type: string
-        default: 'main'
+        default: "main"
       suite:
-        description: 'testsuite to run'
+        description: "testsuite to run"
         required: true
         type: choice
         options:
