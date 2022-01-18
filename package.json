@@ -16,7 +16,7 @@
   },
   "homepage": "https://github.com/vitejs/vite-ecosystem-ci#readme",
   "dependencies": {
-    "cac": "^6.7.12",
-    "execa": "^6.0.0"
+    "cac": "6.7.12",
+    "execa": "6.0.0"
   }
 }
