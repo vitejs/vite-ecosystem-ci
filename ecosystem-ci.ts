@@ -1,8 +1,10 @@
 import fs from 'fs'
 import path from 'path'
+import process from 'process'
 import { cac } from 'cac'
 
-import { setupUtils, setupViteRepo, buildVite, bisectVite } from './utils.js'
+import { setupEnvironment, setupViteRepo, buildVite, bisectVite } from './utils'
+import { CommandOptions, RunOptions } from './types'
 
 const cli = cac()
 cli
@@ -11,16 +13,17 @@ cli
 	.option('--branch <branch>', 'vite branch to use', { default: 'main' })
 	.option('--tag <tag>', 'vite tag to use')
 	.option('--commit <commit>', 'vite commit sha to use')
-	.action(async (suites, options) => {
-		const { root, vitePath, workspace } = await setupUtils()
-		const suitesToRun = getSuitesToRun({ suites, root })
+	.action(async (suites, options: CommandOptions) => {
+		const { root, vitePath, workspace } = await setupEnvironment()
+		const suitesToRun = getSuitesToRun(suites, root)
 		await setupViteRepo(options)
 		await buildVite({ verify: options.verify })
-		const runOptions = {
-			...options,
+		const runOptions: RunOptions = {
 			root,
 			vitePath,
-			workspace
+			workspace,
+			verify: options.verify != null ? options.verify : false,
+			skipGit: false
 		}
 		for (const suite of suitesToRun) {
 			await run(suite, runOptions)
@@ -36,7 +39,7 @@ cli
 	.option('--tag <tag>', 'vite tag to use')
 	.option('--commit <commit>', 'vite commit sha to use')
 	.action(async (options) => {
-		await setupUtils()
+		await setupEnvironment()
 		await setupViteRepo(options)
 		await buildVite({ verify: options.verify })
 	})
@@ -49,8 +52,8 @@ cli
 		{ default: false }
 	)
 	.action(async (suites, options) => {
-		const { root, vitePath, workspace } = await setupUtils()
-		const suitesToRun = getSuitesToRun({ suites, root })
+		const { root, vitePath, workspace } = await setupEnvironment()
+		const suitesToRun = getSuitesToRun(suites, root)
 		const runOptions = {
 			...options,
 			root,
@@ -67,16 +70,20 @@ cli
 		'bisect [...suites]',
 		'use git bisect to find a commit in vite that broke suites'
 	)
-	.option('--good <ref>', 'last known good ref, e.g. a previous tag', {
-		required: true
-	})
+	.option('--good <ref>', 'last known good ref, e.g. a previous tag. REQUIRED!')
 	.option('--verify', 'verify checkouts by running tests', { default: false })
 	.option('--branch <branch>', 'vite branch to use', { default: 'main' })
 	.option('--tag <tag>', 'vite tag to use')
 	.option('--commit <commit>', 'vite commit sha to use')
-	.action(async (suites, options) => {
-		const { root, vitePath, workspace } = await setupUtils()
-		const suitesToRun = getSuitesToRun({ suites, root })
+	.action(async (suites, options: CommandOptions & { good: string }) => {
+		if (!options.good) {
+			console.log(
+				'you have to specify a known good version with `--good <commit|tag>`'
+			)
+			process.exit(1)
+		}
+		const { root, vitePath, workspace } = await setupEnvironment()
+		const suitesToRun = getSuitesToRun(suites, root)
 		let isFirstRun = true
 		const { verify } = options
 		const runSuite = async () => {
@@ -84,7 +91,7 @@ cli
 				await buildVite({ verify: isFirstRun && verify })
 				for (const suite of suitesToRun) {
 					await run(suite, {
-						verify: isFirstRun && verify,
+						verify: !!(isFirstRun && verify),
 						skipGit: !isFirstRun,
 						root,
 						vitePath,
@@ -100,7 +107,7 @@ cli
 		await setupViteRepo({ ...options, shallow: false })
 		const initialError = await runSuite()
 		if (initialError) {
-			await bisectVite({ good: options.good, runSuite })
+			await bisectVite(options.good, runSuite)
 		} else {
 			console.log(`no errors for starting commit, cannot bisect`)
 		}
@@ -108,36 +115,30 @@ cli
 cli.help()
 cli.parse()
 
-async function run(
-	suite,
-	{ verify = true, skipGit = false, workspace, root, vitePath }
-) {
+async function run(suite: string, options: RunOptions) {
 	// eslint-disable-next-line node/no-unsupported-features/es-syntax
 	const { test } = await import(`./tests/${suite}.js`)
 	await test({
-		workspace: path.resolve(workspace, suite),
-		root,
-		vitePath,
-		verify,
-		skipGit
+		...options,
+		workspace: path.resolve(options.workspace, suite)
 	})
 }
 
-function getSuitesToRun({ suites = [], root }) {
-	let suitesToRun = suites
-	const availableSuites = fs
+function getSuitesToRun(suites: string[], root: string) {
+	let suitesToRun: string[] = suites
+	const availableSuites: string[] = fs
 		.readdirSync(path.join(root, 'tests'))
-		.filter((f) => f.endsWith('.js'))
-		.map((f) => f.slice(0, -3))
-		.sort()
+		.filter((f: string) => !f.startsWith('_') && f.endsWith('.ts'))
+		.map((f: string) => f.slice(0, -3))
+	availableSuites.sort()
 	if (suitesToRun.length === 0) {
 		suitesToRun = availableSuites
 	} else {
 		const invalidSuites = suitesToRun.filter(
-			(x) => !availableSuites.includes(x)
+			(x) => !x.startsWith('_') && !availableSuites.includes(x)
 		)
 		if (invalidSuites.length) {
-			console.log(`invalid suite values: ${invalidSuites.join(', ')}`)
+			console.log(`invalid suite(s): ${invalidSuites.join(', ')}`)
 			console.log(`available suites: ${availableSuites.join(', ')}`)
 			process.exit(1)
 		}

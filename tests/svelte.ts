@@ -1,16 +1,16 @@
-import { runInRepo } from '../utils.js'
+import { runInRepo } from '../utils'
+import { RunOptions } from '../types'
 
-export async function test({ workspace, verify = true, skipGit }) {
+export async function test(options: RunOptions) {
 	const { dir: pluginPath } = await runInRepo({
+		...options,
 		repo: 'sveltejs/vite-plugin-svelte',
 		build: 'build:ci',
-		test: 'test:ci',
-		verify,
-		workspace,
-		skipGit
+		test: 'test:ci'
 	})
 
 	await runInRepo({
+		...options,
 		repo: 'sveltejs/kit',
 		branch: 'master',
 		overrides: {
@@ -18,9 +18,6 @@ export async function test({ workspace, verify = true, skipGit }) {
 		},
 		build:
 			'build --filter ./packages --filter !./packages/create-svelte/templates',
-		test: 'test',
-		verify,
-		workspace,
-		skipGit
+		test: 'test'
 	})
 }

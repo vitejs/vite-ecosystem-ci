@@ -2,18 +2,23 @@ import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
 import { execaCommand } from 'execa'
+import {
+	EnvironmentData,
+	Overrides,
+	ProcessEnv,
+	RepoOptions,
+	RunOptions
+} from './types'
 
-export let root
-export let vitePath
-export let workspace
-export let cwd
-export let env
+let vitePath: string
+let cwd: string
+let env: ProcessEnv
 
-function cd(dir) {
+function cd(dir: string) {
 	cwd = path.resolve(cwd, dir)
 }
 
-async function $(literals, ...values) {
+async function $(literals: TemplateStringsArray, ...values: any[]) {
 	const cmd = literals.reduce(
 		(result, current, i) =>
 			result + current + (values?.[i] != null ? `${values[i]}` : ''),
@@ -25,34 +30,39 @@ async function $(literals, ...values) {
 		stdio: 'pipe',
 		cwd
 	})
-	process.stdin.pipe(proc.stdin)
-	proc.stdout.pipe(process.stdout)
-	proc.stderr.pipe(process.stderr)
+	proc.stdin && process.stdin.pipe(proc.stdin)
+	proc.stdout && proc.stdout.pipe(process.stdout)
+	proc.stderr && proc.stderr.pipe(process.stderr)
 	const result = await proc
 	return result.stdout
 }
 
-export async function setupUtils() {
-	root = dirnameFrom(import.meta.url)
-	workspace = path.resolve(root, 'workspace')
+export async function setupEnvironment(): Promise<EnvironmentData> {
+	// @ts-expect-error import.meta
+	const root = dirnameFrom(import.meta.url)
+	const workspace = path.resolve(root, 'workspace')
 	vitePath = path.resolve(workspace, 'vite')
 	cwd = process.cwd()
 	env = {
 		...process.env,
-		CI: true,
+		CI: 'true',
 		NODE_OPTIONS: '--max-old-space-size=6144' // GITHUB CI has 7GB max, stay below
 	}
 	return { root, workspace, vitePath, cwd, env }
 }
 
-export async function setupRepo({
-	repo,
-	dir,
-	branch = 'main',
-	tag,
-	commit,
-	shallow = true
-}) {
+export async function setupRepo(options: RepoOptions) {
+	if (options.branch == null) {
+		options.branch = 'main'
+	}
+	if (options.shallow == null) {
+		options.shallow = true
+	}
+
+	let { repo, commit, branch, tag, dir, shallow } = options
+	if (!dir) {
+		throw new Error('setupRepo must be called with options.dir')
+	}
 	if (!repo.includes(':')) {
 		repo = `https://github.com/${repo}.git`
 	}
@@ -80,31 +90,31 @@ export async function setupRepo({
 	}
 }
 
-function pnpmCommand(task) {
+function pnpmCommand(
+	task: string | (() => Promise<any>) | void
+): (() => Promise<any>) | void {
 	return typeof task === 'string' ? async () => $`pnpm ${task}` : task
 }
 
-export async function runInRepo({
-	repo,
-	workspace,
-	folder,
-	build,
-	test,
-	overrides,
-	branch = 'main',
-	tag,
-	commit,
-	verify = true,
-	skipGit = false
-}) {
-	build = pnpmCommand(build)
-	test = pnpmCommand(test)
-
-	if (!folder) {
-		// Use the repository name as the folder, omit possible org name
-		folder = repo.substring(repo.lastIndexOf('/') + 1)
+export async function runInRepo(options: RunOptions & RepoOptions) {
+	if (options.verify == null) {
+		options.verify = true
 	}
-	const dir = path.resolve(workspace, folder)
+	if (options.skipGit == null) {
+		options.skipGit = false
+	}
+	if (options.branch == null) {
+		options.branch = 'main'
+	}
+	const { build, test, repo, branch, tag, commit, skipGit, verify, overrides } =
+		options
+	const buildCommand = pnpmCommand(build)
+	const testCommand = pnpmCommand(test)
+	const dir = path.resolve(
+		options.workspace,
+		options.dir || repo.substring(repo.lastIndexOf('/') + 1)
+	)
+
 	if (!skipGit) {
 		await setupRepo({ repo, dir, branch, tag, commit })
 	} else {
@@ -113,31 +123,25 @@ export async function runInRepo({
 
 	if (verify && test) {
 		await $`pnpm install --frozen-lockfile --prefer-offline`
-		await build()
-		await test()
+		await buildCommand?.()
+		await testCommand?.()
 	}
 	await addLocalPackageOverrides(dir, overrides)
 	await $`pnpm install --prefer-frozen-lockfile --prefer-offline`
-	await build()
+	await buildCommand?.()
 	if (test) {
-		await test()
+		await testCommand?.()
 	}
 	return { dir }
 }
 
-export async function setupViteRepo({
-	branch = 'main',
-	tag,
-	commit,
-	shallow = true
-} = {}) {
+export async function setupViteRepo(options: Partial<RepoOptions>) {
 	await setupRepo({
 		repo: 'vitejs/vite',
 		dir: vitePath,
-		branch,
-		tag,
-		commit,
-		shallow
+		branch: 'main',
+		shallow: true,
+		...options
 	})
 }
 
@@ -153,7 +157,10 @@ export async function buildVite({ verify = false }) {
 	}
 }
 
-export async function bisectVite({ good, runSuite }) {
+export async function bisectVite(
+	good: string,
+	runSuite: () => Promise<Error | void>
+) {
 	try {
 		cd(vitePath)
 		await $`git bisect start`
@@ -184,8 +191,13 @@ export async function bisectVite({ good, runSuite }) {
 	}
 }
 
-export async function addLocalPackageOverrides(dir, overrides = {}) {
-	overrides.vite = `${vitePath}/packages/vite`
+export async function addLocalPackageOverrides(
+	dir: string,
+	overrides: Overrides = {}
+) {
+	if (!overrides.vite) {
+		overrides.vite = `${vitePath}/packages/vite`
+	}
 	await $`git clean -fdxq` // remove current install
 	const pkgFile = path.join(dir, 'package.json')
 	const pkg = JSON.parse(await fs.promises.readFile(pkgFile, 'utf-8'))
@@ -206,6 +218,6 @@ export async function addLocalPackageOverrides(dir, overrides = {}) {
 	await fs.promises.writeFile(pkgFile, JSON.stringify(pkg, null, 2), 'utf-8')
 }
 
-export function dirnameFrom(url) {
+export function dirnameFrom(url: string) {
 	return path.dirname(fileURLToPath(url))
 }
