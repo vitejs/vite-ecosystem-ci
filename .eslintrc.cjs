@@ -3,7 +3,12 @@ const { defineConfig } = require('eslint-define-config')
 
 module.exports = defineConfig({
 	root: true,
-	extends: ['eslint:recommended', 'plugin:node/recommended'],
+	extends: [
+		'eslint:recommended',
+		'plugin:node/recommended',
+		'plugin:@typescript-eslint/recommended'
+	],
+	parser: '@typescript-eslint/parser',
 	parserOptions: {
 		sourceType: 'module',
 		ecmaVersion: 2021
@@ -19,6 +24,8 @@ module.exports = defineConfig({
 			{
 				destructuring: 'all'
 			}
-		]
+		],
+		'node/no-missing-import': 'off', // doesn't like ts imports
+		'@typescript-eslint/no-explicit-any': 'off' // we use any in some places
 	}
 })

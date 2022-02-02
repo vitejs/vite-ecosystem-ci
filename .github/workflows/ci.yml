@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ci:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - run: npm i -g pnpm@6
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: "pnpm"
+          cache-dependency-path: "**/pnpm-lock.yaml"
+      - name: install
+        run: pnpm install --frozen-lockfile --prefer-offline
+      - name: lint
+        run: pnpm run lint
+      - name: audit
+        if: (${{ success() }} || ${{ failure() }})
+        run: pnpm audit
+      - name: test
+        if: (${{ success() }} || ${{ failure() }})
+        run: pnpm test:self
