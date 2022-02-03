@@ -46,6 +46,7 @@ export async function setupEnvironment(): Promise<EnvironmentData> {
 	env = {
 		...process.env,
 		CI: 'true',
+		YARN_ENABLE_IMMUTABLE_INSTALLS: 'false', // to avoid errors with mutated lockfile due to overrides
 		NODE_OPTIONS: '--max-old-space-size=6144' // GITHUB CI has 7GB max, stay below
 	}
 	return { root, workspace, vitePath, cwd, env }
