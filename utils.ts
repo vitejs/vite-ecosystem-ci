@@ -9,6 +9,7 @@ import {
 	RepoOptions,
 	RunOptions
 } from './types'
+//eslint-disable-next-line node/no-unpublished-import
 import { detect } from '@antfu/ni'
 
 let vitePath: string
