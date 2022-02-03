@@ -9,6 +9,8 @@ import {
 	RepoOptions,
 	RunOptions
 } from './types'
+//eslint-disable-next-line node/no-unpublished-import
+import { detect } from '@antfu/ni'
 
 let vitePath: string
 let cwd: string
@@ -46,6 +48,7 @@ export async function setupEnvironment(): Promise<EnvironmentData> {
 	env = {
 		...process.env,
 		CI: 'true',
+		YARN_ENABLE_IMMUTABLE_INSTALLS: 'false', // to avoid errors with mutated lockfile due to overrides
 		NODE_OPTIONS: '--max-old-space-size=6144' // GITHUB CI has 7GB max, stay below
 	}
 	return { root, workspace, vitePath, cwd, env }
@@ -90,10 +93,10 @@ export async function setupRepo(options: RepoOptions) {
 	}
 }
 
-function pnpmCommand(
+function toCommand(
 	task: string | (() => Promise<any>) | void
 ): (() => Promise<any>) | void {
-	return typeof task === 'string' ? async () => $`pnpm ${task}` : task
+	return typeof task === 'string' ? async () => $`nr ${task}` : task
 }
 
 export async function runInRepo(options: RunOptions & RepoOptions) {
@@ -107,8 +110,8 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		options.branch = 'main'
 	}
 	const { build, test, repo, branch, tag, commit, skipGit, verify } = options
-	const buildCommand = pnpmCommand(build)
-	const testCommand = pnpmCommand(test)
+	const buildCommand = toCommand(build)
+	const testCommand = toCommand(test)
 	const dir = path.resolve(
 		options.workspace,
 		options.dir || repo.substring(repo.lastIndexOf('/') + 1)
@@ -121,7 +124,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	}
 
 	if (verify && test) {
-		await $`pnpm install --frozen-lockfile --prefer-offline`
+		await $`ni --frozen`
 		await buildCommand?.()
 		await testCommand?.()
 	}
@@ -138,8 +141,8 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	if (!overrides.vite) {
 		overrides.vite = `${options.vitePath}/packages/vite`
 	}
-	await addLocalPackageOverrides(dir, overrides)
-	await $`pnpm install --prefer-frozen-lockfile --prefer-offline`
+	await applyPackageOverrides(dir, overrides)
+
 	await buildCommand?.()
 	if (test) {
 		await testCommand?.()
@@ -159,13 +162,13 @@ export async function setupViteRepo(options: Partial<RepoOptions>) {
 
 export async function buildVite({ verify = false }) {
 	cd(vitePath)
-	await $`pnpm install --frozen-lockfile`
-	await $`pnpm run ci-build-vite`
-	await $`pnpm run build-plugin-vue`
-	await $`pnpm run build-plugin-react`
+	await $`ni --frozen`
+	await $`nr ci-build-vite`
+	await $`nr build-plugin-vue`
+	await $`nr build-plugin-react`
 	if (verify) {
-		await $`pnpm run test-serve -- --runInBand`
-		await $`pnpm run test-build -- --runInBand`
+		await $`nr test-serve -- --runInBand`
+		await $`nr test-build -- --runInBand`
 	}
 }
 
@@ -203,28 +206,65 @@ export async function bisectVite(
 	}
 }
 
-export async function addLocalPackageOverrides(
+export async function applyPackageOverrides(
 	dir: string,
 	overrides: Overrides = {}
 ) {
 	await $`git clean -fdxq` // remove current install
+
+	const pm = await detect({ cwd: dir, autoInstall: false })
+
 	const pkgFile = path.join(dir, 'package.json')
 	const pkg = JSON.parse(await fs.promises.readFile(pkgFile, 'utf-8'))
-	if (!pkg.pnpm) {
-		pkg.pnpm = {}
+
+	if (pm === 'pnpm') {
+		if (!pkg.devDependencies) {
+			pkg.devDependencies = {}
+		}
+		pkg.devDependencies = {
+			...pkg.devDependencies,
+			...overrides // overrides must be present in devDependencies or dependencies otherwise they may not work
+		}
+		if (!pkg.pnpm) {
+			pkg.pnpm = {}
+		}
+		pkg.pnpm.overrides = {
+			...pkg.pnpm.overrides,
+			...overrides
+		}
+	} else if (pm === 'yarn') {
+		pkg.resolutions = {
+			...pkg.resolutions,
+			...overrides
+		}
+	} else if (pm === 'npm') {
+		pkg.overrides = {
+			...pkg.overrides,
+			...overrides
+		}
+		// npm does not allow overriding direct dependencies, force it by updating the blocks themselves
+		for (const [name, version] of Object.entries(overrides)) {
+			if (pkg.dependencies?.[name]) {
+				pkg.dependencies[name] = version
+			}
+			if (pkg.devDependencies?.[name]) {
+				pkg.devDependencies[name] = version
+			}
+		}
+	} else {
+		throw new Error(`unsupported package manager detected: ${pm}`)
 	}
-	pkg.pnpm.overrides = {
-		...pkg.pnpm.overrides,
-		...overrides
-	}
-	if (!pkg.devDependencies) {
-		pkg.devDependencies = {}
-	}
-	pkg.devDependencies = {
-		...pkg.devDependencies,
-		...overrides
-	}
+
 	await fs.promises.writeFile(pkgFile, JSON.stringify(pkg, null, 2), 'utf-8')
+
+	// use of `ni` command here could cause lockfile violation errors so fall back to native commands that avoid these
+	if (pm === 'pnpm') {
+		await $`pnpm install --prefer-frozen-lockfile --prefer-offline`
+	} else if (pm === 'yarn') {
+		await $`yarn install`
+	} else if (pm === 'npm') {
+		await $`npm install`
+	}
 }
 
 export function dirnameFrom(url: string) {

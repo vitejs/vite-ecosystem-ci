@@ -1,4 +1,5 @@
 {
+	"useTabs": true,
 	"semi": false,
 	"tabWidth": 2,
 	"singleQuote": true,
@@ -16,6 +17,19 @@
 			"files": ["*.yml"],
 			"options": {
 				"singleQuote": false
+			}
+		},
+		{
+			"files": "**/pnpm-lock.yaml",
+			"options": {
+				"requirePragma": true
+			}
+		},
+		{
+			"files": "**/package.json",
+			"options": {
+				"useTabs": false,
+				"tabWidth": 2
 			}
 		}
 	]
