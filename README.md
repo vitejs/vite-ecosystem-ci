@@ -21,7 +21,7 @@ Workflows are sheduled to run automatically every Monday, Wednesday and Friday
 - run `pnpm i`
 - run `pnpm test` to run all suites
 - or `pnpm test <suitename>` to select a suite
-- or `node ecosystem-ci.js`
+- or `esmo ecosystem-ci.ts`
 
 You can pass `--tag v2.8.0-beta.1`, `--branch somebranch` or `--commit abcd1234` arg to select a specific vite version.
 
