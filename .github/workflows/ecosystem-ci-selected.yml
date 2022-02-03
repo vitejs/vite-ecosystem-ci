@@ -17,6 +17,7 @@ on:
           - branch
           - tag
           - commit
+          - release
         default: "branch"
       ref:
         description: "vite ref to use"
@@ -34,6 +35,8 @@ on:
           - vitest
           - windicss
           - laravel
+          - nuxt-framework
+          - marko
 jobs:
   execute-selected-suite:
     runs-on: ubuntu-latest

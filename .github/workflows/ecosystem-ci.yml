@@ -19,6 +19,7 @@ on:
           - branch
           - tag
           - commit
+          - release
         default: "branch"
       ref:
         description: "vite ref to use"
@@ -32,7 +33,17 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        suite: [iles, svelte, vitepress, vitest, windicss, laravel]
+        suite:
+          [
+            iles,
+            svelte,
+            vitepress,
+            vitest,
+            windicss,
+            laravel,
+            nuxt-framework,
+            marko
+          ]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
