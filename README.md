@@ -21,9 +21,10 @@ Workflows are sheduled to run automatically every Monday, Wednesday and Friday
 - run `pnpm i`
 - run `pnpm test` to run all suites
 - or `pnpm test <suitename>` to select a suite
-- or `node ecosystem-ci.js`
+- or `tsm ecosystem-ci.ts`
 
-You can pass `--tag v2.8.0-beta.1`, `--branch somebranch` or `--commit abcd1234` arg to select a specific vite version.
+You can pass `--tag v2.8.0-beta.1`, `--branch somebranch` or `--commit abcd1234` option to select a specific vite version to build.
+If you pass `--release 2.7.13`, vite build will be skipped and vite is fetched from the registry instead
 
 The repositories are checked out into `workspace` subdirectory as shallow clones
 

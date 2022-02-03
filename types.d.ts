@@ -10,8 +10,9 @@ export interface RunOptions {
 	workspace: string
 	root: string
 	vitePath: string
-	verify: boolean
-	skipGit: boolean
+	verify?: boolean
+	skipGit?: boolean
+	release?: string
 	build?: Task
 	test?: Task
 }

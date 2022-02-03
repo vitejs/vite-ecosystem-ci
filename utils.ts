@@ -106,8 +106,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	if (options.branch == null) {
 		options.branch = 'main'
 	}
-	const { build, test, repo, branch, tag, commit, skipGit, verify, overrides } =
-		options
+	const { build, test, repo, branch, tag, commit, skipGit, verify } = options
 	const buildCommand = pnpmCommand(build)
 	const testCommand = pnpmCommand(test)
 	const dir = path.resolve(
@@ -125,6 +124,19 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		await $`pnpm install --frozen-lockfile --prefer-offline`
 		await buildCommand?.()
 		await testCommand?.()
+	}
+	const overrides = options.overrides || {}
+	if (options.release) {
+		if (overrides.vite && overrides.vite !== options.release) {
+			throw new Error(
+				`conflicting overrides.vite=${overrides.vite} and --release=${options.release} config. Use either one or the other`
+			)
+		} else {
+			overrides.vite = options.release
+		}
+	}
+	if (!overrides.vite) {
+		overrides.vite = `${options.vitePath}/packages/vite`
 	}
 	await addLocalPackageOverrides(dir, overrides)
 	await $`pnpm install --prefer-frozen-lockfile --prefer-offline`
@@ -195,9 +207,6 @@ export async function addLocalPackageOverrides(
 	dir: string,
 	overrides: Overrides = {}
 ) {
-	if (!overrides.vite) {
-		overrides.vite = `${vitePath}/packages/vite`
-	}
 	await $`git clean -fdxq` // remove current install
 	const pkgFile = path.join(dir, 'package.json')
 	const pkg = JSON.parse(await fs.promises.readFile(pkgFile, 'utf-8'))
