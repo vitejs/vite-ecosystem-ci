@@ -8,11 +8,11 @@ specifiers:
   eslint: ^8.8.0
   eslint-define-config: ^1.2.3
   eslint-plugin-node: ^11.1.0
+  esno: ^0.14.0
   execa: ^6.0.0
   lint-staged: ^12.3.3
   prettier: ^2.5.1
   simple-git-hooks: ^2.7.0
-  tsm: ^2.2.1
   typescript: ^4.5.5
 
 dependencies:
@@ -26,10 +26,10 @@ devDependencies:
   eslint: 8.8.0
   eslint-define-config: 1.2.3
   eslint-plugin-node: 11.1.0_eslint@8.8.0
+  esno: 0.14.0_typescript@4.5.5
   lint-staged: 12.3.3
   prettier: 2.5.1
   simple-git-hooks: 2.7.0
-  tsm: 2.2.1
   typescript: 4.5.5
 
 packages:
@@ -405,6 +405,15 @@ packages:
       fill-range: 7.0.1
     dev: true
 
+  /builtins/4.0.0:
+    resolution:
+      {
+        integrity: sha512-qC0E2Dxgou1IHhvJSLwGDSTvokbRovU5zZFuDY6oY8Y2lF3nGt5Ad8YZK7GMtqzY84Wu7pXTPeHQeHcXSXsRhw==
+      }
+    dependencies:
+      semver: 7.3.5
+    dev: true
+
   /cac/6.7.12:
     resolution:
       {
@@ -754,6 +763,18 @@ packages:
     dev: true
     optional: true
 
+  /esbuild-node-loader/0.6.4_typescript@4.5.5:
+    resolution:
+      {
+        integrity: sha512-7Esvc3CWHf+DcXHX+VdIl91s4hPs83wV/DqDbjrR2q5gKjnR4O7NCX2Hw7QVYd8h5Pzc7fIV2z12SMqAcHIyJg==
+      }
+    peerDependencies:
+      typescript: ^4.0
+    dependencies:
+      esbuild: 0.14.17
+      typescript: 4.5.5
+    dev: true
+
   /esbuild-openbsd-64/0.14.17:
     resolution:
       {
@@ -765,6 +786,17 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /esbuild-register/3.3.2_esbuild@0.14.17:
+    resolution:
+      {
+        integrity: sha512-jceAtTO6zxPmCfSD5cBb3rgIK1vmuqCKYwgylHiS1BF4pq0jJiJb4K2QMuqF4BEw7XDBRatYzip0upyTzfkgsQ==
+      }
+    peerDependencies:
+      esbuild: '>=0.12 <1'
+    dependencies:
+      esbuild: 0.14.17
+    dev: true
 
   /esbuild-sunos-64/0.14.17:
     resolution:
@@ -1005,6 +1037,22 @@ packages:
       v8-compile-cache: 2.3.0
     transitivePeerDependencies:
       - supports-color
+    dev: true
+
+  /esno/0.14.0_typescript@4.5.5:
+    resolution:
+      {
+        integrity: sha512-KEij9fDbMSO+WxwZRZRXWRxSpd48tXKF1VUW8dPUezN7VbUM6jKUXBrYY3CAbnkVfHzEbD8RWkapCYwc+ZaYoA==
+      }
+    hasBin: true
+    dependencies:
+      cross-spawn: 7.0.3
+      esbuild: 0.14.17
+      esbuild-node-loader: 0.6.4_typescript@4.5.5
+      esbuild-register: 3.3.2_esbuild@0.14.17
+      import-meta-resolve: 1.1.1
+    transitivePeerDependencies:
+      - typescript
     dev: true
 
   /espree/9.3.0:
@@ -1318,6 +1366,15 @@ packages:
     dependencies:
       parent-module: 1.0.1
       resolve-from: 4.0.0
+    dev: true
+
+  /import-meta-resolve/1.1.1:
+    resolution:
+      {
+        integrity: sha512-JiTuIvVyPaUg11eTrNDx5bgQ/yMKMZffc7YSjvQeSMXy58DO2SQ8BtAf3xteZvmzvjYh14wnqNjL8XVeDy2o9A==
+      }
+    dependencies:
+      builtins: 4.0.0
     dev: true
 
   /imurmurhash/0.1.4:
@@ -2070,17 +2127,6 @@ packages:
       {
         integrity: sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==
       }
-    dev: true
-
-  /tsm/2.2.1:
-    resolution:
-      {
-        integrity: sha512-qvJB0baPnxQJolZru11mRgGTdNlx17WqgJnle7eht3Vhb+VUR4/zFA5hFl6NqRe7m8BD9w/6yu0B2XciRrdoJA==
-      }
-    engines: { node: '>=12' }
-    hasBin: true
-    dependencies:
-      esbuild: 0.14.17
     dev: true
 
   /tsutils/3.21.0_typescript@4.5.5:
