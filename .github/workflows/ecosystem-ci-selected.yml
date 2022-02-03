@@ -43,4 +43,4 @@ jobs:
           node-version: 16
       - run: npm i -g pnpm
       - run: pnpm i --frozen-lockfile
-      - run: node ecosystem-ci.js --${{ github.event.inputs.refType }} ${{ github.event.inputs.ref }} ${{ github.event.inputs.suite }}
+      - run: esmo ecosystem-ci.ts --${{ github.event.inputs.refType }} ${{ github.event.inputs.ref }} ${{ github.event.inputs.suite }}
