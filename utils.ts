@@ -90,10 +90,10 @@ export async function setupRepo(options: RepoOptions) {
 	}
 }
 
-function pnpmCommand(
+function toCommand(
 	task: string | (() => Promise<any>) | void
 ): (() => Promise<any>) | void {
-	return typeof task === 'string' ? async () => $`pnpm ${task}` : task
+	return typeof task === 'string' ? async () => $`nr ${task}` : task
 }
 
 export async function runInRepo(options: RunOptions & RepoOptions) {
@@ -107,8 +107,8 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		options.branch = 'main'
 	}
 	const { build, test, repo, branch, tag, commit, skipGit, verify } = options
-	const buildCommand = pnpmCommand(build)
-	const testCommand = pnpmCommand(test)
+	const buildCommand = toCommand(build)
+	const testCommand = toCommand(test)
 	const dir = path.resolve(
 		options.workspace,
 		options.dir || repo.substring(repo.lastIndexOf('/') + 1)
@@ -121,7 +121,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	}
 
 	if (verify && test) {
-		await $`pnpm install --frozen-lockfile --prefer-offline`
+		await $`ni --frozen`
 		await buildCommand?.()
 		await testCommand?.()
 	}
@@ -139,7 +139,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		overrides.vite = `${options.vitePath}/packages/vite`
 	}
 	await addLocalPackageOverrides(dir, overrides)
-	await $`pnpm install --prefer-frozen-lockfile --prefer-offline`
+	await $`ni`
 	await buildCommand?.()
 	if (test) {
 		await testCommand?.()
@@ -159,13 +159,13 @@ export async function setupViteRepo(options: Partial<RepoOptions>) {
 
 export async function buildVite({ verify = false }) {
 	cd(vitePath)
-	await $`pnpm install --frozen-lockfile`
-	await $`pnpm run ci-build-vite`
-	await $`pnpm run build-plugin-vue`
-	await $`pnpm run build-plugin-react`
+	await $`ni --frozen`
+	await $`nr ci-build-vite`
+	await $`nr build-plugin-vue`
+	await $`nr build-plugin-react`
 	if (verify) {
-		await $`pnpm run test-serve -- --runInBand`
-		await $`pnpm run test-build -- --runInBand`
+		await $`nr test-serve -- --runInBand`
+		await $`nr test-build -- --runInBand`
 	}
 }
 
@@ -215,6 +215,14 @@ export async function addLocalPackageOverrides(
 	}
 	pkg.pnpm.overrides = {
 		...pkg.pnpm.overrides,
+		...overrides
+	}
+	pkg.overrides = {
+		...pkg.overrides,
+		...overrides
+	}
+	pkg.resolutions = {
+		...pkg.resolutions,
 		...overrides
 	}
 	if (!pkg.devDependencies) {
