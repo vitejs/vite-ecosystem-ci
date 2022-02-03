@@ -9,6 +9,7 @@ import {
 	RepoOptions,
 	RunOptions
 } from './types'
+import { detect } from '@antfu/ni'
 
 let vitePath: string
 let cwd: string
@@ -139,8 +140,8 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	if (!overrides.vite) {
 		overrides.vite = `${options.vitePath}/packages/vite`
 	}
-	await addLocalPackageOverrides(dir, overrides)
-	await $`ni`
+	await applyPackageOverrides(dir, overrides)
+
 	await buildCommand?.()
 	if (test) {
 		await testCommand?.()
@@ -204,36 +205,56 @@ export async function bisectVite(
 	}
 }
 
-export async function addLocalPackageOverrides(
+export async function applyPackageOverrides(
 	dir: string,
 	overrides: Overrides = {}
 ) {
 	await $`git clean -fdxq` // remove current install
+
+	const pm = await detect({ cwd: dir, autoInstall: false })
+
 	const pkgFile = path.join(dir, 'package.json')
 	const pkg = JSON.parse(await fs.promises.readFile(pkgFile, 'utf-8'))
-	if (!pkg.pnpm) {
-		pkg.pnpm = {}
+
+	if (pm === 'pnpm') {
+		if (!pkg.devDependencies) {
+			pkg.devDependencies = {}
+		}
+		pkg.devDependencies = {
+			...pkg.devDependencies,
+			...overrides // overrides must be present in devDependencies or dependencies otherwise they may not work
+		}
+		if (!pkg.pnpm) {
+			pkg.pnpm = {}
+		}
+		pkg.pnpm.overrides = {
+			...pkg.pnpm.overrides,
+			...overrides
+		}
+	} else if (pm === 'yarn') {
+		pkg.resolutions = {
+			...pkg.resolutions,
+			...overrides
+		}
+	} else if (pm === 'npm') {
+		pkg.overrides = {
+			...pkg.overrides,
+			...overrides
+		}
+	} else {
+		throw new Error(`unsupported package manager detected: ${pm}`)
 	}
-	pkg.pnpm.overrides = {
-		...pkg.pnpm.overrides,
-		...overrides
-	}
-	pkg.overrides = {
-		...pkg.overrides,
-		...overrides
-	}
-	pkg.resolutions = {
-		...pkg.resolutions,
-		...overrides
-	}
-	if (!pkg.devDependencies) {
-		pkg.devDependencies = {}
-	}
-	pkg.devDependencies = {
-		...pkg.devDependencies,
-		...overrides
-	}
+
 	await fs.promises.writeFile(pkgFile, JSON.stringify(pkg, null, 2), 'utf-8')
+
+	// use of `ni` command here could cause lockfile violation errors so fall back to native commands that avoid these
+	if (pm === 'pnpm') {
+		await $`pnpm install --prefer-frozen-lockfile --prefer-offline`
+	} else if (pm === 'yarn') {
+		await $`yarn install`
+	} else if (pm === 'npm') {
+		await $`npm install`
+	}
 }
 
 export function dirnameFrom(url: string) {
