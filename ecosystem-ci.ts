@@ -13,16 +13,20 @@ cli
 	.option('--branch <branch>', 'vite branch to use', { default: 'main' })
 	.option('--tag <tag>', 'vite tag to use')
 	.option('--commit <commit>', 'vite commit sha to use')
+	.option('--release <version>', 'vite release to use from npm registry')
 	.action(async (suites, options: CommandOptions) => {
 		const { root, vitePath, workspace } = await setupEnvironment()
 		const suitesToRun = getSuitesToRun(suites, root)
-		await setupViteRepo(options)
-		await buildVite({ verify: options.verify })
+		if (!options.release) {
+			await setupViteRepo(options)
+			await buildVite({ verify: options.verify })
+		}
 		const runOptions: RunOptions = {
 			root,
 			vitePath,
 			workspace,
-			verify: options.verify != null ? options.verify : false,
+			release: options.release,
+			verify: options.verify,
 			skipGit: false
 		}
 		for (const suite of suitesToRun) {
@@ -38,7 +42,7 @@ cli
 	.option('--branch <branch>', 'vite branch to use', { default: 'main' })
 	.option('--tag <tag>', 'vite tag to use')
 	.option('--commit <commit>', 'vite commit sha to use')
-	.action(async (options) => {
+	.action(async (options: CommandOptions) => {
 		await setupEnvironment()
 		await setupViteRepo(options)
 		await buildVite({ verify: options.verify })
@@ -51,10 +55,11 @@ cli
 		'verify checkout by running tests before using local vite',
 		{ default: false }
 	)
-	.action(async (suites, options) => {
+	.option('--release <version>', 'vite release to use from npm registry')
+	.action(async (suites, options: CommandOptions) => {
 		const { root, vitePath, workspace } = await setupEnvironment()
 		const suitesToRun = getSuitesToRun(suites, root)
-		const runOptions = {
+		const runOptions: RunOptions = {
 			...options,
 			root,
 			vitePath,
