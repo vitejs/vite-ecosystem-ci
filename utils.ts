@@ -241,6 +241,15 @@ export async function applyPackageOverrides(
 			...pkg.overrides,
 			...overrides
 		}
+		// npm does not allow overriding direct dependencies, force it by updating the blocks themselves
+		for (const [name, version] of Object.entries(overrides)) {
+			if (pkg.dependencies?.[name]) {
+				pkg.dependencies[name] = version
+			}
+			if (pkg.devDependencies?.[name]) {
+				pkg.devDependencies[name] = version
+			}
+		}
 	} else {
 		throw new Error(`unsupported package manager detected: ${pm}`)
 	}
