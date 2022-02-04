@@ -16,8 +16,7 @@ export async function test(options: RunOptions) {
 		overrides: {
 			'@sveltejs/vite-plugin-svelte': `${pluginPath}/packages/vite-plugin-svelte`
 		},
-		build:
-			'build --filter ./packages --filter !./packages/create-svelte/templates',
+		build: 'build',
 		test: 'test'
 	})
 }
