@@ -6,6 +6,6 @@ export async function test(options: RunOptions) {
 		...options,
 		repo: 'vitest-dev/vitest',
 		build: 'build',
-		test: 'test:run'
+		test: 'test:run -- --allowOnly'
 	})
 }
