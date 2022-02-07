@@ -6,6 +6,6 @@ export async function test(options: RunOptions) {
 		...options,
 		repo: 'Shopify/hydrogen',
 		build: 'build',
-		test: 'test'
+		test: 'test:vite-ci'
 	})
 }
