@@ -212,7 +212,10 @@ export async function applyPackageOverrides(
 ) {
 	await $`git clean -fdxq` // remove current install
 
-	const pm = await detect({ cwd: dir, autoInstall: false })
+	const agent = await detect({ cwd: dir, autoInstall: false })
+
+	// yarn@berry should work in the same way as yarn for our use case
+	const pm = agent === 'yarn@berry' ? 'yarn' : agent
 
 	const pkgFile = path.join(dir, 'package.json')
 	const pkg = JSON.parse(await fs.promises.readFile(pkgFile, 'utf-8'))
