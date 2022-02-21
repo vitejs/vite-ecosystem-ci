@@ -7,7 +7,8 @@ import {
 	Overrides,
 	ProcessEnv,
 	RepoOptions,
-	RunOptions
+	RunOptions,
+	Task
 } from './types'
 //eslint-disable-next-line node/no-unpublished-import
 import { detect } from '@antfu/ni'
@@ -93,10 +94,13 @@ export async function setupRepo(options: RepoOptions) {
 	}
 }
 
-function toCommand(
-	task: string | (() => Promise<any>) | void
-): (() => Promise<any>) | void {
-	return typeof task === 'string' ? async () => $`nr ${task}` : task
+function toCommand(task: Task | Task[] | void): (() => Promise<any>) | void {
+	return async () => {
+		const tasks = Array.isArray(task) ? task : [task]
+		for (const task of tasks) {
+			await (typeof task === 'string' ? $`nr ${task}` : task?.())
+		}
+	}
 }
 
 export async function runInRepo(options: RunOptions & RepoOptions) {
