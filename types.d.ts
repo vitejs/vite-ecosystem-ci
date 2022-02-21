@@ -14,7 +14,7 @@ export interface RunOptions {
 	skipGit?: boolean
 	release?: string
 	build?: Task
-	test?: Task
+	test?: Task | Task[]
 }
 
 type Task = string | (() => Promise<any>)

@@ -6,6 +6,6 @@ export async function test(options: RunOptions) {
 		...options,
 		repo: 'nuxt/framework',
 		build: 'build',
-		test: 'test:presets'
+		test: ['test:fixtures', 'test:types']
 	})
 }
