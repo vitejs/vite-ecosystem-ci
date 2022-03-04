@@ -43,7 +43,9 @@ jobs:
             laravel,
             nuxt-framework,
             marko,
-            hydrogen
+            hydrogen,
+            vite-plugin-ssr,
+            telefunc
           ]
       fail-fast: false
     steps:
