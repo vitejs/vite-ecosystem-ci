@@ -37,6 +37,7 @@ on:
           - laravel
           - nuxt-framework
           - marko
+          - hydrogen
 jobs:
   execute-selected-suite:
     runs-on: ubuntu-latest

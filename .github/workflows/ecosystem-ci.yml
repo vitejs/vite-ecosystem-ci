@@ -42,7 +42,8 @@ jobs:
             windicss,
             laravel,
             nuxt-framework,
-            marko
+            marko,
+            hydrogen
           ]
       fail-fast: false
     steps:
