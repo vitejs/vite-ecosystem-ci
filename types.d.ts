@@ -15,6 +15,7 @@ export interface RunOptions {
 	release?: string
 	build?: Task
 	test?: Task | Task[]
+	beforeInstall?: Task
 }
 
 type Task = string | (() => Promise<any>)

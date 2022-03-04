@@ -113,7 +113,18 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	if (options.branch == null) {
 		options.branch = 'main'
 	}
-	const { build, test, repo, branch, tag, commit, skipGit, verify } = options
+	const {
+		build,
+		test,
+		repo,
+		branch,
+		tag,
+		commit,
+		skipGit,
+		verify,
+		beforeInstall
+	} = options
+	const beforeInstallCommand = toCommand(beforeInstall)
 	const buildCommand = toCommand(build)
 	const testCommand = toCommand(test)
 	const dir = path.resolve(
@@ -126,6 +137,8 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	} else {
 		cd(dir)
 	}
+
+	await beforeInstallCommand?.()
 
 	if (verify && test) {
 		await $`ni --frozen`
