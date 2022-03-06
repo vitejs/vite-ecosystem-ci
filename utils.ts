@@ -21,7 +21,7 @@ function cd(dir: string) {
 	cwd = path.resolve(cwd, dir)
 }
 
-async function $(literals: TemplateStringsArray, ...values: any[]) {
+export async function $(literals: TemplateStringsArray, ...values: any[]) {
 	const cmd = literals.reduce(
 		(result, current, i) =>
 			result + current + (values?.[i] != null ? `${values[i]}` : ''),
