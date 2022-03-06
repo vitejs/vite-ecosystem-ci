@@ -37,7 +37,6 @@ on:
           - laravel
           - nuxt-framework
           - marko
-          - hydrogen
           - vite-plugin-ssr
           - telefunc
 jobs:
