@@ -39,6 +39,7 @@ on:
           - marko
           - vite-plugin-ssr
           - telefunc
+          - astro
 jobs:
   execute-selected-suite:
     runs-on: ubuntu-latest
