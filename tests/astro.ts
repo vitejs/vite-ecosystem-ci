@@ -6,6 +6,6 @@ export async function test(options: RunOptions) {
 		...options,
 		repo: 'withastro/astro',
 		build: 'build:ci',
-		test: 'test'
+		test: 'test:vite-ci'
 	})
 }
