@@ -30,6 +30,7 @@ on:
     types: [ecosystem-ci]
 jobs:
   test-ecosystem:
+    timeout-minutes: 20
     runs-on: ubuntu-latest
     strategy:
       matrix:
