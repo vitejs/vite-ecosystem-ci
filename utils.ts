@@ -231,8 +231,10 @@ export async function applyPackageOverrides(
 
 	const agent = await detect({ cwd: dir, autoInstall: false })
 
-	// yarn@berry should work in the same way as yarn for our use case
-	const pm = agent === 'yarn@berry' ? 'yarn' : agent
+	// Remove version from agent string:
+	// yarn@berry => yarn
+	// pnpm@6, pnpm@7 => pnpm
+	const pm = agent?.split('@')[0]
 
 	const pkgFile = path.join(dir, 'package.json')
 	const pkg = JSON.parse(await fs.promises.readFile(pkgFile, 'utf-8'))
