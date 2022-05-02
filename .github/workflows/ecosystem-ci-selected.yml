@@ -52,6 +52,6 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.19.3
-      - run: npm i -g pnpm
+      - run: npm i -g pnpm@6
       - run: pnpm i --frozen-lockfile
       - run: pnpm exec -- esmo ecosystem-ci.ts --${{ github.event.inputs.refType }} ${{ github.event.inputs.ref }} ${{ github.event.inputs.suite }}
