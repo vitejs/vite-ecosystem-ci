@@ -23,7 +23,7 @@
       "eslint"
     ]
   },
-  "packageManager": "pnpm@6.32.12",
+  "packageManager": "pnpm@7.0.1",
   "type": "module",
   "engines": {
     "node": "^14.13.1 || ^16"
