@@ -7,9 +7,8 @@ env:
   NODE_OPTIONS: --max-old-space-size=6144
 
 on:
-  # no scheduled runs due to expected fails during pnpm7 migration period
-  # schedule:
-  #  - cron: "0 5 * * 1,3,5" # monday,wednesday,friday 5AM
+  schedule:
+   - cron: "0 5 * * 1,3,5" # monday,wednesday,friday 5AM
   workflow_dispatch:
     inputs:
       refType:
@@ -36,16 +35,17 @@ jobs:
     strategy:
       matrix:
         suite:
+          # disabled projects still on pnpm6
           [
             iles,
-            svelte,
-            vitepress,
+          #  svelte,
+          #  vitepress,
             vitest,
-            windicss,
+          #  windicss,
             laravel,
             nuxt-framework,
             marko,
-            vite-plugin-ssr,
+          #  vite-plugin-ssr,
             telefunc,
             astro
           ]
@@ -58,8 +58,11 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.19.3
-      - run: |
+      - name: install pnpm
+        shell: bash
+        run: |
           PNPM_VER=$(jq -r '.packageManager | if .[0:5] == "pnpm@" then .[5:] else "packageManager in package.json does not start with pnpm@\n" | halt_error(1)  end' package.json)
+          echo installing pnpm version $PNPM_VER
           npm i -g pnpm@$PNPM_VER
       - run: pnpm i --frozen-lockfile
       - run: pnpm exec -- esmo ecosystem-ci.ts --${{ github.event.inputs.refType || github.event.client_payload.refType || 'branch' }} ${{ github.event.inputs.ref || github.event.client_payload.ref || 'main' }} ${{ matrix.suite }}
