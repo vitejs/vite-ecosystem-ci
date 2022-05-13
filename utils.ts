@@ -180,12 +180,9 @@ export async function setupViteRepo(options: Partial<RepoOptions>) {
 export async function buildVite({ verify = false }) {
 	cd(vitePath)
 	await $`ni --frozen`
-	await $`nr ci-build-vite`
-	await $`nr build-plugin-vue`
-	await $`nr build-plugin-react`
+	await $`nr build`
 	if (verify) {
-		await $`nr test-serve -- --runInBand`
-		await $`nr test-build -- --runInBand`
+		await $`nr test`
 	}
 }
 
