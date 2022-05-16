@@ -6,7 +6,7 @@ export async function test(options: RunOptions) {
 		...options,
 		repo: 'sveltejs/vite-plugin-svelte',
 		build: 'build:ci',
-		test: 'test:ci'
+		test: 'test'
 	})
 
 	await runInRepo({
