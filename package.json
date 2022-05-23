@@ -5,12 +5,12 @@
   "scripts": {
     "prepare": "pnpm exec simple-git-hooks",
     "lint": "eslint --ignore-path .gitignore '**/*.ts'",
-    "lint:fix": "pnpm run lint -- --fix",
+    "lint:fix": "pnpm lint --fix",
     "format": "prettier --ignore-path .gitignore --check .",
-    "format:fix": "pnpm run format -- --write",
-    "test:self": "esmo ecosystem-ci.ts _selftest",
-    "test": "esmo ecosystem-ci.ts",
-    "bisect": "esmo ecosystem-ci.ts bisect"
+    "format:fix": "pnpm format --write",
+    "test:self": "tsx ecosystem-ci.ts _selftest",
+    "test": "tsx ecosystem-ci.ts",
+    "bisect": "tsx ecosystem-ci.ts bisect"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm exec lint-staged --concurrent false"
@@ -50,7 +50,7 @@
     "eslint": "^8.16.0",
     "eslint-define-config": "^1.4.1",
     "eslint-plugin-node": "^11.1.0",
-    "esno": "^0.16.3",
+    "tsx": "^3.4.0",
     "lint-staged": "^12.4.1",
     "prettier": "^2.6.2",
     "simple-git-hooks": "^2.7.0",

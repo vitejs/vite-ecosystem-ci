@@ -59,4 +59,4 @@ jobs:
           deno-version: v1.19.3
       - run: corepack enable
       - run: pnpm i --frozen-lockfile
-      - run: pnpm exec -- esmo ecosystem-ci.ts --${{ github.event.inputs.refType || github.event.client_payload.refType || 'branch' }} ${{ github.event.inputs.ref || github.event.client_payload.ref || 'main' }} ${{ matrix.suite }}
+      - run: pnpm tsx ecosystem-ci.ts --${{ github.event.inputs.refType || github.event.client_payload.refType || 'branch' }} ${{ github.event.inputs.ref || github.event.client_payload.ref || 'main' }} ${{ matrix.suite }}
