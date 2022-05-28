@@ -154,9 +154,20 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		} else {
 			overrides.vite = options.release
 		}
-	}
-	if (!overrides.vite) {
-		overrides.vite = `${options.vitePath}/packages/vite`
+	} else {
+		overrides.vite ||= `${options.vitePath}/packages/vite`
+		overrides[
+			`@vitejs/plugin-vue`
+		] ||= `${options.vitePath}/packages/plugin-vue`
+		overrides[
+			`@vitejs/plugin-vue-jsx`
+		] ||= `${options.vitePath}/packages/plugin-vue-jsx`
+		overrides[
+			`@vitejs/plugin-react`
+		] ||= `${options.vitePath}/packages/plugin-react`
+		overrides[
+			`@vitejs/plugin-legacy`
+		] ||= `${options.vitePath}/packages/plugin-legacy`
 	}
 	await applyPackageOverrides(dir, overrides)
 
