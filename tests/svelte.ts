@@ -5,6 +5,7 @@ export async function test(options: RunOptions) {
 	const { dir: pluginPath } = await runInRepo({
 		...options,
 		repo: 'sveltejs/vite-plugin-svelte',
+		branch: 'vite-3',
 		build: 'build:ci',
 		test: 'test'
 	})
@@ -12,7 +13,7 @@ export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
 		repo: 'sveltejs/kit',
-		branch: 'master',
+		branch: 'vite-3',
 		overrides: {
 			'@sveltejs/vite-plugin-svelte': `${pluginPath}/packages/vite-plugin-svelte`
 		},
