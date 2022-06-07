@@ -47,7 +47,8 @@ jobs:
             vite-plugin-ssr,
             telefunc,
             astro,
-            rakkas
+            rakkas,
+            storybook
           ]
       fail-fast: false
     steps:
