@@ -16,6 +16,10 @@ export interface RunOptions {
 	build?: Task
 	test?: Task | Task[]
 	beforeInstall?: Task
+	/**
+	 * Whether to use `file:` instead of `link:`
+	 */
+	useCopyForOverrides?: boolean
 }
 
 type Task = string | (() => Promise<any>)
