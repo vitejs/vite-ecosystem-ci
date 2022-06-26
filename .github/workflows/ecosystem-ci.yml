@@ -48,7 +48,8 @@ jobs:
             telefunc,
             astro,
             rakkas,
-            storybook
+            storybook,
+            vite-setup-catalogue
           ]
       fail-fast: false
     steps:
