@@ -171,6 +171,9 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		overrides[
 			`@vitejs/plugin-legacy`
 		] ||= `${protocol}${options.vitePath}/packages/plugin-legacy`
+		overrides[
+			`@types/node`
+		] ||= `${protocol}${options.vitePath}/node_modules/@types/node`
 	}
 	await applyPackageOverrides(dir, overrides)
 
