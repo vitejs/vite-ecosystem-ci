@@ -122,7 +122,8 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		commit,
 		skipGit,
 		verify,
-		beforeInstall
+		beforeInstall,
+		useCopyForOverrides
 	} = options
 	const beforeInstallCommand = toCommand(beforeInstall)
 	const buildCommand = toCommand(build)
@@ -155,20 +156,24 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			overrides.vite = options.release
 		}
 	} else {
-		overrides.vite ||= `${options.vitePath}/packages/vite`
+		const protocol = useCopyForOverrides ? 'file:' : ''
+
+		overrides.vite ||= `${protocol}${options.vitePath}/packages/vite`
 		overrides[
 			`@vitejs/plugin-vue`
-		] ||= `${options.vitePath}/packages/plugin-vue`
+		] ||= `${protocol}${options.vitePath}/packages/plugin-vue`
 		overrides[
 			`@vitejs/plugin-vue-jsx`
-		] ||= `${options.vitePath}/packages/plugin-vue-jsx`
+		] ||= `${protocol}${options.vitePath}/packages/plugin-vue-jsx`
 		overrides[
 			`@vitejs/plugin-react`
-		] ||= `${options.vitePath}/packages/plugin-react`
+		] ||= `${protocol}${options.vitePath}/packages/plugin-react`
 		overrides[
 			`@vitejs/plugin-legacy`
-		] ||= `${options.vitePath}/packages/plugin-legacy`
-		overrides[`@types/node`] ||= `${options.vitePath}/node_modules/@types/node`
+		] ||= `${protocol}${options.vitePath}/packages/plugin-legacy`
+		overrides[
+			`@types/node`
+		] ||= `${protocol}${options.vitePath}/node_modules/@types/node`
 	}
 	await applyPackageOverrides(dir, overrides)
 
