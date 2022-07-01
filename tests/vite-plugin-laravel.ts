@@ -4,8 +4,8 @@ import { RunOptions } from '../types'
 export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
-		repo: 'laravel/vite-plugin',
+		repo: 'innocenzi/laravel-vite',
 		build: 'build',
-		test: 'test'
+		test: 'test:vite'
 	})
 }
