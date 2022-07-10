@@ -7,6 +7,7 @@ export async function test(options: RunOptions) {
 		repo: 'tajo/ladle',
 		branch: 'master',
 		build: 'build',
-		test: [async () => $`pnpm playwright install chromium`, 'test']
+    beforeTest: 'pnpm playwright install chromium',
+		test: 'test'
 	})
 }
