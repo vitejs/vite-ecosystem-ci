@@ -94,11 +94,19 @@ export async function setupRepo(options: RepoOptions) {
 	}
 }
 
-function toCommand(task: Task | Task[] | void): (() => Promise<any>) | void {
-	return async () => {
+function toCommand(task: Task | Task[] | void): ((scripts: any) => Promise<any>) | void {
+	return async (scripts: any) => {
 		const tasks = Array.isArray(task) ? task : [task]
 		for (const task of tasks) {
-			await (typeof task === 'string' ? $`nr ${task}` : task?.())
+			if(task == null || task === '') {
+				continue;
+			} else if (typeof task === 'string') {
+				await (scripts?.[task] != null ? $`nr ${task}` : $`${task}`)
+			} else if(typeof task === 'function') {
+				await task();
+			} else {
+				throw new Error(`invalid task, expected string or function but got ${typeof task}: ${task}`)
+			}
 		}
 	}
 }
@@ -123,9 +131,13 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		skipGit,
 		verify,
 		beforeInstall,
+		beforeBuild,
+		beforeTest,
 		useCopyForOverrides
 	} = options
 	const beforeInstallCommand = toCommand(beforeInstall)
+	const beforeBuildCommand = toCommand(beforeBuild)
+	const beforeTestCommand = toCommand(beforeTest)
 	const buildCommand = toCommand(build)
 	const testCommand = toCommand(test)
 	const dir = path.resolve(
@@ -139,12 +151,17 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		cd(dir)
 	}
 
-	await beforeInstallCommand?.()
+	const pkgFile = path.join(dir, 'package.json')
+	const pkg = JSON.parse(await fs.promises.readFile(pkgFile, 'utf-8'))
+
+	await beforeInstallCommand?.(pkg.scripts)
 
 	if (verify && test) {
 		await $`ni --frozen`
-		await buildCommand?.()
-		await testCommand?.()
+		await beforeBuildCommand?.(pkg.scripts)
+		await buildCommand?.(pkg.scripts)
+		await beforeTestCommand?.(pkg.scripts)
+		await testCommand?.(pkg.scripts)
 	}
 	const overrides = options.overrides || {}
 	if (options.release) {
@@ -176,11 +193,12 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		)
 		overrides[`@types/node`] ||= `${protocol}${typesNodePath}`
 	}
-	await applyPackageOverrides(dir, overrides)
-
-	await buildCommand?.()
+	await applyPackageOverrides(dir,pkg, overrides)
+	await beforeBuildCommand?.(pkg.scripts)
+	await buildCommand?.(pkg.scripts)
 	if (test) {
-		await testCommand?.()
+		await beforeTestCommand?.(pkg.scripts)
+		await testCommand?.(pkg.scripts)
 	}
 	return { dir }
 }
@@ -240,6 +258,7 @@ export async function bisectVite(
 
 export async function applyPackageOverrides(
 	dir: string,
+	pkg: any,
 	overrides: Overrides = {}
 ) {
 	await $`git clean -fdxq` // remove current install
@@ -250,9 +269,6 @@ export async function applyPackageOverrides(
 	// yarn@berry => yarn
 	// pnpm@6, pnpm@7 => pnpm
 	const pm = agent?.split('@')[0]
-
-	const pkgFile = path.join(dir, 'package.json')
-	const pkg = JSON.parse(await fs.promises.readFile(pkgFile, 'utf-8'))
 
 	if (pm === 'pnpm') {
 		if (!pkg.devDependencies) {
@@ -291,7 +307,7 @@ export async function applyPackageOverrides(
 	} else {
 		throw new Error(`unsupported package manager detected: ${pm}`)
 	}
-
+	const pkgFile = path.join(dir,'package.json')
 	await fs.promises.writeFile(pkgFile, JSON.stringify(pkg, null, 2), 'utf-8')
 
 	// use of `ni` command here could cause lockfile violation errors so fall back to native commands that avoid these
