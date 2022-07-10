@@ -24,7 +24,7 @@ export async function test(options: RunOptions) {
 				'utf-8'
 			)
 		},
-		test: 'selftestscript',
+		test: 'pnpm run selftestscript',
 		verify: false
 	})
 }
