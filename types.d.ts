@@ -13,9 +13,11 @@ export interface RunOptions {
 	verify?: boolean
 	skipGit?: boolean
 	release?: string
-	build?: Task
+	build?: Task | Task[]
 	test?: Task | Task[]
-	beforeInstall?: Task
+	beforeInstall?: Task | Task[]
+	beforeBuild?: Task | Task[]
+	beforeTest?: Task | Task[]
 	/**
 	 * Whether to use `file:` instead of `link:`
 	 */
