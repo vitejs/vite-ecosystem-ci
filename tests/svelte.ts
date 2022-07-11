@@ -18,6 +18,7 @@ export async function test(options: RunOptions) {
 			'@sveltejs/vite-plugin-svelte': `${pluginPath}/packages/vite-plugin-svelte`
 		},
 		build: 'build',
+		beforeTest: 'pnpm playwright install',
 		test: 'test'
 	})
 }
