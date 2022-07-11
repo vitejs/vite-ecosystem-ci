@@ -1,4 +1,4 @@
-import { runInRepo, $ } from '../utils'
+import { runInRepo } from '../utils'
 import { RunOptions } from '../types'
 
 export async function test(options: RunOptions) {
@@ -7,7 +7,7 @@ export async function test(options: RunOptions) {
 		repo: 'tajo/ladle',
 		branch: 'master',
 		build: 'build',
-    beforeTest: 'pnpm playwright install chromium',
+		beforeTest: 'pnpm playwright install chromium',
 		test: 'test'
 	})
 }
