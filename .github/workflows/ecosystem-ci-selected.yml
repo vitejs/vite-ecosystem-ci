@@ -29,21 +29,21 @@ on:
         required: true
         type: choice
         options:
-          - ladle
+          - astro
           - iles
+          - ladle
+          - laravel
+          - marko
+          - nuxt-framework
+          - rakkas
+          - storybook
           - svelte
+          - telefunc
+          - vite-plugin-ssr
+          - vite-setup-catalogue
           - vitepress
           - vitest
           - windicss
-          - laravel
-          - nuxt-framework
-          - marko
-          - vite-plugin-ssr
-          - telefunc
-          - astro
-          - rakkas
-          - storybook
-          - vite-setup-catalogue
 jobs:
   execute-selected-suite:
     timeout-minutes: 20
