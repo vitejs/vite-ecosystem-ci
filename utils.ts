@@ -101,7 +101,8 @@ function toCommand(task: Task | Task[] | void): ((scripts: any) => Promise<any>)
 			if(task == null || task === '') {
 				continue;
 			} else if (typeof task === 'string') {
-				await (scripts?.[task] != null ? $`nr ${task}` : $`${task}`)
+				const scriptOrBin = task.trim().split(/\s+/)[0];
+				await (scripts?.[scriptOrBin] != null ? $`nr ${task}` : $`${task}`)
 			} else if(typeof task === 'function') {
 				await task();
 			} else {
