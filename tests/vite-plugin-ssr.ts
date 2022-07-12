@@ -5,7 +5,7 @@ export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
 		repo: 'brillout/vite-plugin-ssr',
-		branch: '0.4.0',
+		branch: 'main',
 		beforeInstall: 'setup', // Needed for submodule initialization
 		build: 'build',
 		test: 'test'
