@@ -75,7 +75,7 @@ async function run() {
 						inline: true
 					},
 					{
-						name: ':vite: Vite target',
+						name: ':zap: Vite target',
 						value: createTargetText(env.REF_TYPE, env.REF, env.PERM_REF),
 						inline: true
 					},
