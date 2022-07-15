@@ -70,7 +70,7 @@ async function run() {
 						inline: true
 					},
 					{
-						name: 'Logs',
+						name: ':scroll: Logs',
 						value: `[Open](${runUrl})`,
 						inline: true
 					},
