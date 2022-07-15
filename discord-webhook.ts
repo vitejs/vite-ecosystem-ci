@@ -51,7 +51,7 @@ async function run() {
 	assertEnv('STATUS', env.STATUS)
 	assertEnv('DISCORD_WEBHOOK_URL', env.DISCORD_WEBHOOK_URL)
 
-	const runUrl = await createRunUrl()
+	const runUrl = await createRunUrl(env.SUITE)
 	const webhookContent = {
 		username: `vite-ecosystem-ci (${env.WORKFLOW_NAME})`,
 		avatar_url: 'https://github.com/vitejs.png',
@@ -113,10 +113,18 @@ function assertEnv<T>(
 	}
 }
 
-async function createRunUrl() {
+async function createRunUrl(suite: string) {
 	const result = await fetchJobs()
-	return result.jobs.find((job) => job.name === process.env.GITHUB_JOB)
-		?.html_url
+	const job = result.jobs.find((job) => job.name === process.env.GITHUB_JOB)
+	if (job) {
+		return job.html_url
+	}
+
+	// when matrix
+	const jobM = result.jobs.find(
+		(job) => job.name === `${process.env.GITHUB_JOB} (${suite})`
+	)
+	return jobM?.html_url
 }
 
 interface GitHubActionsJob {
