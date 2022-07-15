@@ -65,12 +65,14 @@ jobs:
       - run: corepack enable
       - run: pnpm i --frozen-lockfile
       - run: pnpm tsx ecosystem-ci.ts --${{ inputs.refType || github.event.client_payload.refType || 'branch' }} ${{ inputs.ref || github.event.client_payload.ref || 'main' }} ${{ matrix.suite }}
+        id: ecosystem-ci-run
       - if: always()
         run: pnpm tsx discord-webhook.ts
         env:
           WORKFLOW_NAME: ci
           REF_TYPE: ${{ inputs.refType || github.event.client_payload.refType || 'branch' }}
           REF: ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
+          PERM_REF: ${{ steps.ecosystem-ci-run.outputs.ref }}
           SUITE: ${{ matrix.suite }}
           NODE_VERSION: ${{ steps.setup-node.outputs.node-version }}
           DENO_VERSION: ${{ steps.setup-deno.outputs.deno-version }}
