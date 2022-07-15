@@ -49,7 +49,6 @@ async function run() {
 		embeds: [
 			{
 				title: 'CI Run Result',
-				description: createDescription(env.REF_TYPE, env.REF),
 				url: createRunUrl(),
 				color: statusConfig[env.STATUS].color,
 				fields: [
@@ -61,6 +60,16 @@ async function run() {
 					{
 						name: ':bar_chart: Status',
 						value: statusConfig[env.STATUS].text,
+						inline: true
+					},
+					{
+						name: ':vite: Vite target',
+						value: `${env.REF_TYPE} = ${env.REF}`,
+						inline: true
+					},
+					{
+						name: 'Vite commits',
+						value: `https://github.com/vitejs/vite/commits/${env.REF}`,
 						inline: true
 					},
 					{
@@ -95,13 +104,6 @@ function assertEnv<T>(
 	if (!value) {
 		throw new Error(`process.env.${name} is empty or does not exist.`)
 	}
-}
-
-function createDescription(refType: string, ref: string) {
-	return (
-		`Ran with Vite ${refType} = ${ref}\n` +
-		`Show commit log: https://github.com/vitejs/vite/commits/${ref}`
-	)
 }
 
 async function createRunUrl() {
