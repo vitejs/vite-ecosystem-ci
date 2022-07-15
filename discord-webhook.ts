@@ -44,13 +44,14 @@ async function run() {
 	assertEnv('STATUS', env.STATUS)
 	assertEnv('DISCORD_WEBHOOK_URL', env.DISCORD_WEBHOOK_URL)
 
+	const runUrl = await createRunUrl()
 	const webhookContent = {
 		username: 'vite-ecosystem-ci',
 		avatar_url: 'https://github.com/vitejs.png',
 		embeds: [
 			{
 				title: 'CI Run Result',
-				url: await createRunUrl(),
+				url: runUrl,
 				color: statusConfig[env.STATUS].color,
 				fields: [
 					{
@@ -64,15 +65,20 @@ async function run() {
 						inline: true
 					},
 					{
+						name: 'Logs',
+						value: `[Open](${runUrl})`,
+						inline: true
+					},
+					{
 						name: ':vite: Vite target',
 						value: createTargetText(env.REF_TYPE, env.REF, env.PERM_REF),
 						inline: true
 					},
 					{
 						name: 'Vite commits',
-						value: `https://github.com/vitejs/vite/commits/${
+						value: `[Open](https://github.com/vitejs/vite/commits/${
 							env.PERM_REF ?? env.REF
-						}`,
+						})`,
 						inline: true
 					},
 					{
