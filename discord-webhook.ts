@@ -55,19 +55,23 @@ async function run() {
 				fields: [
 					{
 						name: ':dart: Suite',
-						value: env.SUITE
+						value: env.SUITE,
+						inline: true
 					},
 					{
 						name: ':bar_chart: Status',
-						value: statusConfig[env.STATUS].text
+						value: statusConfig[env.STATUS].text,
+						inline: true
 					},
 					{
 						name: ':wrench: Node.js Version',
-						value: env.NODE_VERSION
+						value: env.NODE_VERSION,
+						inline: true
 					},
 					{
 						name: ':hammer: Deno Version',
-						value: env.DENO_VERSION
+						value: env.DENO_VERSION,
+						inline: true
 					}
 				]
 			}
@@ -100,8 +104,26 @@ function createDescription(refType: string, ref: string) {
 	)
 }
 
-function createRunUrl() {
-	return `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}?check_suite_focus=true`
+async function createRunUrl() {
+	const result = await fetchJobs()
+	return result.jobs.find((job) => job.name === process.env.GITHUB_JOB)
+		?.html_url
+}
+
+interface GitHubActionsJob {
+	name: string
+	html_url: string
+}
+
+async function fetchJobs() {
+	const url = `${process.env.GITHUB_API_URL}/repos/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}/jobs`
+	const res = await fetch(url, {
+		headers: {
+			Accept: 'application/vnd.github.v3+json'
+		}
+	})
+	const result = await res.json()
+	return result as { jobs: GitHubActionsJob[] }
 }
 
 run().catch((e) => {
