@@ -74,13 +74,6 @@ async function run() {
 						inline: true
 					},
 					{
-						name: 'Vite commits',
-						value: `[Open](https://github.com/vitejs/vite/commits/${
-							env.PERM_REF ?? env.REF
-						})`,
-						inline: true
-					},
-					{
 						name: ':wrench: Node.js Version',
 						value: env.NODE_VERSION,
 						inline: true
@@ -141,12 +134,13 @@ function createTargetText(
 	ref: string,
 	permRef: string | undefined
 ) {
-	let permRefText = ''
 	if (refType === 'branch') {
-		permRefText = `(${permRef || 'unknown'})`
+		const link = `https://github.com/vitejs/vite/commits/${permRef || ref}`
+		return `${refType}: [${ref} (${permRef || 'unknown'})](${link})`
 	}
 
-	return `${refType} = ${ref}${permRefText}`
+	const link = `https://github.com/vitejs/vite/commits/${ref}`
+	return `${refType}: [${ref}](${link})`
 }
 
 run().catch((e) => {
