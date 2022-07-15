@@ -1,4 +1,5 @@
 import fetch from 'node-fetch'
+import { getPermanentRef, setupEnvironment } from './utils'
 
 type RefType = 'branch' | 'tag' | 'commit' | 'release'
 type Status = 'success' | 'failure' | 'cancelled'
@@ -6,7 +7,6 @@ type Env = {
 	WORKFLOW_NAME?: string
 	REF_TYPE?: RefType
 	REF?: string
-	PERM_REF?: string
 	SUITE?: string
 	NODE_VERSION?: string
 	DENO_VERSION?: string
@@ -51,7 +51,11 @@ async function run() {
 	assertEnv('STATUS', env.STATUS)
 	assertEnv('DISCORD_WEBHOOK_URL', env.DISCORD_WEBHOOK_URL)
 
+	await setupEnvironment()
+
 	const runUrl = await createRunUrl(env.SUITE)
+	const permRef = await getPermanentRef()
+
 	const webhookContent = {
 		username: `vite-ecosystem-ci (${env.WORKFLOW_NAME})`,
 		avatar_url: 'https://github.com/vitejs.png',
@@ -76,7 +80,7 @@ async function run() {
 					},
 					{
 						name: ':zap: Vite target',
-						value: createTargetText(env.REF_TYPE, env.REF, env.PERM_REF),
+						value: createTargetText(env.REF_TYPE, env.REF, permRef),
 						inline: true
 					},
 					{

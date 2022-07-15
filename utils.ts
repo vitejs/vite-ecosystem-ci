@@ -199,6 +199,12 @@ export async function setupViteRepo(options: Partial<RepoOptions>) {
 	}
 }
 
+export async function getPermanentRef() {
+	cd(vitePath)
+	const ref = await $`git rev-parse --short HEAD`
+	return ref
+}
+
 export async function buildVite({ verify = false }) {
 	cd(vitePath)
 	await $`ni --frozen`

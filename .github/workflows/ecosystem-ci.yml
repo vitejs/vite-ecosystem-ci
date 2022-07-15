@@ -72,7 +72,6 @@ jobs:
           WORKFLOW_NAME: ci
           REF_TYPE: ${{ inputs.refType || github.event.client_payload.refType || 'branch' }}
           REF: ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
-          PERM_REF: ${{ steps.ecosystem-ci-run.outputs.ref }}
           SUITE: ${{ matrix.suite }}
           NODE_VERSION: ${{ steps.setup-node.outputs.node-version }}
           DENO_VERSION: ${{ steps.setup-deno.outputs.deno-version }}

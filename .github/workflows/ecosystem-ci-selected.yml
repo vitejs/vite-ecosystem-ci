@@ -67,7 +67,6 @@ jobs:
           WORKFLOW_NAME: ci-selected
           REF_TYPE: ${{ inputs.refType }}
           REF: ${{ inputs.ref }}
-          PERM_REF: ${{ steps.ecosystem-ci-run.outputs.ref }}
           SUITE: ${{ inputs.suite }}
           NODE_VERSION: ${{ steps.setup-node.outputs.node-version }}
           DENO_VERSION: ${{ steps.setup-deno.outputs.deno-version }}
