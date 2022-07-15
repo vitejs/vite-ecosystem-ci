@@ -58,9 +58,23 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+        id: setup-node
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.19.3
+        id: setup-deno
       - run: corepack enable
       - run: pnpm i --frozen-lockfile
       - run: pnpm tsx ecosystem-ci.ts --${{ inputs.refType || github.event.client_payload.refType || 'branch' }} ${{ inputs.ref || github.event.client_payload.ref || 'main' }} ${{ matrix.suite }}
+        id: ecosystem-ci-run
+      - if: always()
+        run: pnpm tsx discord-webhook.ts
+        env:
+          WORKFLOW_NAME: ci
+          REF_TYPE: ${{ inputs.refType || github.event.client_payload.refType || 'branch' }}
+          REF: ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
+          SUITE: ${{ matrix.suite }}
+          NODE_VERSION: ${{ steps.setup-node.outputs.node-version }}
+          DENO_VERSION: ${{ steps.setup-deno.outputs.deno-version }}
+          STATUS: ${{ job.status }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
