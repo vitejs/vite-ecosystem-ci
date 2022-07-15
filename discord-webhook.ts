@@ -36,6 +36,7 @@ async function run() {
 
 	const env = process.env as Env
 
+	assertEnv('WORKFLOW_NAME', env.WORKFLOW_NAME)
 	assertEnv('REF_TYPE', env.REF_TYPE)
 	assertEnv('REF', env.REF)
 	assertEnv('SUITE', env.SUITE)
@@ -46,12 +47,10 @@ async function run() {
 
 	const runUrl = await createRunUrl()
 	const webhookContent = {
-		username: 'vite-ecosystem-ci',
+		username: `vite-ecosystem-ci (${env.WORKFLOW_NAME})`,
 		avatar_url: 'https://github.com/vitejs.png',
 		embeds: [
 			{
-				title: 'CI Run Result',
-				url: runUrl,
 				color: statusConfig[env.STATUS].color,
 				fields: [
 					{
