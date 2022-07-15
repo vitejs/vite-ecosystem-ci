@@ -33,6 +33,12 @@ async function run() {
 	if (!process.env.GITHUB_ACTIONS) {
 		throw new Error('This script can only run on GitHub Actions.')
 	}
+	if (!process.env.DISCORD_WEBHOOK_URL) {
+		console.warn(
+			"Skipped beacuse process.env.DISCORD_WEBHOOK_URL was empty or didn't exist"
+		)
+		return
+	}
 
 	const env = process.env as Env
 
