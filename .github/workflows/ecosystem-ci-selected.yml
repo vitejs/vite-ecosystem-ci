@@ -67,7 +67,7 @@ jobs:
           REF_TYPE: ${{ inputs.refType }}
           REF: ${{ inputs.ref }}
           SUITE: ${{ inputs.suite }}
-          NODE_VERSION: ${{ steps.step-node.outputs.node-version }}
-          DENO_VERSION: ${{ steps.step-deno.outputs.deno-version }}
+          NODE_VERSION: ${{ steps.setup-node.outputs.node-version }}
+          DENO_VERSION: ${{ steps.setup-deno.outputs.deno-version }}
           STATUS: ${{ job.status }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
