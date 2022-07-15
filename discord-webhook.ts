@@ -49,7 +49,7 @@ async function run() {
 		embeds: [
 			{
 				title: 'CI Run Result',
-				url: createRunUrl(),
+				url: await createRunUrl(),
 				color: statusConfig[env.STATUS].color,
 				fields: [
 					{
