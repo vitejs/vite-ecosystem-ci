@@ -6,6 +6,7 @@ type Env = {
 	WORKFLOW_NAME?: string
 	REF_TYPE?: RefType
 	REF?: string
+	PERM_REF?: string
 	SUITE?: string
 	NODE_VERSION?: string
 	DENO_VERSION?: string
@@ -64,12 +65,14 @@ async function run() {
 					},
 					{
 						name: ':vite: Vite target',
-						value: `${env.REF_TYPE} = ${env.REF}`,
+						value: createTargetText(env.REF_TYPE, env.REF, env.PERM_REF),
 						inline: true
 					},
 					{
 						name: 'Vite commits',
-						value: `https://github.com/vitejs/vite/commits/${env.REF}`,
+						value: `https://github.com/vitejs/vite/commits/${
+							env.PERM_REF ?? env.REF
+						}`,
 						inline: true
 					},
 					{
@@ -126,6 +129,19 @@ async function fetchJobs() {
 	})
 	const result = await res.json()
 	return result as { jobs: GitHubActionsJob[] }
+}
+
+function createTargetText(
+	refType: RefType,
+	ref: string,
+	permRef: string | undefined
+) {
+	let permRefText = ''
+	if (refType === 'branch') {
+		permRefText = `(${permRef || 'unknown'})`
+	}
+
+	return `${refType} = ${ref}${permRefText}`
 }
 
 run().catch((e) => {
