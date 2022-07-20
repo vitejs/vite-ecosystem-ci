@@ -35,23 +35,21 @@ jobs:
     strategy:
       matrix:
         suite:
-          [
-            astro,
-            iles,
-            ladle,
-            laravel,
-            marko,
-            nuxt-framework,
-            rakkas,
-            storybook,
-            svelte,
-            telefunc,
-            vite-plugin-ssr,
-            vite-setup-catalogue,
-            vitepress,
-            vitest,
-            windicss
-          ]
+          - astro
+          - iles
+          - ladle
+          - laravel
+          - marko
+          - nuxt-framework
+          - rakkas
+          - storybook
+          - svelte
+          - telefunc
+          - vite-plugin-ssr
+          - vite-setup-catalogue
+          - vitepress
+          - vitest
+          - windicss
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
