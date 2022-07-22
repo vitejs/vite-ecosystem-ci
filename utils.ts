@@ -94,19 +94,23 @@ export async function setupRepo(options: RepoOptions) {
 	}
 }
 
-function toCommand(task: Task | Task[] | void): ((scripts: any) => Promise<any>) | void {
+function toCommand(
+	task: Task | Task[] | void
+): ((scripts: any) => Promise<any>) | void {
 	return async (scripts: any) => {
 		const tasks = Array.isArray(task) ? task : [task]
 		for (const task of tasks) {
-			if(task == null || task === '') {
-				continue;
+			if (task == null || task === '') {
+				continue
 			} else if (typeof task === 'string') {
-				const scriptOrBin = task.trim().split(/\s+/)[0];
+				const scriptOrBin = task.trim().split(/\s+/)[0]
 				await (scripts?.[scriptOrBin] != null ? $`nr ${task}` : $`${task}`)
-			} else if(typeof task === 'function') {
-				await task();
+			} else if (typeof task === 'function') {
+				await task()
 			} else {
-				throw new Error(`invalid task, expected string or function but got ${typeof task}: ${task}`)
+				throw new Error(
+					`invalid task, expected string or function but got ${typeof task}: ${task}`
+				)
 			}
 		}
 	}
@@ -194,7 +198,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		)
 		overrides[`@types/node`] ||= `${protocol}${typesNodePath}`
 	}
-	await applyPackageOverrides(dir,pkg, overrides)
+	await applyPackageOverrides(dir, pkg, overrides)
 	await beforeBuildCommand?.(pkg.scripts)
 	await buildCommand?.(pkg.scripts)
 	if (test) {
@@ -216,7 +220,7 @@ export async function setupViteRepo(options: Partial<RepoOptions>) {
 
 export async function getPermanentRef() {
 	cd(vitePath)
-	const ref = await $`git rev-parse --short HEAD`
+	const ref = await $`git show-ref --hash --abbrev HEAD`
 	return ref
 }
 
@@ -314,7 +318,7 @@ export async function applyPackageOverrides(
 	} else {
 		throw new Error(`unsupported package manager detected: ${pm}`)
 	}
-	const pkgFile = path.join(dir,'package.json')
+	const pkgFile = path.join(dir, 'package.json')
 	await fs.promises.writeFile(pkgFile, JSON.stringify(pkg, null, 2), 'utf-8')
 
 	// use of `ni` command here could cause lockfile violation errors so fall back to native commands that avoid these
