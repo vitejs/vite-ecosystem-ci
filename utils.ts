@@ -212,10 +212,6 @@ export async function setupViteRepo(options: Partial<RepoOptions>) {
 		shallow: true,
 		...options
 	})
-	if (process.env.GITHUB_ACTIONS) {
-		const ref = await $`git rev-parse --short HEAD`
-		console.log(`::set-output name=ref::${ref}`)
-	}
 }
 
 export async function getPermanentRef() {
