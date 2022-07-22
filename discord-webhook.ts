@@ -53,8 +53,10 @@ async function run() {
 
 	await setupEnvironment()
 
+	const refType = env.REF_TYPE
 	const runUrl = await createRunUrl(env.SUITE)
-	const permRef = await getPermanentRef()
+	// vite repo is not cloned when release
+	const permRef = refType === 'release' ? undefined : await getPermanentRef()
 
 	const webhookContent = {
 		username: `vite-ecosystem-ci (${env.WORKFLOW_NAME})`,
@@ -80,7 +82,7 @@ async function run() {
 					},
 					{
 						name: ':zap: Vite target',
-						value: createTargetText(env.REF_TYPE, env.REF, permRef),
+						value: createTargetText(refType, env.REF, permRef),
 						inline: true
 					},
 					{
