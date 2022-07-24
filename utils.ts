@@ -220,7 +220,7 @@ export async function setupViteRepo(options: Partial<RepoOptions>) {
 
 export async function getPermanentRef() {
 	cd(vitePath)
-	const ref = await $`git show-ref --hash --abbrev HEAD`
+	const ref = await $`git log -1 --pretty=format:%h`
 	return ref
 }
 
