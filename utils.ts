@@ -220,8 +220,13 @@ export async function setupViteRepo(options: Partial<RepoOptions>) {
 
 export async function getPermanentRef() {
 	cd(vitePath)
-	const ref = await $`git log -1 --pretty=format:%h`
-	return ref
+	try {
+		const ref = await $`git log -1 --pretty=format:%h`
+		return ref
+	} catch (e) {
+		console.warn(`Failed to obtain perm ref. ${e}`)
+		return undefined
+	}
 }
 
 export async function buildVite({ verify = false }) {
