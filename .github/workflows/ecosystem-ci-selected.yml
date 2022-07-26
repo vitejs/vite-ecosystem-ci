@@ -38,7 +38,6 @@ on:
           - rakkas
           - storybook
           - svelte
-          - telefunc
           - vite-plugin-ssr
           - vite-setup-catalogue
           - vitepress
