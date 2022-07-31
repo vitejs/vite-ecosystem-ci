@@ -8,8 +8,6 @@ type Env = {
 	REF_TYPE?: RefType
 	REF?: string
 	SUITE?: string
-	NODE_VERSION?: string
-	DENO_VERSION?: string
 	STATUS?: Status
 	DISCORD_WEBHOOK_URL?: string
 }
@@ -17,15 +15,15 @@ type Env = {
 const statusConfig = {
 	success: {
 		color: parseInt('57ab5a', 16),
-		text: ':white_check_mark: Success'
+		emoji: ':white_check_mark:'
 	},
 	failure: {
 		color: parseInt('e5534b', 16),
-		text: ':x: Failure'
+		emoji: ':x:'
 	},
 	cancelled: {
 		color: parseInt('768390', 16),
-		text: ':stop_button: Cancelled'
+		emoji: ':stop_button:'
 	}
 }
 
@@ -46,68 +44,41 @@ async function run() {
 	assertEnv('REF_TYPE', env.REF_TYPE)
 	assertEnv('REF', env.REF)
 	assertEnv('SUITE', env.SUITE)
-	assertEnv('NODE_VERSION', env.NODE_VERSION)
-	assertEnv('DENO_VERSION', env.DENO_VERSION)
 	assertEnv('STATUS', env.STATUS)
 	assertEnv('DISCORD_WEBHOOK_URL', env.DISCORD_WEBHOOK_URL)
 
 	await setupEnvironment()
 
 	const refType = env.REF_TYPE
-	const runUrl = await createRunUrl(env.SUITE)
 	// vite repo is not cloned when release
 	const permRef = refType === 'release' ? undefined : await getPermanentRef()
+
+	const targetText = createTargetText(refType, env.REF, permRef)
 
 	const webhookContent = {
 		username: `vite-ecosystem-ci (${env.WORKFLOW_NAME})`,
 		avatar_url: 'https://github.com/vitejs.png',
 		embeds: [
 			{
-				color: statusConfig[env.STATUS].color,
-				fields: [
-					{
-						name: ':dart: Suite',
-						value: env.SUITE,
-						inline: true
-					},
-					{
-						name: ':bar_chart: Status',
-						value: statusConfig[env.STATUS].text,
-						inline: true
-					},
-					{
-						name: ':scroll: Logs',
-						value: `[Open](${runUrl})`,
-						inline: true
-					},
-					{
-						name: ':zap: Vite target',
-						value: createTargetText(refType, env.REF, permRef),
-						inline: true
-					},
-					{
-						name: ':wrench: Node.js Version',
-						value: env.NODE_VERSION,
-						inline: true
-					},
-					{
-						name: ':hammer: Deno Version',
-						value: env.DENO_VERSION,
-						inline: true
-					}
-				]
+				title: `${statusConfig[env.STATUS].emoji}  ${env.SUITE}`,
+				description: await createDescription(env.SUITE, targetText),
+				color: statusConfig[env.STATUS].color
 			}
 		]
 	}
 
-	await fetch(env.DISCORD_WEBHOOK_URL, {
+	const res = await fetch(env.DISCORD_WEBHOOK_URL, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'
 		},
 		body: JSON.stringify(webhookContent)
 	})
-	console.log('Sent Webhook')
+	if (res.ok) {
+		console.log('Sent Webhook')
+	} else {
+		console.error(`Webhook failed ${res.status}:`, await res.text())
+	}
 }
 
 function assertEnv<T>(
@@ -149,6 +120,14 @@ async function fetchJobs() {
 	return result as { jobs: GitHubActionsJob[] }
 }
 
+async function createDescription(suite: string, targetText: string) {
+	const runUrl = await createRunUrl(suite)
+
+	return `
+:scroll:\u00a0\u00a0[Open](${runUrl})\u3000\u3000:zap:\u00a0\u00a0${targetText}
+`.trim()
+}
+
 function createTargetText(
 	refType: RefType,
 	ref: string,
@@ -156,11 +135,12 @@ function createTargetText(
 ) {
 	if (refType === 'branch') {
 		const link = `https://github.com/vitejs/vite/commits/${permRef || ref}`
-		return `${refType}: [${ref} (${permRef || 'unknown'})](${link})`
+		return `[${ref} (${permRef || 'unknown'})](${link})`
 	}
 
+	const refTypeText = refType === 'release' ? ' (release)' : ''
 	const link = `https://github.com/vitejs/vite/commits/${ref}`
-	return `${refType}: [${ref}](${link})`
+	return `[${ref}${refTypeText}](${link})`
 }
 
 run().catch((e) => {

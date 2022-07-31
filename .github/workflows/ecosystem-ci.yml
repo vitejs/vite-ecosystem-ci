@@ -71,7 +71,5 @@ jobs:
           REF_TYPE: ${{ inputs.refType || github.event.client_payload.refType || 'branch' }}
           REF: ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
           SUITE: ${{ matrix.suite }}
-          NODE_VERSION: ${{ steps.setup-node.outputs.node-version }}
-          DENO_VERSION: ${{ steps.setup-deno.outputs.deno-version }}
           STATUS: ${{ job.status }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
