@@ -60,7 +60,7 @@ async function run() {
 		avatar_url: 'https://github.com/vitejs.png',
 		embeds: [
 			{
-				title: `${statusConfig[env.STATUS].emoji} ${env.SUITE}`,
+				title: `${statusConfig[env.STATUS].emoji}  ${env.SUITE}`,
 				description: await createDescription(env.SUITE, targetText),
 				color: statusConfig[env.STATUS].color
 			}
@@ -125,7 +125,7 @@ async function createDescription(suite: string, targetText: string) {
 
 	/* eslint-disable no-irregular-whitespace */
 	return `
-:scroll: [Open](${runUrl})　　:zap: ${targetText}
+:scroll:  [Open](${runUrl})　　:vite:  ${targetText}
 `.trim()
 	/* eslint-enable no-irregular-whitespace */
 }
