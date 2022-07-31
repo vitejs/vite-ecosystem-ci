@@ -123,11 +123,9 @@ async function fetchJobs() {
 async function createDescription(suite: string, targetText: string) {
 	const runUrl = await createRunUrl(suite)
 
-	/* eslint-disable no-irregular-whitespace */
 	return `
-:scroll:  [Open](${runUrl})　　:vite:  ${targetText}
+:scroll:\u00a0\u00a0[Open](${runUrl})\u3000\u3000:vite~2:\u00a0\u00a0${targetText}
 `.trim()
-	/* eslint-enable no-irregular-whitespace */
 }
 
 function createTargetText(
