@@ -55,8 +55,9 @@ jobs:
         id: setup-node
       - uses: denoland/setup-deno@v1
         with:
-          deno-version: v1.19.3
+          deno-version: v1.x
         id: setup-deno
+        continue-on-error: true
       - run: corepack enable
       - run: pnpm i --frozen-lockfile
       - run: pnpm tsx ecosystem-ci.ts --${{ inputs.refType }} ${{ inputs.ref }} ${{ inputs.suite }}
