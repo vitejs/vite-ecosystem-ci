@@ -5,7 +5,7 @@ export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
 		repo: 'rakkasjs/rakkasjs',
-		branch: 'next',
+		branch: 'main',
 		build: 'build',
 		test: 'vite-ecosystem-ci'
 	})
