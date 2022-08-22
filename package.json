@@ -23,11 +23,11 @@
       "eslint"
     ]
   },
-  "packageManager": "pnpm@7.9.0",
+  "packageManager": "pnpm@7.9.3",
   "type": "module",
   "engines": {
     "node": "^14.13.1 || ^16 || ^18",
-    "pnpm": "^7.9.0"
+    "pnpm": "^7.9.3"
   },
   "repository": {
     "type": "git",
@@ -46,8 +46,8 @@
   "devDependencies": {
     "@antfu/ni": "^0.17.2",
     "@types/node": "^17.0.14",
-    "@typescript-eslint/eslint-plugin": "^5.33.1",
-    "@typescript-eslint/parser": "^5.33.1",
+    "@typescript-eslint/eslint-plugin": "^5.34.0",
+    "@typescript-eslint/parser": "^5.34.0",
     "eslint": "^8.22.0",
     "eslint-define-config": "^1.6.0",
     "eslint-plugin-node": "^11.1.0",
