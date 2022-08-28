@@ -136,14 +136,15 @@ function createTargetText(
 	permRef: string | undefined,
 	repo: string
 ) {
+	const repoText = repo !== 'vitejs/vite' ? `${repo}:` : ''
 	if (refType === 'branch') {
 		const link = `https://github.com/${repo}/commits/${permRef || ref}`
-		return `[${ref} (${permRef || 'unknown'})](${link})`
+		return `[${repoText}${ref} (${permRef || 'unknown'})](${link})`
 	}
 
 	const refTypeText = refType === 'release' ? ' (release)' : ''
 	const link = `https://github.com/${repo}/commits/${ref}`
-	return `[${ref}${refTypeText}](${link})`
+	return `[${repoText}${ref}${refTypeText}](${link})`
 }
 
 run().catch((e) => {
