@@ -235,6 +235,18 @@ export async function setupViteRepo(options: Partial<RepoOptions>) {
 		shallow: true,
 		...options
 	})
+
+	try {
+		const rootPackageJsonFile = path.join(vitePath, 'package.json')
+		const rootPackageJson = JSON.parse(
+			await fs.promises.readFile(rootPackageJsonFile, 'utf-8')
+		)
+		if (rootPackageJson.name === 'vite-monorepo') {
+			throw new Error('name does not match')
+		}
+	} catch (e) {
+		throw new Error(`Non-vite repository was cloned by setupViteRepo. (${e})`)
+	}
 }
 
 export async function getPermanentRef() {
