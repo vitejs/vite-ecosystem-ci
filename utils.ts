@@ -71,7 +71,26 @@ export async function setupRepo(options: RepoOptions) {
 		repo = `https://github.com/${repo}.git`
 	}
 
-	if (!fs.existsSync(dir)) {
+	let needClone = true
+	if (fs.existsSync(dir)) {
+		const _cwd = cwd
+		cd(dir)
+		let currentClonedRepo: string | undefined
+		try {
+			currentClonedRepo = await $`git ls-remote --get-url`
+		} catch {
+			// when not a git repo
+		}
+		cd(_cwd)
+
+		if (repo === currentClonedRepo) {
+			needClone = false
+		} else {
+			fs.rmSync(dir, { recursive: true, force: true })
+		}
+	}
+
+	if (needClone) {
 		await $`git -c advice.detachedHead=false clone ${
 			shallow ? '--depth=1 --no-tags' : ''
 		} --branch ${tag || branch} ${repo} ${dir}`
@@ -210,7 +229,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 
 export async function setupViteRepo(options: Partial<RepoOptions>) {
 	await setupRepo({
-		repo: 'vitejs/vite',
+		repo: options.repo || 'vitejs/vite',
 		dir: vitePath,
 		branch: 'main',
 		shallow: true,

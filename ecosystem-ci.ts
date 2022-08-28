@@ -10,6 +10,7 @@ const cli = cac()
 cli
 	.command('[...suites]', 'build vite and run selected suites')
 	.option('--verify', 'verify checkouts by running tests', { default: false })
+	.option('--repo <repo>', 'vite repository to use', { default: 'vitejs/vite' })
 	.option('--branch <branch>', 'vite branch to use', { default: 'main' })
 	.option('--tag <tag>', 'vite tag to use')
 	.option('--commit <commit>', 'vite commit sha to use')
@@ -39,6 +40,7 @@ cli
 	.option('--verify', 'verify vite checkout by running tests', {
 		default: false
 	})
+	.option('--repo <repo>', 'vite repository to use', { default: 'vitejs/vite' })
 	.option('--branch <branch>', 'vite branch to use', { default: 'main' })
 	.option('--tag <tag>', 'vite tag to use')
 	.option('--commit <commit>', 'vite commit sha to use')
@@ -55,6 +57,7 @@ cli
 		'verify checkout by running tests before using local vite',
 		{ default: false }
 	)
+	.option('--repo <repo>', 'vite repository to use', { default: 'vitejs/vite' })
 	.option('--release <version>', 'vite release to use from npm registry')
 	.action(async (suites, options: CommandOptions) => {
 		const { root, vitePath, workspace } = await setupEnvironment()
@@ -77,6 +80,7 @@ cli
 	)
 	.option('--good <ref>', 'last known good ref, e.g. a previous tag. REQUIRED!')
 	.option('--verify', 'verify checkouts by running tests', { default: false })
+	.option('--repo <repo>', 'vite repository to use', { default: 'vitejs/vite' })
 	.option('--branch <branch>', 'vite branch to use', { default: 'main' })
 	.option('--tag <tag>', 'vite tag to use')
 	.option('--commit <commit>', 'vite commit sha to use')

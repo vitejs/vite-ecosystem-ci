@@ -26,6 +26,11 @@ on:
         required: true
         type: string
         default: "main"
+      repo:
+        description: "vite repository to use"
+        required: true
+        type: string
+        default: "vitejs/vite"
   repository_dispatch:
     types: [ecosystem-ci]
 jobs:
@@ -63,7 +68,11 @@ jobs:
         continue-on-error: true
       - run: corepack enable
       - run: pnpm i --frozen-lockfile
-      - run: pnpm tsx ecosystem-ci.ts --${{ inputs.refType || github.event.client_payload.refType || 'branch' }} ${{ inputs.ref || github.event.client_payload.ref || 'main' }} ${{ matrix.suite }}
+      - run: >-
+          pnpm tsx ecosystem-ci.ts
+          --${{ inputs.refType || github.event.client_payload.refType || 'branch' }} ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
+          --repo ${{ inputs.repo || github.event.client_payload.repo || 'vitejs/vite' }}
+          ${{ matrix.suite }}
         id: ecosystem-ci-run
       - if: always()
         run: pnpm tsx discord-webhook.ts
@@ -71,6 +80,7 @@ jobs:
           WORKFLOW_NAME: ci
           REF_TYPE: ${{ inputs.refType || github.event.client_payload.refType || 'branch' }}
           REF: ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
+          REPO: ${{ inputs.repo || github.event.client_payload.repo || 'vitejs/vite' }}
           SUITE: ${{ matrix.suite }}
           STATUS: ${{ job.status }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}

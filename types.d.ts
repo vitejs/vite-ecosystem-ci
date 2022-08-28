@@ -28,6 +28,7 @@ type Task = string | (() => Promise<any>)
 
 export interface CommandOptions {
 	suites?: string[]
+	repo?: string
 	branch?: string
 	tag?: string
 	commit?: string
