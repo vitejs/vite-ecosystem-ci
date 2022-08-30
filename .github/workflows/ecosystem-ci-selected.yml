@@ -24,6 +24,11 @@ on:
         required: true
         type: string
         default: "main"
+      repo:
+        description: "vite repository to use"
+        required: true
+        type: string
+        default: "vitejs/vite"
       suite:
         description: "testsuite to run"
         required: true
@@ -60,7 +65,11 @@ jobs:
         continue-on-error: true
       - run: corepack enable
       - run: pnpm i --frozen-lockfile
-      - run: pnpm tsx ecosystem-ci.ts --${{ inputs.refType }} ${{ inputs.ref }} ${{ inputs.suite }}
+      - run: >-
+          pnpm tsx ecosystem-ci.ts
+          --${{ inputs.refType }} ${{ inputs.ref }}
+          --repo ${{ inputs.repo }}
+          ${{ inputs.suite }}
         id: ecosystem-ci-run
       - if: always()
         run: pnpm tsx discord-webhook.ts
@@ -68,6 +77,7 @@ jobs:
           WORKFLOW_NAME: ci-selected
           REF_TYPE: ${{ inputs.refType }}
           REF: ${{ inputs.ref }}
+          REPO: ${{ inputs.repo }}
           SUITE: ${{ inputs.suite }}
           STATUS: ${{ job.status }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}

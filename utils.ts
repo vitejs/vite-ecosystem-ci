@@ -71,7 +71,26 @@ export async function setupRepo(options: RepoOptions) {
 		repo = `https://github.com/${repo}.git`
 	}
 
-	if (!fs.existsSync(dir)) {
+	let needClone = true
+	if (fs.existsSync(dir)) {
+		const _cwd = cwd
+		cd(dir)
+		let currentClonedRepo: string | undefined
+		try {
+			currentClonedRepo = await $`git ls-remote --get-url`
+		} catch {
+			// when not a git repo
+		}
+		cd(_cwd)
+
+		if (repo === currentClonedRepo) {
+			needClone = false
+		} else {
+			fs.rmSync(dir, { recursive: true, force: true })
+		}
+	}
+
+	if (needClone) {
 		await $`git -c advice.detachedHead=false clone ${
 			shallow ? '--depth=1 --no-tags' : ''
 		} --branch ${tag || branch} ${repo} ${dir}`
@@ -210,12 +229,24 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 
 export async function setupViteRepo(options: Partial<RepoOptions>) {
 	await setupRepo({
-		repo: 'vitejs/vite',
+		repo: options.repo || 'vitejs/vite',
 		dir: vitePath,
 		branch: 'main',
 		shallow: true,
 		...options
 	})
+
+	try {
+		const rootPackageJsonFile = path.join(vitePath, 'package.json')
+		const rootPackageJson = JSON.parse(
+			await fs.promises.readFile(rootPackageJsonFile, 'utf-8')
+		)
+		if (rootPackageJson.name !== 'vite-monorepo') {
+			throw new Error('name does not match')
+		}
+	} catch (e) {
+		throw new Error(`Non-vite repository was cloned by setupViteRepo. (${e})`)
+	}
 }
 
 export async function getPermanentRef() {

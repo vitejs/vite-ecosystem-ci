@@ -7,6 +7,7 @@ type Env = {
 	WORKFLOW_NAME?: string
 	REF_TYPE?: RefType
 	REF?: string
+	REPO?: string
 	SUITE?: string
 	STATUS?: Status
 	DISCORD_WEBHOOK_URL?: string
@@ -43,6 +44,7 @@ async function run() {
 	assertEnv('WORKFLOW_NAME', env.WORKFLOW_NAME)
 	assertEnv('REF_TYPE', env.REF_TYPE)
 	assertEnv('REF', env.REF)
+	assertEnv('REPO', env.REPO)
 	assertEnv('SUITE', env.SUITE)
 	assertEnv('STATUS', env.STATUS)
 	assertEnv('DISCORD_WEBHOOK_URL', env.DISCORD_WEBHOOK_URL)
@@ -53,7 +55,7 @@ async function run() {
 	// vite repo is not cloned when release
 	const permRef = refType === 'release' ? undefined : await getPermanentRef()
 
-	const targetText = createTargetText(refType, env.REF, permRef)
+	const targetText = createTargetText(refType, env.REF, permRef, env.REPO)
 
 	const webhookContent = {
 		username: `vite-ecosystem-ci (${env.WORKFLOW_NAME})`,
@@ -131,16 +133,18 @@ async function createDescription(suite: string, targetText: string) {
 function createTargetText(
 	refType: RefType,
 	ref: string,
-	permRef: string | undefined
+	permRef: string | undefined,
+	repo: string
 ) {
+	const repoText = repo !== 'vitejs/vite' ? `${repo}:` : ''
 	if (refType === 'branch') {
-		const link = `https://github.com/vitejs/vite/commits/${permRef || ref}`
-		return `[${ref} (${permRef || 'unknown'})](${link})`
+		const link = `https://github.com/${repo}/commits/${permRef || ref}`
+		return `[${repoText}${ref} (${permRef || 'unknown'})](${link})`
 	}
 
 	const refTypeText = refType === 'release' ? ' (release)' : ''
-	const link = `https://github.com/vitejs/vite/commits/${ref}`
-	return `[${ref}${refTypeText}](${link})`
+	const link = `https://github.com/${repo}/commits/${ref}`
+	return `[${repoText}${ref}${refTypeText}](${link})`
 }
 
 run().catch((e) => {
