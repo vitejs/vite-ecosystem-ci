@@ -23,11 +23,11 @@
       "eslint"
     ]
   },
-  "packageManager": "pnpm@7.12.1",
+  "packageManager": "pnpm@7.12.2",
   "type": "module",
   "engines": {
     "node": "^14.13.1 || ^16 || ^18",
-    "pnpm": "^7.12.1"
+    "pnpm": "^7.12.2"
   },
   "repository": {
     "type": "git",
@@ -44,17 +44,17 @@
     "node-fetch": "^3.2.10"
   },
   "devDependencies": {
-    "@antfu/ni": "^0.18.0",
+    "@antfu/ni": "^0.18.2",
     "@types/node": "^17.0.14",
-    "@typescript-eslint/eslint-plugin": "^5.38.0",
-    "@typescript-eslint/parser": "^5.38.0",
-    "eslint": "^8.23.1",
+    "@typescript-eslint/eslint-plugin": "^5.38.1",
+    "@typescript-eslint/parser": "^5.38.1",
+    "eslint": "^8.24.0",
     "eslint-define-config": "^1.7.0",
     "eslint-plugin-node": "^11.1.0",
     "lint-staged": "^13.0.3",
     "prettier": "^2.7.1",
     "simple-git-hooks": "^2.8.0",
     "tsx": "^3.9.0",
-    "typescript": "^4.8.3"
+    "typescript": "^4.8.4"
   }
 }
