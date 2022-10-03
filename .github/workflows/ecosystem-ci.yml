@@ -41,6 +41,7 @@ jobs:
       matrix:
         suite:
           - astro
+          - histoire
           - iles
           - ladle
           - laravel
