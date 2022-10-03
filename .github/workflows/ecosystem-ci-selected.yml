@@ -35,6 +35,7 @@ on:
         type: choice
         options:
           - astro
+          - histoire
           - iles
           - ladle
           - laravel
