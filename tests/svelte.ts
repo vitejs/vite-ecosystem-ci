@@ -7,6 +7,7 @@ export async function test(options: RunOptions) {
 		repo: 'sveltejs/vite-plugin-svelte',
 		branch: 'main',
 		build: 'build:ci',
+		beforeTest: 'pnpm playwright install chromium',
 		test: 'test'
 	})
 
