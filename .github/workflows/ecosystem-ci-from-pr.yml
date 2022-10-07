@@ -111,7 +111,7 @@ jobs:
           - marko
           - nuxt-framework
           - rakkas
-          - storybook
+#          - storybook  # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
           - svelte
           - vite-plugin-ssr
           - vite-setup-catalogue
