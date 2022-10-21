@@ -16,6 +16,7 @@ export async function test(options: RunOptions) {
 		repo: 'sveltejs/kit',
 		branch: 'master',
 		overrides: {
+			svelte: 'latest',
 			'@sveltejs/vite-plugin-svelte': `${pluginPath}/packages/vite-plugin-svelte`
 		},
 		build: 'build',
