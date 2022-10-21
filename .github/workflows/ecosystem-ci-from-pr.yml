@@ -36,6 +36,7 @@ on:
           - laravel
           - marko
           - nuxt-framework
+          - qwik
           - rakkas
           - storybook
           - svelte
@@ -110,6 +111,7 @@ jobs:
           - laravel
           - marko
           - nuxt-framework
+          - qwik
           - rakkas
           - storybook
           - svelte
