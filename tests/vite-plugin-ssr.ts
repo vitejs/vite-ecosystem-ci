@@ -6,7 +6,6 @@ export async function test(options: RunOptions) {
 		...options,
 		repo: 'brillout/vite-plugin-ssr',
 		branch: 'main',
-		beforeInstall: 'setup', // Needed for submodule initialization
 		build: 'build',
 		test: 'test'
 	})
