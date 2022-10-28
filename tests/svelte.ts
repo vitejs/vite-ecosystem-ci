@@ -9,9 +9,9 @@ export async function test(options: RunOptions) {
 		overrides: {
 			svelte: 'latest'
 		},
-		build: 'build:ci',
+		build: 'build',
 		beforeTest: 'pnpm playwright install chromium',
-		test: 'test'
+		test: ['lint','test']
 	})
 
 	await runInRepo({
@@ -24,6 +24,6 @@ export async function test(options: RunOptions) {
 		},
 		build: 'build',
 		beforeTest: 'pnpm playwright install',
-		test: 'test'
+		test: ['lint','check','test']
 	})
 }
