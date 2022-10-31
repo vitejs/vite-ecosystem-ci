@@ -1,8 +1,5 @@
 lockfileVersion: 5.4
 
-overrides:
-  minimatch@<3.0.5: '>=3.0.5'
-
 specifiers:
   '@actions/core': ^1.10.0
   '@antfu/ni': ^0.18.2
@@ -12,7 +9,7 @@ specifiers:
   cac: ^6.7.14
   eslint: ^8.26.0
   eslint-define-config: ^1.8.0
-  eslint-plugin-node: ^11.1.0
+  eslint-plugin-n: ^15.4.0
   execa: ^6.1.0
   lint-staged: ^13.0.3
   node-fetch: ^3.2.10
@@ -34,7 +31,7 @@ devDependencies:
   '@typescript-eslint/parser': 5.41.0_wyqvi574yv7oiwfeinomdzmc3m
   eslint: 8.26.0
   eslint-define-config: 1.11.0
-  eslint-plugin-node: 11.1.0_eslint@8.26.0
+  eslint-plugin-n: 15.4.0_eslint@8.26.0
   lint-staged: 13.0.3
   prettier: 2.7.1
   simple-git-hooks: 2.8.1
@@ -394,6 +391,12 @@ packages:
     resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
     dev: true
 
+  /builtins/5.0.1:
+    resolution: {integrity: sha512-qwVpFEHNfhYJIzNRBvd2C1kyo6jz3ZSMPyyuR47OPdiKWlbYnZNyDWuyR175qDnAJLiCo5fBBqPb3RiXgWlkOQ==}
+    dependencies:
+      semver: 7.3.7
+    dev: true
+
   /cac/6.7.14:
     resolution: {integrity: sha512-b6Ilus+c3RrdDk+JhLKUAQfzzgLEPy6wcXqS7f/xe1EETvsDP6GORG7SFuOs6cID5YkqchW/LXZbX5bc8j7ZcQ==}
     engines: {node: '>=8'}
@@ -739,8 +742,8 @@ packages:
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0, npm: '>=6.14.13', pnpm: '>= 7.0.0'}
     dev: true
 
-  /eslint-plugin-es/3.0.1_eslint@8.26.0:
-    resolution: {integrity: sha512-GUmAsJaN4Fc7Gbtl8uOBlayo2DqhwWvEzykMHSCZHU3XdJ+NSzzZcVhXh3VxX5icqQ+oQdIEawXX8xkR3mIFmQ==}
+  /eslint-plugin-es/4.1.0_eslint@8.26.0:
+    resolution: {integrity: sha512-GILhQTnjYE2WorX5Jyi5i4dz5ALWxBIdQECVQavL6s7cI76IZTDWleTHkxz/QT3kvcs2QlGHvKLYsSlPOlPXnQ==}
     engines: {node: '>=8.10.0'}
     peerDependencies:
       eslint: '>=4.19.1'
@@ -750,19 +753,21 @@ packages:
       regexpp: 3.2.0
     dev: true
 
-  /eslint-plugin-node/11.1.0_eslint@8.26.0:
-    resolution: {integrity: sha512-oUwtPJ1W0SKD0Tr+wqu92c5xuCeQqB3hSCHasn/ZgjFdA9iDGNkNf2Zi9ztY7X+hNuMib23LNGRm6+uN+KLE3g==}
-    engines: {node: '>=8.10.0'}
+  /eslint-plugin-n/15.4.0_eslint@8.26.0:
+    resolution: {integrity: sha512-MkoKy9/lfd52TAXK4fkABgCp0aglk82Q3viy2UOWIEpTVE/Cem5P/UAxMBA4vSw7Gy+2egPqImE9euitLGp5aw==}
+    engines: {node: '>=12.22.0'}
     peerDependencies:
-      eslint: '>=5.16.0'
+      eslint: '>=7.0.0'
     dependencies:
+      builtins: 5.0.1
       eslint: 8.26.0
-      eslint-plugin-es: 3.0.1_eslint@8.26.0
-      eslint-utils: 2.1.0
+      eslint-plugin-es: 4.1.0_eslint@8.26.0
+      eslint-utils: 3.0.0_eslint@8.26.0
       ignore: 5.2.0
-      minimatch: 3.0.4
-      resolve: 1.21.0
-      semver: 6.3.0
+      is-core-module: 2.11.0
+      minimatch: 3.1.2
+      resolve: 1.22.1
+      semver: 7.3.7
     dev: true
 
   /eslint-scope/5.1.1:
@@ -1113,8 +1118,8 @@ packages:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
     dev: true
 
-  /is-core-module/2.8.1:
-    resolution: {integrity: sha512-SdNCUs284hr40hFTFP6l0IfZ/RSrMXF3qgoRHd3/79unUTvrFO/JoXwkGm+5J/Oe3E/b5GsnG330uUNgRpu1PA==}
+  /is-core-module/2.11.0:
+    resolution: {integrity: sha512-RRjxlvLDkD1YJwDbroBHMb+cukurkDWNyHx7D3oNB5x9rb5ogcksMC5wHCadcXoo67gVr/+3GFySh3134zi6rw==}
     dependencies:
       has: 1.0.3
     dev: true
@@ -1284,12 +1289,6 @@ packages:
   /mimic-fn/4.0.0:
     resolution: {integrity: sha512-vqiC06CuhBTUdZH+RYl8sFrL096vA45Ok5ISO6sE/Mr1jRbGH4Csnhi8f3wKVl7x8mO4Au7Ir9D3Oyv1VYMFJw==}
     engines: {node: '>=12'}
-
-  /minimatch/3.0.4:
-    resolution: {integrity: sha512-yJHVQEhyqPLUTgt9B83PXu6W3rx4MvvHvSUvToogpwoGDOUQ+yDrR0HRot+yOCdCO7u4hX3pWft6kWBBcqh0UA==}
-    dependencies:
-      brace-expansion: 1.1.11
-    dev: true
 
   /minimatch/3.1.2:
     resolution: {integrity: sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==}
@@ -1461,11 +1460,11 @@ packages:
     engines: {node: '>=4'}
     dev: true
 
-  /resolve/1.21.0:
-    resolution: {integrity: sha512-3wCbTpk5WJlyE4mSOtDLhqQmGFi0/TD9VPwmiolnk8U0wRgMEktqCXd3vy5buTO3tljvalNvKrjHEfrd2WpEKA==}
+  /resolve/1.22.1:
+    resolution: {integrity: sha512-nBpuuYuY5jFsli/JIs1oldw6fOQCBioohqWZg/2hiaOybXOft4lonv85uDOKXdf8rhyK159cxU5cDcK/NKk8zw==}
     hasBin: true
     dependencies:
-      is-core-module: 2.8.1
+      is-core-module: 2.11.0
       path-parse: 1.0.7
       supports-preserve-symlinks-flag: 1.0.0
     dev: true
@@ -1504,11 +1503,6 @@ packages:
     resolution: {integrity: sha512-sy+H0pQofO95VDmFLzyaw9xNJU4KTRSwQIGM6+iG3SypAtCiLDzpeG8sJrNCWn2Up9km+KhkvTdbkrdy+yzZdw==}
     dependencies:
       tslib: 2.3.1
-    dev: true
-
-  /semver/6.3.0:
-    resolution: {integrity: sha512-b39TBaTSfV6yBrapU89p5fKekE2m/NwnDocOVruQFS1/veMgdzuPcnOM34M6CwxW8jH/lxEa5rBoDeUwu5HHTw==}
-    hasBin: true
     dev: true
 
   /semver/7.3.7:

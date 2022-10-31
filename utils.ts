@@ -10,7 +10,7 @@ import {
 	RunOptions,
 	Task
 } from './types'
-//eslint-disable-next-line node/no-unpublished-import
+//eslint-disable-next-line n/no-unpublished-import
 import { detect } from '@antfu/ni'
 import actionsCore from '@actions/core'
 
