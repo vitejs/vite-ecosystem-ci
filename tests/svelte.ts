@@ -20,9 +20,9 @@ export async function test(options: RunOptions) {
 		branch: 'master',
 		overrides: {
 			svelte: 'latest',
-			'@sveltejs/vite-plugin-svelte': `${pluginPath}/packages/vite-plugin-svelte`
+			'@sveltejs/vite-plugin-svelte': `${pluginPath}/packages/vite-plugin-svelte`,
+			'@types/node':'^16.11.68' // override to kit's version to prevent ecosystem-ci override with vite version
 		},
-		build: 'build',
 		beforeTest: 'pnpm playwright install',
 		test: ['lint','check','test']
 	})
