@@ -125,7 +125,6 @@ cli.help()
 cli.parse()
 
 async function run(suite: string, options: RunOptions) {
-	// eslint-disable-next-line node/no-unsupported-features/es-syntax
 	const { test } = await import(`./tests/${suite}.ts`)
 	await test({
 		...options,
