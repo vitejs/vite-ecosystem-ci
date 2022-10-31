@@ -12,6 +12,9 @@ import {
 } from './types'
 //eslint-disable-next-line n/no-unpublished-import
 import { detect } from '@antfu/ni'
+import actionsCore from '@actions/core'
+
+const isGitHubActions = !!process.env.GITHUB_ACTIONS
 
 let vitePath: string
 let cwd: string
@@ -27,7 +30,13 @@ export async function $(literals: TemplateStringsArray, ...values: any[]) {
 			result + current + (values?.[i] != null ? `${values[i]}` : ''),
 		''
 	)
-	console.log(`${cwd} $> ${cmd}`)
+
+	if (isGitHubActions) {
+		actionsCore.startGroup(`${cwd} $> ${cmd}`)
+	} else {
+		console.log(`${cwd} $> ${cmd}`)
+	}
+
 	const proc = execaCommand(cmd, {
 		env,
 		stdio: 'pipe',
@@ -37,6 +46,11 @@ export async function $(literals: TemplateStringsArray, ...values: any[]) {
 	proc.stdout && proc.stdout.pipe(process.stdout)
 	proc.stderr && proc.stderr.pipe(process.stderr)
 	const result = await proc
+
+	if (isGitHubActions) {
+		actionsCore.endGroup()
+	}
+
 	return result.stdout
 }
 
