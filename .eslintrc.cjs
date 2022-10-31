@@ -5,7 +5,7 @@ module.exports = defineConfig({
 	root: true,
 	extends: [
 		'eslint:recommended',
-		'plugin:node/recommended',
+		'plugin:n/recommended',
 		'plugin:@typescript-eslint/recommended'
 	],
 	parser: '@typescript-eslint/parser',
@@ -25,7 +25,8 @@ module.exports = defineConfig({
 				destructuring: 'all'
 			}
 		],
-		'node/no-missing-import': 'off', // doesn't like ts imports
+		'n/no-missing-import': 'off', // doesn't like ts imports
+		'n/no-process-exit': 'off',
 		'@typescript-eslint/no-explicit-any': 'off' // we use any in some places
 	}
 })
