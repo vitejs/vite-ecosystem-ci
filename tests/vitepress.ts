@@ -5,7 +5,7 @@ export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
 		repo: 'vuejs/vitepress',
-		branch: 'vite-4',
+		branch: options.viteMajor === 4 ? 'vite-4' : 'main',
 		build: 'build',
 		test: 'test'
 	})
