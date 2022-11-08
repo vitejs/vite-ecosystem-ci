@@ -3,7 +3,7 @@ import path from 'path'
 import process from 'process'
 import { cac } from 'cac'
 
-import {setupEnvironment, setupViteRepo, buildVite, bisectVite, parseMajorFromPkg, parseMajorVersion} from './utils'
+import {setupEnvironment, setupViteRepo, buildVite, bisectVite, parseViteMajor, parseMajorVersion} from './utils'
 import { CommandOptions, RunOptions } from './types'
 
 const cli = cac()
@@ -22,7 +22,7 @@ cli
 		if (!options.release) {
 			await setupViteRepo(options)
 			await buildVite({ verify: options.verify })
-			viteMajor = parseMajorFromPkg(vitePath);
+			viteMajor = parseViteMajor(vitePath);
 		} else {
 			viteMajor = parseMajorVersion(options.release)
 		}
@@ -71,7 +71,7 @@ cli
 			...options,
 			root,
 			vitePath,
-			viteMajor: parseMajorFromPkg(vitePath),
+			viteMajor: parseViteMajor(vitePath),
 			workspace
 		}
 		for (const suite of suitesToRun) {
@@ -110,7 +110,7 @@ cli
 						skipGit: !isFirstRun,
 						root,
 						vitePath,
-						viteMajor: parseMajorFromPkg(vitePath),
+						viteMajor: parseViteMajor(vitePath),
 						workspace
 					})
 				}

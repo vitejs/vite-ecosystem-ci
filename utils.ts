@@ -385,8 +385,10 @@ export function dirnameFrom(url: string) {
 	return path.dirname(fileURLToPath(url))
 }
 
-export function parseMajorFromPkg(pkgDir: string):number {
-	return parseMajorVersion(JSON.parse(fs.readFileSync(path.join(pkgDir,'package.json'),'utf-8')).version);
+export function parseViteMajor(vitePath: string):number {
+	const content = fs.readFileSync(path.join(vitePath,'packages','vite','package.json'),'utf-8')
+	const pkg = JSON.parse(content);
+	return parseMajorVersion(pkg.version);
 }
 
 export function parseMajorVersion(version: string) {
