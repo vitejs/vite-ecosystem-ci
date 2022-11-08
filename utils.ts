@@ -384,3 +384,13 @@ export async function applyPackageOverrides(
 export function dirnameFrom(url: string) {
 	return path.dirname(fileURLToPath(url))
 }
+
+export function parseViteMajor(vitePath: string):number {
+	const content = fs.readFileSync(path.join(vitePath,'packages','vite','package.json'),'utf-8')
+	const pkg = JSON.parse(content);
+	return parseMajorVersion(pkg.version);
+}
+
+export function parseMajorVersion(version: string) {
+	return parseInt(version.split('.',1)[0],10)
+}
