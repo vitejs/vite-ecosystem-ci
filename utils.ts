@@ -384,3 +384,11 @@ export async function applyPackageOverrides(
 export function dirnameFrom(url: string) {
 	return path.dirname(fileURLToPath(url))
 }
+
+export function parseMajorFromPkg(pkgDir: string):number {
+	return parseMajorVersion(JSON.parse(fs.readFileSync(path.join(pkgDir,'package.json'),'utf-8')).version);
+}
+
+export function parseMajorVersion(version: string) {
+	return parseInt(version.split('.',1)[0],10)
+}
