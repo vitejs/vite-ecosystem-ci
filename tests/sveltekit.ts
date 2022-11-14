@@ -10,8 +10,7 @@ export async function test(options: RunOptions) {
 			svelte: 'latest'
 		},
 		build: 'build',
-		beforeTest: 'pnpm playwright install chromium',
-		test: ['lint','test']
+		test: 'echo skipping vite-plugin-svelte tests, just building for kit tests'
 	})
 
 	await runInRepo({
