@@ -6,7 +6,8 @@ export async function test(options: RunOptions) {
 		...options,
 		repo: 'fwouts/previewjs',
 		branch: 'main',
-		build: 'turbo build',
-		test: ['turbo e2e-test -- --workers=1']
+		build: 'vite-ecosystem-ci:build',
+		beforeTest: 'pnpm vite-ecosystem-ci:test',
+		test: ['vite-ecosystem-ci:test']
 	})
 }
