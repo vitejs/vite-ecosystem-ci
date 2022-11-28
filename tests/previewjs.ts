@@ -7,7 +7,7 @@ export async function test(options: RunOptions) {
 		repo: 'fwouts/previewjs',
 		branch: 'main',
 		build: 'vite-ecosystem-ci:build',
-		beforeTest: 'pnpm vite-ecosystem-ci:before-test',
+		beforeTest: 'vite-ecosystem-ci:before-test',
 		test: ['vite-ecosystem-ci:test']
 	})
 }
