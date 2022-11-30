@@ -227,10 +227,15 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		overrides[
 			`@vitejs/plugin-legacy`
 		] ||= `${protocol}${options.vitePath}/packages/plugin-legacy`
-		const typesNodePath = fs.realpathSync(
-			`${options.vitePath}/node_modules/@types/node`
-		)
-		overrides[`@types/node`] ||= `${protocol}${typesNodePath}`
+		if(options.viteMajor < 4) {
+			// vite-3 dependency setup could have caused problems if we don't synchronize node versions
+			// vite-4 uses an optional peerDependency instead so keep project types
+			const typesNodePath = fs.realpathSync(
+				`${options.vitePath}/node_modules/@types/node`
+			)
+			overrides[`@types/node`] ||= `${protocol}${typesNodePath}`
+		}
+
 	}
 	await applyPackageOverrides(dir, pkg, overrides)
 	await beforeBuildCommand?.(pkg.scripts)

@@ -20,7 +20,6 @@ export async function test(options: RunOptions) {
 		overrides: {
 			svelte: 'latest',
 			'@sveltejs/vite-plugin-svelte': `${pluginPath}/packages/vite-plugin-svelte`,
-			'@types/node': '^16.11.68' // override to kit's version to prevent override with version from Vite 3. might be able to drop this with Vite 4
 		},
 		beforeTest: 'pnpm playwright install',
 		test: ['lint', 'check', 'test']
