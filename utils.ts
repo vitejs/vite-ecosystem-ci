@@ -213,21 +213,21 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		}
 	} else {
 		const protocol = useCopyForOverrides ? 'file:' : ''
-
 		overrides.vite ||= `${protocol}${options.vitePath}/packages/vite`
-		overrides[
-			`@vitejs/plugin-vue`
-		] ||= `${protocol}${options.vitePath}/packages/plugin-vue`
-		overrides[
-			`@vitejs/plugin-vue-jsx`
-		] ||= `${protocol}${options.vitePath}/packages/plugin-vue-jsx`
-		overrides[
-			`@vitejs/plugin-react`
-		] ||= `${protocol}${options.vitePath}/packages/plugin-react`
+
 		overrides[
 			`@vitejs/plugin-legacy`
 		] ||= `${protocol}${options.vitePath}/packages/plugin-legacy`
 		if(options.viteMajor < 4) {
+			overrides[
+				`@vitejs/plugin-vue`
+				] ||= `${protocol}${options.vitePath}/packages/plugin-vue`
+			overrides[
+				`@vitejs/plugin-vue-jsx`
+				] ||= `${protocol}${options.vitePath}/packages/plugin-vue-jsx`
+			overrides[
+				`@vitejs/plugin-react`
+				] ||= `${protocol}${options.vitePath}/packages/plugin-react`
 			// vite-3 dependency setup could have caused problems if we don't synchronize node versions
 			// vite-4 uses an optional peerDependency instead so keep project types
 			const typesNodePath = fs.realpathSync(
