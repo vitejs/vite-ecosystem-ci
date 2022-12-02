@@ -11,7 +11,7 @@ export async function test(options: RunOptions) {
 	})
 	const { dir: vitePluginVue } = await runInRepo({
 		...options,
-		repo: 'vitejs/vite-plugin-react',
+		repo: 'vitejs/vite-plugin-vue',
 		branch: 'main',
 		build: 'build',
 		test: 'echo skipping tests, just building'
