@@ -202,7 +202,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		await beforeTestCommand?.(pkg.scripts)
 		await testCommand?.(pkg.scripts)
 	}
-	const overrides = options.overrides || {}
+	let overrides = options.overrides || {}
 	if (options.release) {
 		if (overrides.vite && overrides.vite !== options.release) {
 			throw new Error(
@@ -234,8 +234,15 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 				`${options.vitePath}/node_modules/@types/node`
 			)
 			overrides[`@types/node`] ||= `${protocol}${typesNodePath}`
+		} else {
+			// starting with vite-4, we apply automatic overrides
+			const localOverrides = await buildOverrides(pkg,options,overrides);
+			cd(dir); // buildOverrides changed dir, change it back
+			overrides = {
+				...overrides,
+				...localOverrides
+			}
 		}
-
 	}
 	await applyPackageOverrides(dir, pkg, overrides)
 	await beforeBuildCommand?.(pkg.scripts)
@@ -328,6 +335,8 @@ export async function applyPackageOverrides(
 	pkg: any,
 	overrides: Overrides = {}
 ) {
+	// remove boolean flags
+	overrides = Object.fromEntries(Object.entries(overrides).filter(([key,value])=> typeof value === 'string'))
 	await $`git clean -fdxq` // remove current install
 
 	const agent = await detect({ cwd: dir, autoInstall: false })
@@ -399,4 +408,42 @@ export function parseViteMajor(vitePath: string):number {
 
 export function parseMajorVersion(version: string) {
 	return parseInt(version.split('.',1)[0],10)
+}
+
+
+async function buildOverrides(pkg: any, options: RunOptions, repoOverrides:Overrides) {
+	const protocol = options.useCopyForOverrides ? 'file:':'';
+	const {root} = options;
+	const buildsPath = path.join(root, 'builds');
+	const buildFiles: string[] = fs
+		.readdirSync(buildsPath)
+		.filter((f: string) => !f.startsWith('_') && f.endsWith('.ts')).map(f => path.join(buildsPath,f));
+	const buildDefinitions:{packages:{[key:string]:string},build:(options:RunOptions)=>Promise<{dir:string}>, dir?:string}[] = await Promise.all(buildFiles.map(f => import(f)));
+	const deps = new Set([
+		...(Object.keys(pkg.dependencies ?? [])),
+		...(Object.keys(pkg.devDependencies ?? [])),
+		...(Object.keys(pkg.peerDependencies ?? []))
+	]);
+	const needsOverride = (p:string) => repoOverrides[p] === true || (deps.has(p) && repoOverrides[p] == null)
+	const buildsToRun = buildDefinitions.filter(({packages}) => Object.keys(packages).some(needsOverride))
+	const overrides:Overrides = {};
+	for(const buildDef of buildsToRun) {
+		const {dir} = await buildDef.build({
+			root: options.root,
+			workspace: options.workspace,
+			vitePath: options.vitePath,
+			viteMajor: options.viteMajor,
+			skipGit: options.skipGit,
+			release: options.release,
+			useCopyForOverrides: options.useCopyForOverrides,
+			verify: options.verify
+			// do not pass along scripts
+		});
+		for(const [name,path] of Object.entries(buildDef.packages)) {
+			if(needsOverride(name)) {
+				overrides[name]= `${protocol}${dir}/${path}`;
+			}
+		}
+	}
+	return overrides;
 }
