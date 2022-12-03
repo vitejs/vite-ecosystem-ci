@@ -300,20 +300,13 @@ export async function bisectVite(
 	good: string,
 	runSuite: () => Promise<Error | void>,
 ) {
-	const revertChanges = async () => {
-		// sometimes vite build modifies files in git, eg. LICENSE.md
-		// this would stop bisect, so to reset those changes
-		// stash them and drop the stash
-		try {
-			await $`git stash`
-			await $`git stash drop`
-		} catch (e) {
-			// ignore, can happen when there are no changes
-		}
-	}
+	// sometimes vite build modifies files in git, e.g. LICENSE.md
+	// this would stop bisect, so to reset those changes
+	const resetChanges = async () => $`git reset --hard HEAD`
+
 	try {
 		cd(vitePath)
-		await revertChanges()
+		await resetChanges()
 		await $`git bisect start`
 		await $`git bisect bad`
 		await $`git bisect good ${good}`
@@ -327,7 +320,7 @@ export async function bisectVite(
 			}
 			const error = await runSuite()
 			cd(vitePath)
-			await revertChanges()
+			await resetChanges()
 			const bisectOut = await $`git bisect ${error ? 'bad' : 'good'}`
 			bisecting = bisectOut.substring(0, 10).toLowerCase() === 'bisecting:' // as long as git prints 'bisecting: ' there are more revisions to test
 		}
