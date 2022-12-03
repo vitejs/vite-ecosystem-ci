@@ -334,7 +334,7 @@ export async function applyPackageOverrides(
 	pkg: any,
 	overrides: Overrides = {},
 ) {
-	const prependFileProtocol = (v:string) => fs.existsSync(v) ? `file:${v}`:v 
+	const prependFileProtocol = (v:string) => fs.existsSync(v) ? `file:${v}`:v
 	// remove boolean flags
 	overrides = Object.fromEntries(
 		Object.entries(overrides).filter(
@@ -453,7 +453,6 @@ async function buildOverrides(
 			viteMajor: options.viteMajor,
 			skipGit: options.skipGit,
 			release: options.release,
-			useCopyForOverrides: options.useCopyForOverrides,
 			verify: options.verify,
 			// do not pass along scripts
 		})
