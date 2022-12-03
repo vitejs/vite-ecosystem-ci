@@ -37,10 +37,13 @@ on:
           - marko
           - nuxt-framework
           - rakkas
-#          - storybook  # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
+          #          - storybook  # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
           - sveltekit
           - vite-plugin-ssr
+          - vite-plugin-react
+          - vite-plugin-react-swc
           - vite-plugin-svelte
+          - vite-plugin-vue
           - vite-setup-catalogue
           - vitepress
           - vitest
@@ -83,7 +86,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
@@ -112,10 +115,13 @@ jobs:
           - marko
           - nuxt-framework
           - rakkas
-#          - storybook  # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
+          #          - storybook  # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
           - sveltekit
           - vite-plugin-ssr
+          - vite-plugin-react
+          - vite-plugin-react-swc
           - vite-plugin-svelte
+          - vite-plugin-vue
           - vite-setup-catalogue
           - vitepress
           - vitest
@@ -125,7 +131,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x

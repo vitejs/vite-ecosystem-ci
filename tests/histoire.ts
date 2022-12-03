@@ -6,6 +6,6 @@ export async function test(options: RunOptions) {
 		...options,
 		repo: 'histoire-dev/histoire',
 		build: 'build',
-		test: ['test', 'test:examples']
+		test: ['test', 'test:examples'],
 	})
 }

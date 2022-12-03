@@ -1,8 +1,8 @@
 import { runInRepo } from '../utils'
 import { RunOptions } from '../types'
 
-export async function test(options: RunOptions) {
-	await runInRepo({
+export async function build(options: RunOptions) {
+	return runInRepo({
 		...options,
 		repo: 'sveltejs/vite-plugin-svelte',
 		branch: options.viteMajor === 4 ? 'vite-4' : 'main',
@@ -10,7 +10,9 @@ export async function test(options: RunOptions) {
 			svelte: 'latest',
 		},
 		build: 'build',
-		beforeTest: 'pnpm playwright install chromium',
-		test: ['lint', 'test'],
 	})
+}
+
+export const packages = {
+	'@sveltejs/vite-plugin-svelte': 'packages/vite-plugin-svelte',
 }

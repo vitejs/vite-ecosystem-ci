@@ -4,3 +4,4 @@ node_modules
 vite
 workspace
 .pnpm-debug.log
+.idea

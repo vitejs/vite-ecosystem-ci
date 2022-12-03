@@ -6,6 +6,6 @@ export async function test(options: RunOptions) {
 		...options,
 		repo: 'innocenzi/laravel-vite',
 		build: 'build',
-		test: 'test:vite'
+		test: 'test:vite',
 	})
 }

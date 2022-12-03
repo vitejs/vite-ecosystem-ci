@@ -6,12 +6,12 @@ module.exports = defineConfig({
 	extends: [
 		'eslint:recommended',
 		'plugin:n/recommended',
-		'plugin:@typescript-eslint/recommended'
+		'plugin:@typescript-eslint/recommended',
 	],
 	parser: '@typescript-eslint/parser',
 	parserOptions: {
 		sourceType: 'module',
-		ecmaVersion: 2021
+		ecmaVersion: 2021,
 	},
 	rules: {
 		eqeqeq: ['warn', 'always', { null: 'never' }],
@@ -22,11 +22,11 @@ module.exports = defineConfig({
 		'prefer-const': [
 			'warn',
 			{
-				destructuring: 'all'
-			}
+				destructuring: 'all',
+			},
 		],
 		'n/no-missing-import': 'off', // doesn't like ts imports
 		'n/no-process-exit': 'off',
-		'@typescript-eslint/no-explicit-any': 'off' // we use any in some places
-	}
+		'@typescript-eslint/no-explicit-any': 'off', // we use any in some places
+	},
 })

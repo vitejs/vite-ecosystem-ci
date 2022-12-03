@@ -16,16 +16,16 @@ type Env = {
 const statusConfig = {
 	success: {
 		color: parseInt('57ab5a', 16),
-		emoji: ':white_check_mark:'
+		emoji: ':white_check_mark:',
 	},
 	failure: {
 		color: parseInt('e5534b', 16),
-		emoji: ':x:'
+		emoji: ':x:',
 	},
 	cancelled: {
 		color: parseInt('768390', 16),
-		emoji: ':stop_button:'
-	}
+		emoji: ':stop_button:',
+	},
 }
 
 async function run() {
@@ -34,7 +34,7 @@ async function run() {
 	}
 	if (!process.env.DISCORD_WEBHOOK_URL) {
 		console.warn(
-			"Skipped beacuse process.env.DISCORD_WEBHOOK_URL was empty or didn't exist"
+			"Skipped beacuse process.env.DISCORD_WEBHOOK_URL was empty or didn't exist",
 		)
 		return
 	}
@@ -64,17 +64,17 @@ async function run() {
 			{
 				title: `${statusConfig[env.STATUS].emoji}  ${env.SUITE}`,
 				description: await createDescription(env.SUITE, targetText),
-				color: statusConfig[env.STATUS].color
-			}
-		]
+				color: statusConfig[env.STATUS].color,
+			},
+		],
 	}
 
 	const res = await fetch(env.DISCORD_WEBHOOK_URL, {
 		method: 'POST',
 		headers: {
-			'Content-Type': 'application/json'
+			'Content-Type': 'application/json',
 		},
-		body: JSON.stringify(webhookContent)
+		body: JSON.stringify(webhookContent),
 	})
 	if (res.ok) {
 		console.log('Sent Webhook')
@@ -85,7 +85,7 @@ async function run() {
 
 function assertEnv<T>(
 	name: string,
-	value: T
+	value: T,
 ): asserts value is Exclude<T, undefined> {
 	if (!value) {
 		throw new Error(`process.env.${name} is empty or does not exist.`)
@@ -101,7 +101,7 @@ async function createRunUrl(suite: string) {
 
 	// when matrix
 	const jobM = result.jobs.find(
-		(job) => job.name === `${process.env.GITHUB_JOB} (${suite})`
+		(job) => job.name === `${process.env.GITHUB_JOB} (${suite})`,
 	)
 	return jobM?.html_url
 }
@@ -115,8 +115,8 @@ async function fetchJobs() {
 	const url = `${process.env.GITHUB_API_URL}/repos/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}/jobs`
 	const res = await fetch(url, {
 		headers: {
-			Accept: 'application/vnd.github.v3+json'
-		}
+			Accept: 'application/vnd.github.v3+json',
+		},
 	})
 	const result = await res.json()
 	return result as { jobs: GitHubActionsJob[] }
@@ -134,7 +134,7 @@ function createTargetText(
 	refType: RefType,
 	ref: string,
 	permRef: string | undefined,
-	repo: string
+	repo: string,
 ) {
 	const repoText = repo !== 'vitejs/vite' ? `${repo}:` : ''
 	if (refType === 'branch') {
