@@ -172,7 +172,6 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		beforeInstall,
 		beforeBuild,
 		beforeTest,
-		useCopyForOverrides,
 	} = options
 	const beforeInstallCommand = toCommand(beforeInstall)
 	const beforeBuildCommand = toCommand(beforeBuild)
@@ -212,28 +211,22 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			overrides.vite = options.release
 		}
 	} else {
-		const protocol = useCopyForOverrides ? 'file:' : ''
-		overrides.vite ||= `${protocol}${options.vitePath}/packages/vite`
+
+		overrides.vite ||= `${options.vitePath}/packages/vite`
 
 		overrides[
 			`@vitejs/plugin-legacy`
-		] ||= `${protocol}${options.vitePath}/packages/plugin-legacy`
+		] ||= `${options.vitePath}/packages/plugin-legacy`
 		if (options.viteMajor < 4) {
-			overrides[
-				`@vitejs/plugin-vue`
-			] ||= `${protocol}${options.vitePath}/packages/plugin-vue`
-			overrides[
-				`@vitejs/plugin-vue-jsx`
-			] ||= `${protocol}${options.vitePath}/packages/plugin-vue-jsx`
-			overrides[
-				`@vitejs/plugin-react`
-			] ||= `${protocol}${options.vitePath}/packages/plugin-react`
+			overrides[`@vitejs/plugin-vue`] ||= `${options.vitePath}/packages/plugin-vue`
+			overrides[`@vitejs/plugin-vue-jsx`] ||= `${options.vitePath}/packages/plugin-vue-jsx`
+			overrides[`@vitejs/plugin-react`] ||= `${options.vitePath}/packages/plugin-react`
 			// vite-3 dependency setup could have caused problems if we don't synchronize node versions
 			// vite-4 uses an optional peerDependency instead so keep project types
 			const typesNodePath = fs.realpathSync(
 				`${options.vitePath}/node_modules/@types/node`,
 			)
-			overrides[`@types/node`] ||= `${protocol}${typesNodePath}`
+			overrides[`@types/node`] ||= `${typesNodePath}`
 		} else {
 			// starting with vite-4, we apply automatic overrides
 			const localOverrides = await buildOverrides(pkg, options, overrides)
@@ -341,11 +334,12 @@ export async function applyPackageOverrides(
 	pkg: any,
 	overrides: Overrides = {},
 ) {
+	const prependFileProtocol = (v:string) => fs.existsSync(v) ? `file:${v}`:v 
 	// remove boolean flags
 	overrides = Object.fromEntries(
 		Object.entries(overrides).filter(
 			([key, value]) => typeof value === 'string',
-		),
+		).map(([key,value])=> [key,prependFileProtocol(value as string)]),
 	)
 	await $`git clean -fdxq` // remove current install
 
@@ -428,7 +422,6 @@ async function buildOverrides(
 	options: RunOptions,
 	repoOverrides: Overrides,
 ) {
-	const protocol = options.useCopyForOverrides ? 'file:' : ''
 	const { root } = options
 	const buildsPath = path.join(root, 'builds')
 	const buildFiles: string[] = fs
@@ -466,7 +459,7 @@ async function buildOverrides(
 		})
 		for (const [name, path] of Object.entries(buildDef.packages)) {
 			if (needsOverride(name)) {
-				overrides[name] = `${protocol}${dir}/${path}`
+				overrides[name] = `${dir}/${path}`
 			}
 		}
 	}
