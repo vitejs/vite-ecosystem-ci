@@ -211,16 +211,21 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			overrides.vite = options.release
 		}
 	} else {
-
 		overrides.vite ||= `${options.vitePath}/packages/vite`
 
 		overrides[
 			`@vitejs/plugin-legacy`
 		] ||= `${options.vitePath}/packages/plugin-legacy`
 		if (options.viteMajor < 4) {
-			overrides[`@vitejs/plugin-vue`] ||= `${options.vitePath}/packages/plugin-vue`
-			overrides[`@vitejs/plugin-vue-jsx`] ||= `${options.vitePath}/packages/plugin-vue-jsx`
-			overrides[`@vitejs/plugin-react`] ||= `${options.vitePath}/packages/plugin-react`
+			overrides[
+				`@vitejs/plugin-vue`
+			] ||= `${options.vitePath}/packages/plugin-vue`
+			overrides[
+				`@vitejs/plugin-vue-jsx`
+			] ||= `${options.vitePath}/packages/plugin-vue-jsx`
+			overrides[
+				`@vitejs/plugin-react`
+			] ||= `${options.vitePath}/packages/plugin-react`
 			// vite-3 dependency setup could have caused problems if we don't synchronize node versions
 			// vite-4 uses an optional peerDependency instead so keep project types
 			const typesNodePath = fs.realpathSync(
@@ -334,12 +339,13 @@ export async function applyPackageOverrides(
 	pkg: any,
 	overrides: Overrides = {},
 ) {
-	const prependFileProtocol = (v:string) => fs.existsSync(v) ? `file:${v}`:v
+	const prependFileProtocol = (v: string) =>
+		fs.existsSync(v) ? `file:${v}` : v
 	// remove boolean flags
 	overrides = Object.fromEntries(
-		Object.entries(overrides).filter(
-			([key, value]) => typeof value === 'string',
-		).map(([key,value])=> [key,prependFileProtocol(value as string)]),
+		Object.entries(overrides)
+			.filter(([key, value]) => typeof value === 'string')
+			.map(([key, value]) => [key, prependFileProtocol(value as string)]),
 	)
 	await $`git clean -fdxq` // remove current install
 

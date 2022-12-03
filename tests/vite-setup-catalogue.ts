@@ -6,6 +6,6 @@ export async function test(options: RunOptions) {
 		...options,
 		repo: 'sapphi-red/vite-setup-catalogue',
 		branch: 'main',
-		test: 'test-for-ecosystem-ci'
+		test: 'test-for-ecosystem-ci',
 	})
 }
