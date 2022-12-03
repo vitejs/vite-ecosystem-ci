@@ -420,9 +420,9 @@ async function buildOverrides(pkg: any, options: RunOptions, repoOverrides:Overr
 		.filter((f: string) => !f.startsWith('_') && f.endsWith('.ts')).map(f => path.join(buildsPath,f));
 	const buildDefinitions:{packages:{[key:string]:string},build:(options:RunOptions)=>Promise<{dir:string}>, dir?:string}[] = await Promise.all(buildFiles.map(f => import(f)));
 	const deps = new Set([
-		...(Object.keys(pkg.dependencies ?? [])),
-		...(Object.keys(pkg.devDependencies ?? [])),
-		...(Object.keys(pkg.peerDependencies ?? []))
+		...(Object.keys(pkg.dependencies ?? {})),
+		...(Object.keys(pkg.devDependencies ?? {})),
+		...(Object.keys(pkg.peerDependencies ?? {}))
 	]);
 	const needsOverride = (p:string) => repoOverrides[p] === true || (deps.has(p) && repoOverrides[p] == null)
 	const buildsToRun = buildDefinitions.filter(({packages}) => Object.keys(packages).some(needsOverride))
