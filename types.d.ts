@@ -49,7 +49,7 @@ export interface RepoOptions {
 }
 
 export interface Overrides {
-	[key: string]: string
+	[key: string]: string | boolean
 }
 
 export interface ProcessEnv {
