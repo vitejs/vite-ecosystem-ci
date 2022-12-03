@@ -52,6 +52,7 @@ jobs:
           - sveltekit
           - vite-plugin-ssr
           - vite-plugin-react
+          - vite-plugin-react-swc
           - vite-plugin-svelte
           - vite-plugin-vue
           - vite-setup-catalogue
