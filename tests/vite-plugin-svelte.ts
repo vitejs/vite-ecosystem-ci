@@ -7,10 +7,10 @@ export async function test(options: RunOptions) {
 		repo: 'sveltejs/vite-plugin-svelte',
 		branch: options.viteMajor === 4 ? 'vite-4' : 'main',
 		overrides: {
-			svelte: 'latest'
+			svelte: 'latest',
 		},
 		build: 'build',
 		beforeTest: 'pnpm playwright install chromium',
-		test: ['lint','test']
+		test: ['lint', 'test'],
 	})
 }

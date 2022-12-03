@@ -9,6 +9,6 @@ export async function test(options: RunOptions) {
 		beforeBuild: 'tsc',
 		build: 'build',
 		beforeTest: 'pnpm playwright install chromium',
-		test: 'test'
+		test: 'test',
 	})
 }

@@ -7,12 +7,12 @@ export async function build(options: RunOptions) {
 		repo: 'sveltejs/vite-plugin-svelte',
 		branch: options.viteMajor === 4 ? 'vite-4' : 'main',
 		overrides: {
-			svelte: 'latest'
+			svelte: 'latest',
 		},
-		build: 'build'
+		build: 'build',
 	})
 }
 
 export const packages = {
-	'@sveltejs/vite-plugin-svelte':'packages/vite-plugin-svelte',
+	'@sveltejs/vite-plugin-svelte': 'packages/vite-plugin-svelte',
 }
