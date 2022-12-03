@@ -300,7 +300,7 @@ export async function bisectVite(
 	good: string,
 	runSuite: () => Promise<Error | void>,
 ) {
-	const revertChanges = async ()=>{
+	const revertChanges = async () => {
 		// sometimes vite build modifies files in git, eg. LICENSE.md
 		// this would stop bisect, so to reset those changes
 		// stash them and drop the stash
@@ -452,6 +452,7 @@ async function buildOverrides(
 		...Object.keys(pkg.devDependencies ?? {}),
 		...Object.keys(pkg.peerDependencies ?? {}),
 	])
+
 	const needsOverride = (p: string) =>
 		repoOverrides[p] === true || (deps.has(p) && repoOverrides[p] == null)
 	const buildsToRun = buildDefinitions.filter(({ packages }) =>
