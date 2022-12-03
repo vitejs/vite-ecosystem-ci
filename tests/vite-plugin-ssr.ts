@@ -6,7 +6,11 @@ export async function test(options: RunOptions) {
 		...options,
 		repo: 'brillout/vite-plugin-ssr',
 		branch: 'main',
+		overrides: {
+			'@vitejs/plugin-react': true,
+			'@vitejs/plugin-vue': true,
+		},
 		build: 'build',
-		test: 'test'
+		test: 'test',
 	})
 }
