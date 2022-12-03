@@ -1,4 +1,4 @@
-import { runInRepo} from '../utils'
+import { runInRepo } from '../utils'
 import { RunOptions } from '../types'
 
 export async function build(options: RunOptions) {
@@ -10,6 +10,6 @@ export async function build(options: RunOptions) {
 }
 
 export const packages = {
-	'@vitejs/plugin-vue':'packages/plugin-vue',
-	'@vitejs/plugin-vue-jsx':'packages/plugin-vue-jsx'
+	'@vitejs/plugin-vue': 'packages/plugin-vue',
+	'@vitejs/plugin-vue-jsx': 'packages/plugin-vue-jsx',
 }

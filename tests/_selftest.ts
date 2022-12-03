@@ -13,7 +13,7 @@ export async function test(options: RunOptions) {
 			const pkg = JSON.parse(await fs.promises.readFile(pkgFile, 'utf-8'))
 			if (pkg.name !== 'vite-ecosystem-ci') {
 				throw new Error(
-					`invalid checkout, expected package.json with "name":"vite-ecosystem-ci" in ${dir}`
+					`invalid checkout, expected package.json with "name":"vite-ecosystem-ci" in ${dir}`,
 				)
 			}
 			pkg.scripts.selftestscript =
@@ -21,10 +21,10 @@ export async function test(options: RunOptions) {
 			await fs.promises.writeFile(
 				pkgFile,
 				JSON.stringify(pkg, null, 2),
-				'utf-8'
+				'utf-8',
 			)
 		},
 		test: 'pnpm run selftestscript',
-		verify: false
+		verify: false,
 	})
 }

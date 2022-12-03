@@ -8,6 +8,6 @@ export async function test(options: RunOptions) {
 		branch: options.viteMajor === 4 ? 'vite-4' : 'main',
 		build: 'build',
 		beforeTest: 'pnpm playwright install chromium',
-		test: 'test'
+		test: 'test',
 	})
 }

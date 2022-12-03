@@ -6,6 +6,6 @@ export async function test(options: RunOptions) {
 		...options,
 		repo: 'windicss/vite-plugin-windicss',
 		build: 'build',
-		test: 'test'
+		test: 'test',
 	})
 }

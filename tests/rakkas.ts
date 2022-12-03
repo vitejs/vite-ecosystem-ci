@@ -7,6 +7,6 @@ export async function test(options: RunOptions) {
 		repo: 'rakkasjs/rakkasjs',
 		branch: 'main',
 		build: 'build',
-		test: 'vite-ecosystem-ci'
+		test: 'vite-ecosystem-ci',
 	})
 }
