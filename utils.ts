@@ -253,8 +253,9 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 }
 
 export async function setupViteRepo(options: Partial<RepoOptions>) {
+	const repo = options.repo || 'vitejs/vite'
 	await setupRepo({
-		repo: options.repo || 'vitejs/vite',
+		repo,
 		dir: vitePath,
 		branch: 'main',
 		shallow: true,
@@ -266,8 +267,12 @@ export async function setupViteRepo(options: Partial<RepoOptions>) {
 		const rootPackageJson = JSON.parse(
 			await fs.promises.readFile(rootPackageJsonFile, 'utf-8'),
 		)
-		if (rootPackageJson.name !== 'vite-monorepo') {
-			throw new Error('name does not match')
+		const viteMonoRepoNames = ['@vitejs/vite-monorepo', 'vite-monorepo']
+		const { name } = rootPackageJson
+		if (!viteMonoRepoNames.includes(name)) {
+			throw new Error(
+				`expected  "name" field of ${repo}/package.json to indicate vite monorepo, but got ${name}.`,
+			)
 		}
 	} catch (e) {
 		throw new Error(`Non-vite repository was cloned by setupViteRepo. (${e})`)
