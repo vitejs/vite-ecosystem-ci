@@ -349,6 +349,7 @@ export async function applyPackageOverrides(
 	// remove boolean flags
 	overrides = Object.fromEntries(
 		Object.entries(overrides)
+			//eslint-disable-next-line @typescript-eslint/no-unused-vars
 			.filter(([key, value]) => typeof value === 'string')
 			.map(([key, value]) => [key, prependFileProtocol(value as string)]),
 	)
