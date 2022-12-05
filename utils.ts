@@ -340,17 +340,17 @@ export async function bisectVite(
 }
 
 function isLocalOverride(v: string): boolean {
-	if(!v.includes('/') || v.startsWith('@')) {
+	if (!v.includes('/') || v.startsWith('@')) {
 		// not path-like (either a version number or a package name)
-		return false;
+		return false
 	}
 	try {
 		return !!fs.lstatSync(v)?.isDirectory()
 	} catch (e) {
 		if (e.code !== 'ENOENT') {
-			throw e;
+			throw e
 		}
-		return false;
+		return false
 	}
 }
 export async function applyPackageOverrides(
@@ -358,7 +358,8 @@ export async function applyPackageOverrides(
 	pkg: any,
 	overrides: Overrides = {},
 ) {
-	const useFileProtocol = (v: string) => isLocalOverride(v) ? `file:${path.resolve(v)}` : v
+	const useFileProtocol = (v: string) =>
+		isLocalOverride(v) ? `file:${path.resolve(v)}` : v
 	// remove boolean flags
 	overrides = Object.fromEntries(
 		Object.entries(overrides)
