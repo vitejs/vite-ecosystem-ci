@@ -376,6 +376,8 @@ export async function applyPackageOverrides(
 	// pnpm@6, pnpm@7 => pnpm
 	const pm = agent?.split('@')[0]
 
+	const version = await $`${pm} --version`
+	console.warn(`overriding packages with ${pm}@${version}`)
 	if (pm === 'pnpm') {
 		if (!pkg.devDependencies) {
 			pkg.devDependencies = {}

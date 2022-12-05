@@ -92,6 +92,7 @@ jobs:
           deno-version: v1.x
         continue-on-error: true
       - run: corepack enable
+      - run: pnpm --version
       - run: pnpm i --frozen-lockfile
       - run: >-
           pnpm tsx ecosystem-ci.ts
@@ -137,6 +138,7 @@ jobs:
           deno-version: v1.x
         continue-on-error: true
       - run: corepack enable
+      - run: pnpm --version
       - run: pnpm i --frozen-lockfile
       - run: >-
           pnpm tsx ecosystem-ci.ts
