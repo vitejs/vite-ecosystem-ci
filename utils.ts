@@ -344,8 +344,10 @@ export async function applyPackageOverrides(
 	pkg: any,
 	overrides: Overrides = {},
 ) {
-	const prependFileProtocol = (v: string) =>
-		fs.existsSync(v) ? `file:${v}` : v
+	const prependFileProtocol = (overrideValue: string) =>
+		fs.lstatSync(overrideValue)?.isDirectory()
+			? `file:./${path.relative(dir, overrideValue)}`
+			: overrideValue
 	// remove boolean flags
 	overrides = Object.fromEntries(
 		Object.entries(overrides)
