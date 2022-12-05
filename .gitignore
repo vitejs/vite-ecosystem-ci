@@ -5,3 +5,4 @@ vite
 workspace
 .pnpm-debug.log
 .idea
+.eslintcache

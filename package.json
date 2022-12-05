@@ -4,7 +4,7 @@
   "description": "Vite Ecosystem CI",
   "scripts": {
     "prepare": "pnpm exec simple-git-hooks",
-    "lint": "eslint --ignore-path .gitignore '**/*.ts'",
+    "lint": "eslint --cache --ignore-path .gitignore '**/*.ts'",
     "lint:fix": "pnpm lint --fix",
     "format": "prettier --ignore-path .gitignore --check .",
     "format:fix": "pnpm format --write",
