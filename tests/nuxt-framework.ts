@@ -8,6 +8,7 @@ export async function test(options: RunOptions) {
 		overrides: {
 			'@vitejs/plugin-vue': true,
 		},
+		branch: options.viteMajor === 4 ? 'feat/vite-4' : 'main',
 		build: 'build',
 		test: ['test:fixtures', 'test:types'],
 	})
