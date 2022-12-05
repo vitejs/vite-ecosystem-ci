@@ -377,11 +377,13 @@ export async function applyPackageOverrides(
 	const pm = agent?.split('@')[0]
 
 	const version = await $`${pm} --version`
-	if(pm === 'pnpm' && version === '7.18.0'){
-		console.warn('detected pnpm@7.18.0, changing pkg.packageManager and pkg.engines.pnpm to enforce use of pnpm@7.17.1')
-		pkg.packageManager='pnpm@7.17.1'
-		if(!pkg.engines) {
-			pkg.engines={}
+	if (pm === 'pnpm' && version === '7.18.0') {
+		console.warn(
+			'detected pnpm@7.18.0, changing pkg.packageManager and pkg.engines.pnpm to enforce use of pnpm@7.17.1',
+		)
+		pkg.packageManager = 'pnpm@7.17.1'
+		if (!pkg.engines) {
+			pkg.engines = {}
 		}
 		pkg.engines.pnpm = '7.17.1'
 	}
