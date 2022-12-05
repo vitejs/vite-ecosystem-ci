@@ -339,21 +339,32 @@ export async function bisectVite(
 	}
 }
 
+function isLocalOverride(v: string): boolean {
+	if(!v.includes('/') || v.startsWith('@')) {
+		// not path-like (either a version number or a package name)
+		return false;
+	}
+	try {
+		return !!fs.lstatSync(v)?.isDirectory()
+	} catch (e) {
+		if (e.code !== 'ENOENT') {
+			throw e;
+		}
+		return false;
+	}
+}
 export async function applyPackageOverrides(
 	dir: string,
 	pkg: any,
 	overrides: Overrides = {},
 ) {
-	const prependFileProtocol = (overrideValue: string) =>
-		fs.lstatSync(overrideValue)?.isDirectory()
-			? `file:./${path.relative(dir, overrideValue)}`
-			: overrideValue
+	const useFileProtocol = (v: string) => isLocalOverride(v) ? `file:${path.resolve(v)}` : v
 	// remove boolean flags
 	overrides = Object.fromEntries(
 		Object.entries(overrides)
 			//eslint-disable-next-line @typescript-eslint/no-unused-vars
 			.filter(([key, value]) => typeof value === 'string')
-			.map(([key, value]) => [key, prependFileProtocol(value as string)]),
+			.map(([key, value]) => [key, useFileProtocol(value as string)]),
 	)
 	await $`git clean -fdxq` // remove current install
 
