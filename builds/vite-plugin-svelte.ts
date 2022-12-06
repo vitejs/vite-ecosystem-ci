@@ -5,7 +5,7 @@ export async function build(options: RunOptions) {
 	return runInRepo({
 		...options,
 		repo: 'sveltejs/vite-plugin-svelte',
-		branch: options.viteMajor === 4 ? 'vite-4' : 'main',
+		branch: options.viteMajor === 4 ? 'main' : 'v1',
 		overrides: {
 			svelte: 'latest',
 		},
