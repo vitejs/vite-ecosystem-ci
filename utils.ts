@@ -339,19 +339,33 @@ export async function bisectVite(
 	}
 }
 
+function isLocalOverride(v: string): boolean {
+	if (!v.includes('/') || v.startsWith('@')) {
+		// not path-like (either a version number or a package name)
+		return false
+	}
+	try {
+		return !!fs.lstatSync(v)?.isDirectory()
+	} catch (e) {
+		if (e.code !== 'ENOENT') {
+			throw e
+		}
+		return false
+	}
+}
 export async function applyPackageOverrides(
 	dir: string,
 	pkg: any,
 	overrides: Overrides = {},
 ) {
-	const prependFileProtocol = (v: string) =>
-		fs.existsSync(v) ? `file:${v}` : v
+	const useFileProtocol = (v: string) =>
+		isLocalOverride(v) ? `file:${path.resolve(v)}` : v
 	// remove boolean flags
 	overrides = Object.fromEntries(
 		Object.entries(overrides)
 			//eslint-disable-next-line @typescript-eslint/no-unused-vars
 			.filter(([key, value]) => typeof value === 'string')
-			.map(([key, value]) => [key, prependFileProtocol(value as string)]),
+			.map(([key, value]) => [key, useFileProtocol(value as string)]),
 	)
 	await $`git clean -fdxq` // remove current install
 
@@ -363,6 +377,19 @@ export async function applyPackageOverrides(
 	const pm = agent?.split('@')[0]
 
 	if (pm === 'pnpm') {
+		const version = await $`pnpm --version`
+		// avoid bug with absolute overrides in pnpm 7.18.0
+		if (version === '7.18.0') {
+			console.warn(
+				'detected pnpm@7.18.0, changing pkg.packageManager and pkg.engines.pnpm to enforce use of pnpm@7.18.1',
+			)
+			// corepack reads this and uses pnpm 7.18.1 then
+			pkg.packageManager = 'pnpm@7.18.1'
+			if (!pkg.engines) {
+				pkg.engines = {}
+			}
+			pkg.engines.pnpm = '7.18.1'
+		}
 		if (!pkg.devDependencies) {
 			pkg.devDependencies = {}
 		}
