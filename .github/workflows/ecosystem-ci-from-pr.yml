@@ -78,7 +78,7 @@ jobs:
             return comment.id
 
   execute-selected-suite:
-    timeout-minutes: 20
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     needs: init
     if: "inputs.suite != '-'"
@@ -101,7 +101,7 @@ jobs:
           ${{ inputs.suite }}
 
   execute-all:
-    timeout-minutes: 20
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     needs: init
     if: "inputs.suite == '-'"
