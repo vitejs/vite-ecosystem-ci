@@ -10,7 +10,7 @@ export async function test(options: RunOptions) {
 		},
 		branch: options.viteMajor === 4 ? 'dev/v4' : 'main',
 		build: 'build:docs',
-		beforeTest: 'playwright install --with-deps chromium',
+		beforeTest: 'pnpm playwright install --with-deps chromium',
 		test: 'test',
 	})
 }
