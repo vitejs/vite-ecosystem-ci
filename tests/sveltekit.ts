@@ -2,8 +2,8 @@ import { runInRepo } from '../utils'
 import { RunOptions } from '../types'
 
 export async function test(options: RunOptions) {
-	if(options.viteMajor < 4) {
-		return; // no branch with 3.0 version
+	if (options.viteMajor < 4) {
+		return // no branch with 3.0 version
 	}
 	await runInRepo({
 		...options,
