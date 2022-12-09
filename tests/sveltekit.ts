@@ -2,10 +2,13 @@ import { runInRepo } from '../utils'
 import { RunOptions } from '../types'
 
 export async function test(options: RunOptions) {
+	if(options.viteMajor < 4) {
+		return; // no branch with 3.0 version
+	}
 	await runInRepo({
 		...options,
 		repo: 'sveltejs/kit',
-		branch: options.viteMajor === 4 ? 'vite-4' : 'master',
+		branch: 'master',
 		overrides: {
 			svelte: 'latest',
 			'@sveltejs/vite-plugin-svelte': true,
