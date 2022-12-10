@@ -8,7 +8,7 @@ export async function test(options: RunOptions) {
 		overrides: {
 			'@vitejs/plugin-vue': true,
 		},
-		'main',
+		branch: 'main',
 		build: 'build',
 		test: 'test',
 	})
