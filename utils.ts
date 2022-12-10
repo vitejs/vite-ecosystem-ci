@@ -1,6 +1,6 @@
 import path from 'path'
 import fs from 'fs'
-import { fileURLToPath } from 'url'
+import { fileURLToPath, pathToFileURL } from 'url'
 import { execaCommand } from 'execa'
 import {
 	EnvironmentData,
@@ -471,7 +471,7 @@ async function buildOverrides(
 		packages: { [key: string]: string }
 		build: (options: RunOptions) => Promise<{ dir: string }>
 		dir?: string
-	}[] = await Promise.all(buildFiles.map((f) => import(f)))
+	}[] = await Promise.all(buildFiles.map((f) => import(pathToFileURL(f).href)))
 	const deps = new Set([
 		...Object.keys(pkg.dependencies ?? {}),
 		...Object.keys(pkg.devDependencies ?? {}),
