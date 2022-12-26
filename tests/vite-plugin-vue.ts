@@ -4,9 +4,9 @@ import { RunOptions } from '../types'
 export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
-		repo: 'rakkasjs/rakkasjs',
-		branch: 'main',
+		repo: 'vitejs/vite-plugin-vue',
 		build: 'build',
-		test: 'vite-ecosystem-ci',
+		beforeTest: 'pnpm playwright install chromium',
+		test: 'test',
 	})
 }

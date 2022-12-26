@@ -7,6 +7,6 @@ export async function test(options: RunOptions) {
 		repo: 'storybookjs/builder-vite',
 		branch: 'main',
 		build: 'prepublish',
-		test: ['build-examples', 'test-ci']
+		test: ['build-examples', 'test-ci'],
 	})
 }

@@ -10,6 +10,7 @@ export interface RunOptions {
 	workspace: string
 	root: string
 	vitePath: string
+	viteMajor: number
 	verify?: boolean
 	skipGit?: boolean
 	release?: string
@@ -18,10 +19,6 @@ export interface RunOptions {
 	beforeInstall?: Task | Task[]
 	beforeBuild?: Task | Task[]
 	beforeTest?: Task | Task[]
-	/**
-	 * Whether to use `file:` instead of `link:`
-	 */
-	useCopyForOverrides?: boolean
 }
 
 type Task = string | (() => Promise<any>)
@@ -48,7 +45,7 @@ export interface RepoOptions {
 }
 
 export interface Overrides {
-	[key: string]: string
+	[key: string]: string | boolean
 }
 
 export interface ProcessEnv {

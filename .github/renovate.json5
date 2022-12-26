@@ -7,9 +7,9 @@
 	"node": false,
 	"packageRules": [
 		{
-			"depTypeList": ["peerDependencies"],
-			"enabled": false
-		}
+			"depTypeList": ["peerDependencies", "engines"],
+			"enabled": false,
+		},
 	],
-	"ignoreDeps": []
+	"ignoreDeps": [],
 }

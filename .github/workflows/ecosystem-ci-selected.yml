@@ -41,24 +41,29 @@ on:
           - laravel
           - marko
           - nuxt-framework
+          - previewjs
           - qwik
           - rakkas
-#          - storybook  # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
-          - svelte
+          #          - storybook  # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
+          - sveltekit
           - vite-plugin-ssr
+          - vite-plugin-react
+          - vite-plugin-react-swc
+          - vite-plugin-svelte
+          - vite-plugin-vue
           - vite-setup-catalogue
           - vitepress
           - vitest
           - windicss
 jobs:
   execute-selected-suite:
-    timeout-minutes: 20
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
         id: setup-node
       - uses: denoland/setup-deno@v1
         with:
@@ -66,6 +71,7 @@ jobs:
         id: setup-deno
         continue-on-error: true
       - run: corepack enable
+      - run: pnpm --version
       - run: pnpm i --frozen-lockfile
       - run: >-
           pnpm tsx ecosystem-ci.ts
