@@ -9,7 +9,7 @@ export async function test(options: RunOptions) {
 			'@vitejs/plugin-react': true,
 		},
 		branch: options.viteMajor === 4 ? 'dev/v4' : 'main',
-		build: 'build:docs',
+		build: 'pnpm --filter vite-plugin-react-pages run build',
 		beforeTest: 'pnpm playwright install --with-deps chromium',
 		test: 'test',
 	})
