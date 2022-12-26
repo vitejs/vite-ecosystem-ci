@@ -7,6 +7,6 @@ export async function test(options: RunOptions) {
 		repo: 'BuilderIO/qwik',
 		build: 'build.vite',
 		beforeTest: 'pnpm playwright install chromium',
-		test: 'test.vite'
+		test: 'test.vite',
 	})
 }
