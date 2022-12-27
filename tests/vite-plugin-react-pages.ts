@@ -10,7 +10,7 @@ export async function test(options: RunOptions) {
 		},
 		branch: 'main',
 		build: 'pnpm --filter vite-plugin-react-pages run build',
-		beforeTest: 'pnpm playwright install --with-deps chromium',
+		beforeTest: 'pnpm playwright install chromium',
 		test: 'test',
 	})
 }
