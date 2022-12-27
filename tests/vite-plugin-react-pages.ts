@@ -8,7 +8,7 @@ export async function test(options: RunOptions) {
 		overrides: {
 			'@vitejs/plugin-react': true,
 		},
-		branch: options.viteMajor === 4 ? 'dev/v4' : 'main',
+		branch: 'main',
 		build: 'pnpm --filter vite-plugin-react-pages run build',
 		beforeTest: 'pnpm playwright install --with-deps chromium',
 		test: 'test',
