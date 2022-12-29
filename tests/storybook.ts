@@ -8,7 +8,7 @@ export async function test(options: RunOptions) {
 		dir: 'storybook7',
 		testSubdirectory: 'react-vite/default-js/after-storybook',
 		branch: 'next',
-		build: ['yarn install', 'build-storybook'],
+		build: ['build-storybook'],
 		test: [
 			'yarn add --dev @storybook/test-runner http-server concurrently',
 			'npx concurrently -k "http-server storybook-static --port 6006 --silent" "npx wait-on http://localhost:6006 && npx test-storybook"',
