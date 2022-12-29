@@ -6,7 +6,7 @@ export async function test(options: RunOptions) {
 		...options,
 		repo: 'storybookjs/repro-templates-temp',
 		dir: 'storybook7',
-		packageDir: 'react-vite/default-js/after-storybook',
+		testSubdirectory: 'react-vite/default-js/after-storybook',
 		branch: 'next',
 		build: ['yarn install', 'build-storybook'],
 		test: [
