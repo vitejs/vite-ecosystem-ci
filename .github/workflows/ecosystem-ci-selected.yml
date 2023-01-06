@@ -35,6 +35,7 @@ on:
         type: choice
         options:
           - volar-starter
+          - vtu
 jobs:
   execute-selected-suite:
     timeout-minutes: 30

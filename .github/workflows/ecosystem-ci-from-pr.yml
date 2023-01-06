@@ -30,6 +30,7 @@ on:
         options:
           - "-"
           - volar-starter
+          - vtu
 jobs:
   init:
     runs-on: ubuntu-latest
@@ -91,6 +92,7 @@ jobs:
       matrix:
         suite:
           - volar-starter
+          - vtu
       fail-fast: false
     steps:
       - uses: actions/checkout@v3

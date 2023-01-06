@@ -41,6 +41,7 @@ jobs:
       matrix:
         suite:
           - volar-starter
+          - vtu
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
