@@ -1,6 +1,6 @@
 import path from 'path'
 import fs from 'fs'
-import { fileURLToPath, pathToFileURL } from 'url'
+import { fileURLToPath } from 'url'
 import { execaCommand } from 'execa'
 import {
 	EnvironmentData,
@@ -16,7 +16,7 @@ import actionsCore from '@actions/core'
 
 const isGitHubActions = !!process.env.GITHUB_ACTIONS
 
-let vitePath: string
+let volarPath: string
 let cwd: string
 let env: ProcessEnv
 
@@ -58,7 +58,7 @@ export async function setupEnvironment(): Promise<EnvironmentData> {
 	// @ts-expect-error import.meta
 	const root = dirnameFrom(import.meta.url)
 	const workspace = path.resolve(root, 'workspace')
-	vitePath = path.resolve(workspace, 'vite')
+	volarPath = path.resolve(workspace, 'volar')
 	cwd = process.cwd()
 	env = {
 		...process.env,
@@ -67,12 +67,12 @@ export async function setupEnvironment(): Promise<EnvironmentData> {
 		YARN_ENABLE_IMMUTABLE_INSTALLS: 'false', // to avoid errors with mutated lockfile due to overrides
 		NODE_OPTIONS: '--max-old-space-size=6144', // GITHUB CI has 7GB max, stay below
 	}
-	return { root, workspace, vitePath, cwd, env }
+	return { root, workspace, volarPath, cwd, env }
 }
 
 export async function setupRepo(options: RepoOptions) {
 	if (options.branch == null) {
-		options.branch = 'main'
+		options.branch = 'master'
 	}
 	if (options.shallow == null) {
 		options.shallow = true
@@ -158,7 +158,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		options.skipGit = false
 	}
 	if (options.branch == null) {
-		options.branch = 'main'
+		options.branch = 'master'
 	}
 	const {
 		build,
@@ -195,52 +195,17 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	await beforeInstallCommand?.(pkg.scripts)
 
 	if (verify && test) {
-		await $`ni --frozen`
+		await $`pnpm install --frozen-lockfile --no-optional`
 		await beforeBuildCommand?.(pkg.scripts)
 		await buildCommand?.(pkg.scripts)
 		await beforeTestCommand?.(pkg.scripts)
 		await testCommand?.(pkg.scripts)
 	}
 	let overrides = options.overrides || {}
-	if (options.release) {
-		if (overrides.vite && overrides.vite !== options.release) {
-			throw new Error(
-				`conflicting overrides.vite=${overrides.vite} and --release=${options.release} config. Use either one or the other`,
-			)
-		} else {
-			overrides.vite = options.release
-		}
-	} else {
-		overrides.vite ||= `${options.vitePath}/packages/vite`
-
-		overrides[
-			`@vitejs/plugin-legacy`
-		] ||= `${options.vitePath}/packages/plugin-legacy`
-		if (options.viteMajor < 4) {
-			overrides[
-				`@vitejs/plugin-vue`
-			] ||= `${options.vitePath}/packages/plugin-vue`
-			overrides[
-				`@vitejs/plugin-vue-jsx`
-			] ||= `${options.vitePath}/packages/plugin-vue-jsx`
-			overrides[
-				`@vitejs/plugin-react`
-			] ||= `${options.vitePath}/packages/plugin-react`
-			// vite-3 dependency setup could have caused problems if we don't synchronize node versions
-			// vite-4 uses an optional peerDependency instead so keep project types
-			const typesNodePath = fs.realpathSync(
-				`${options.vitePath}/node_modules/@types/node`,
-			)
-			overrides[`@types/node`] ||= `${typesNodePath}`
-		} else {
-			// starting with vite-4, we apply automatic overrides
-			const localOverrides = await buildOverrides(pkg, options, overrides)
-			cd(dir) // buildOverrides changed dir, change it back
-			overrides = {
-				...overrides,
-				...localOverrides,
-			}
-		}
+	const localOverrides = await buildOverrides(pkg, options, overrides)
+	overrides = {
+		...overrides,
+		...localOverrides,
 	}
 	await applyPackageOverrides(dir, pkg, overrides)
 	await beforeBuildCommand?.(pkg.scripts)
@@ -252,35 +217,19 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	return { dir }
 }
 
-export async function setupViteRepo(options: Partial<RepoOptions>) {
-	const repo = options.repo || 'vitejs/vite'
+export async function setupVolarRepo(options: Partial<RepoOptions>) {
+	const repo = options.repo || 'johnsoncodehk/volar'
 	await setupRepo({
 		repo,
-		dir: vitePath,
-		branch: 'main',
+		dir: volarPath,
+		branch: 'master',
 		shallow: true,
 		...options,
 	})
-
-	try {
-		const rootPackageJsonFile = path.join(vitePath, 'package.json')
-		const rootPackageJson = JSON.parse(
-			await fs.promises.readFile(rootPackageJsonFile, 'utf-8'),
-		)
-		const viteMonoRepoNames = ['@vitejs/vite-monorepo', 'vite-monorepo']
-		const { name } = rootPackageJson
-		if (!viteMonoRepoNames.includes(name)) {
-			throw new Error(
-				`expected  "name" field of ${repo}/package.json to indicate vite monorepo, but got ${name}.`,
-			)
-		}
-	} catch (e) {
-		throw new Error(`Non-vite repository was cloned by setupViteRepo. (${e})`)
-	}
 }
 
 export async function getPermanentRef() {
-	cd(vitePath)
+	cd(volarPath)
 	try {
 		const ref = await $`git log -1 --pretty=format:%h`
 		return ref
@@ -290,16 +239,16 @@ export async function getPermanentRef() {
 	}
 }
 
-export async function buildVite({ verify = false }) {
-	cd(vitePath)
-	await $`ni --frozen`
-	await $`nr build`
+export async function buildVolar({ verify = false }) {
+	cd(volarPath)
+	await $`pnpm install --frozen-lockfile --no-optional`
+	await $`pnpm run build-ci`
 	if (verify) {
-		await $`nr test`
+		await $`pnpm run test`
 	}
 }
 
-export async function bisectVite(
+export async function bisectVolar(
 	good: string,
 	runSuite: () => Promise<Error | void>,
 ) {
@@ -308,7 +257,7 @@ export async function bisectVite(
 	const resetChanges = async () => $`git reset --hard HEAD`
 
 	try {
-		cd(vitePath)
+		cd(volarPath)
 		await resetChanges()
 		await $`git bisect start`
 		await $`git bisect bad`
@@ -322,7 +271,7 @@ export async function bisectVite(
 				continue // see if next commit can be skipped too
 			}
 			const error = await runSuite()
-			cd(vitePath)
+			cd(volarPath)
 			await resetChanges()
 			const bisectOut = await $`git bisect ${error ? 'bad' : 'good'}`
 			bisecting = bisectOut.substring(0, 10).toLowerCase() === 'bisecting:' // as long as git prints 'bisecting: ' there are more revisions to test
@@ -331,7 +280,7 @@ export async function bisectVite(
 		console.log('error while bisecting', e)
 	} finally {
 		try {
-			cd(vitePath)
+			cd(volarPath)
 			await $`git bisect reset`
 		} catch (e) {
 			console.log('Error while resetting bisect', e)
@@ -443,9 +392,9 @@ export function dirnameFrom(url: string) {
 	return path.dirname(fileURLToPath(url))
 }
 
-export function parseViteMajor(vitePath: string): number {
+export function parseVolarMajor(volarPath: string): number {
 	const content = fs.readFileSync(
-		path.join(vitePath, 'packages', 'vite', 'package.json'),
+		path.join(volarPath, 'packages', 'language-core', 'package.json'),
 		'utf-8',
 	)
 	const pkg = JSON.parse(content)
@@ -461,17 +410,8 @@ async function buildOverrides(
 	options: RunOptions,
 	repoOverrides: Overrides,
 ) {
-	const { root } = options
-	const buildsPath = path.join(root, 'builds')
-	const buildFiles: string[] = fs
-		.readdirSync(buildsPath)
-		.filter((f: string) => !f.startsWith('_') && f.endsWith('.ts'))
-		.map((f) => path.join(buildsPath, f))
-	const buildDefinitions: {
-		packages: { [key: string]: string }
-		build: (options: RunOptions) => Promise<{ dir: string }>
-		dir?: string
-	}[] = await Promise.all(buildFiles.map((f) => import(pathToFileURL(f).href)))
+	let { root } = options
+	root = path.join(root, 'workspace', 'volar')
 	const deps = new Set([
 		...Object.keys(pkg.dependencies ?? {}),
 		...Object.keys(pkg.devDependencies ?? {}),
@@ -480,26 +420,29 @@ async function buildOverrides(
 
 	const needsOverride = (p: string) =>
 		repoOverrides[p] === true || (deps.has(p) && repoOverrides[p] == null)
-	const buildsToRun = buildDefinitions.filter(({ packages }) =>
-		Object.keys(packages).some(needsOverride),
-	)
 	const overrides: Overrides = {}
-	for (const buildDef of buildsToRun) {
-		const { dir } = await buildDef.build({
-			root: options.root,
-			workspace: options.workspace,
-			vitePath: options.vitePath,
-			viteMajor: options.viteMajor,
-			skipGit: options.skipGit,
-			release: options.release,
-			verify: options.verify,
-			// do not pass along scripts
-		})
-		for (const [name, path] of Object.entries(buildDef.packages)) {
-			if (needsOverride(name)) {
-				overrides[name] = `${dir}/${path}`
-			}
+	const packages = [
+		...fs
+			.readdirSync(path.join(root, 'packages'))
+			.map((name) => path.join('packages', name)),
+		...fs
+			.readdirSync(path.join(root, 'vue-language-tools'))
+			.map((name) => path.join('vue-language-tools', name)),
+		...fs
+			.readdirSync(path.join(root, 'plugins'))
+			.map((name) => path.join('plugins', name)),
+	]
+	for (const pkgPath of packages) {
+		const pkgJson = requireJson(path.join(root, pkgPath, 'package.json'))
+		if (needsOverride(pkgJson.name)) {
+			overrides[pkgJson.name] = 'file:' + path.join(root, pkgPath)
 		}
 	}
 	return overrides
+}
+
+function requireJson(jsonPath: string) {
+	const content = fs.readFileSync(jsonPath, 'utf-8')
+	const pkg = JSON.parse(content)
+	return pkg
 }

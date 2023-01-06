@@ -1,5 +1,5 @@
-# integration tests for vite ecosystem - single run of selected testsuite
-name: vite-ecosystem-ci-selected
+# integration tests for volar ecosystem - single run of selected testsuite
+name: volar-ecosystem-ci-selected
 
 env:
   # 7 GiB by default on GitHub, setting to 6 GiB
@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       refType:
-        description: "type of vite ref to use"
+        description: "type of volar ref to use"
         required: true
         type: choice
         options:
@@ -20,42 +20,21 @@ on:
           - release
         default: "branch"
       ref:
-        description: "vite ref to use"
+        description: "volar ref to use"
         required: true
         type: string
-        default: "main"
+        default: "master"
       repo:
-        description: "vite repository to use"
+        description: "volar repository to use"
         required: true
         type: string
-        default: "vitejs/vite"
+        default: "johnsoncodehk/volar"
       suite:
         description: "testsuite to run"
         required: true
         type: choice
         options:
-          - astro
-          - histoire
-          - iles
-          - ladle
-          - laravel
-          - marko
-          - nuxt-framework
-          - previewjs
-          - qwik
-          - rakkas
-          #          - storybook  # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
-          - sveltekit
-          - vite-plugin-ssr
-          - vite-plugin-react
-          - vite-plugin-react-pages
-          - vite-plugin-react-swc
-          - vite-plugin-svelte
-          - vite-plugin-vue
-          - vite-setup-catalogue
-          - vitepress
-          - vitest
-          - windicss
+          - volar-starter
 jobs:
   execute-selected-suite:
     timeout-minutes: 30
