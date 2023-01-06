@@ -4,7 +4,7 @@ import { RunOptions } from '../types'
 export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
-		repo: '@vuejs/test-utils',
+		repo: 'vuejs/test-utils',
 		overrides: {
 			'vue-tsc': true,
 		},
