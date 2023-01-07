@@ -34,6 +34,7 @@ on:
         required: true
         type: choice
         options:
+          - angular-language-tools
           - language-tools-starter
           - volar-starter
           - vtu

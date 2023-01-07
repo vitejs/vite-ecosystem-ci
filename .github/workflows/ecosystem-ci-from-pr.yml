@@ -29,6 +29,7 @@ on:
         type: choice
         options:
           - "-"
+          - angular-language-tools
           - language-tools-starter
           - volar-starter
           - vtu
@@ -92,6 +93,7 @@ jobs:
     strategy:
       matrix:
         suite:
+          - angular-language-tools
           - language-tools-starter
           - volar-starter
           - vtu
