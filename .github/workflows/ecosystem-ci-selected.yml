@@ -34,6 +34,7 @@ on:
         required: true
         type: choice
         options:
+          - language-tools-starter
           - volar-starter
           - vtu
 jobs:
