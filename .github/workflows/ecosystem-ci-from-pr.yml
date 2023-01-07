@@ -29,6 +29,7 @@ on:
         type: choice
         options:
           - "-"
+          - language-tools-starter
           - volar-starter
           - vtu
 jobs:
@@ -91,6 +92,7 @@ jobs:
     strategy:
       matrix:
         suite:
+          - language-tools-starter
           - volar-starter
           - vtu
       fail-fast: false
