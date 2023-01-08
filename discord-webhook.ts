@@ -38,6 +38,11 @@ async function run() {
 		)
 		return
 	}
+	if (!process.env.GITHUB_TOKEN) {
+		console.warn(
+			"Not using a token because process.env.GITHUB_TOKEN was empty or didn't exist",
+		)
+	}
 
 	const env = process.env as Env
 
@@ -94,6 +99,15 @@ function assertEnv<T>(
 
 async function createRunUrl(suite: string) {
 	const result = await fetchJobs()
+	if (!result) {
+		return undefined
+	}
+
+	if (result.total_count <= 0) {
+		console.warn('total_count was 0')
+		return undefined
+	}
+
 	const job = result.jobs.find((job) => job.name === process.env.GITHUB_JOB)
 	if (job) {
 		return job.html_url
@@ -116,17 +130,34 @@ async function fetchJobs() {
 	const res = await fetch(url, {
 		headers: {
 			Accept: 'application/vnd.github.v3+json',
+			...(process.env.GITHUB_TOKEN
+				? {
+						Authorization: `token ${process.env.GITHUB_TOKEN}`,
+						// eslint-disable-next-line no-mixed-spaces-and-tabs
+				  }
+				: undefined),
 		},
 	})
+	if (!res.ok) {
+		console.warn(
+			`Failed to fetch jobs (${res.status} ${res.statusText}): ${res.text()}`,
+		)
+		return null
+	}
+
 	const result = await res.json()
-	return result as { jobs: GitHubActionsJob[] }
+	return result as {
+		total_count: number
+		jobs: GitHubActionsJob[]
+	}
 }
 
 async function createDescription(suite: string, targetText: string) {
 	const runUrl = await createRunUrl(suite)
+	const open = runUrl === undefined ? 'Null' : `[Open](${runUrl})`
 
 	return `
-:scroll:\u00a0\u00a0[Open](${runUrl})\u3000\u3000:zap:\u00a0\u00a0${targetText}
+:scroll:\u00a0\u00a0${open}\u3000\u3000:zap:\u00a0\u00a0${targetText}
 `.trim()
 }
 
