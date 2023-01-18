@@ -292,6 +292,11 @@ export async function getPermanentRef() {
 
 export async function buildVite({ verify = false }) {
 	cd(vitePath)
+	try {
+		console.log('location of ni:', await $`which ni`)
+	} catch (e) {
+		console.log('failed to find ni',e);
+	}
 	await $`ni --frozen`
 	await $`nr build`
 	if (verify) {
