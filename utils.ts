@@ -286,6 +286,9 @@ export async function setupViteRepo(options: Partial<RepoOptions>) {
 				JSON.stringify(rootPackageJson, null, 2),
 				'utf-8',
 			)
+			if(rootPackageJson.devDependencies?.pnpm) {
+				await $`pnpm install --lockfile-only`
+			}
 		}
 	} catch (e) {
 		throw new Error(`Failed to setup vite repo`, { cause: e })
@@ -400,6 +403,13 @@ async function overridePackageManagerVersion(
 			pkg.engines = {}
 		}
 		pkg.engines[pm] = overrideWithVersion
+
+		if(pkg.devDependencies?.[pm]) {
+			// if for some reason the pm is in devDependencies, that would be a local version that'd be preferred over our forced global
+			// so ensure it here too.
+			pkg.devDependencies[pm]=overrideWithVersion
+		}
+
 		return true
 	}
 	return false
