@@ -378,7 +378,7 @@ async function overridePackageManagerVersion(
 	pkg: { [key: string]: any },
 	pm: string,
 ): Promise<boolean> {
-	const versionInUse = await $`${pm} --version`
+	const versionInUse = pkg.packageManager?.startsWith(`${pm}@`) ? pkg.packageManager.substring(pm.length+1): await $`${pm} --version`
 	let overrideWithVersion: string | null = null
 	if (pm === 'pnpm') {
 		if (semver.eq(versionInUse, '7.18.0')) {
