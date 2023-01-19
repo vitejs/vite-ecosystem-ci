@@ -295,7 +295,7 @@ export async function buildVite({ verify = false }) {
 	try {
 		console.log('location of ni:', await $`which ni`)
 	} catch (e) {
-		console.log('failed to find ni',e);
+		console.log('failed to find ni', e)
 	}
 	await $`ni --frozen`
 	await $`nr build`
@@ -384,16 +384,21 @@ export async function applyPackageOverrides(
 	if (pm === 'pnpm') {
 		const version = await $`pnpm --version`
 		// avoid bug with absolute overrides in pnpm 7.18.0
-		if (version === '7.18.0') {
+		const replacements: { [key: string]: string } = {
+			'7.18.0': '7.18.1', // avoid bug
+			'7.25.0': '7.24.3', // avoid bug
+		}
+		const newVersion = replacements[version]
+		if (newVersion) {
 			console.warn(
-				'detected pnpm@7.18.0, changing pkg.packageManager and pkg.engines.pnpm to enforce use of pnpm@7.18.1',
+				`detected pnpm@${version}, changing pkg.packageManager and pkg.engines.pnpm to enforce use of pnpm@${newVersion}`,
 			)
-			// corepack reads this and uses pnpm 7.18.1 then
-			pkg.packageManager = 'pnpm@7.18.1'
+			// corepack reads this and uses pnpm @ newVersion then
+			pkg.packageManager = `pnpm@${newVersion}`
 			if (!pkg.engines) {
 				pkg.engines = {}
 			}
-			pkg.engines.pnpm = '7.18.1'
+			pkg.engines.pnpm = newVersion
 		}
 		if (!pkg.devDependencies) {
 			pkg.devDependencies = {}
