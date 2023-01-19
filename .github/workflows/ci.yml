@@ -26,6 +26,7 @@ jobs:
           cache-dependency-path: "**/pnpm-lock.yaml"
       - name: install
         run: pnpm install --frozen-lockfile --prefer-offline
+      - run: ls -la node_modules/.bin
       - name: format
         run: pnpm format
       - name: lint
