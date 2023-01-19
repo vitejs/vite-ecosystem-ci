@@ -287,7 +287,7 @@ export async function setupViteRepo(options: Partial<RepoOptions>) {
 				'utf-8',
 			)
 			if (rootPackageJson.devDependencies?.pnpm) {
-				await $`pnpm install --lockfile-only`
+				await $`pnpm install -Dw pnpm --lockfile-only`
 			}
 		}
 	} catch (e) {
