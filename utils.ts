@@ -286,7 +286,7 @@ export async function setupViteRepo(options: Partial<RepoOptions>) {
 				JSON.stringify(rootPackageJson, null, 2),
 				'utf-8',
 			)
-			if(rootPackageJson.devDependencies?.pnpm) {
+			if (rootPackageJson.devDependencies?.pnpm) {
 				await $`pnpm install --lockfile-only`
 			}
 		}
@@ -381,7 +381,9 @@ async function overridePackageManagerVersion(
 	pkg: { [key: string]: any },
 	pm: string,
 ): Promise<boolean> {
-	const versionInUse = pkg.packageManager?.startsWith(`${pm}@`) ? pkg.packageManager.substring(pm.length+1): await $`${pm} --version`
+	const versionInUse = pkg.packageManager?.startsWith(`${pm}@`)
+		? pkg.packageManager.substring(pm.length + 1)
+		: await $`${pm} --version`
 	let overrideWithVersion: string | null = null
 	if (pm === 'pnpm') {
 		if (semver.eq(versionInUse, '7.18.0')) {
@@ -404,10 +406,10 @@ async function overridePackageManagerVersion(
 		}
 		pkg.engines[pm] = overrideWithVersion
 
-		if(pkg.devDependencies?.[pm]) {
+		if (pkg.devDependencies?.[pm]) {
 			// if for some reason the pm is in devDependencies, that would be a local version that'd be preferred over our forced global
 			// so ensure it here too.
-			pkg.devDependencies[pm]=overrideWithVersion
+			pkg.devDependencies[pm] = overrideWithVersion
 		}
 
 		return true
