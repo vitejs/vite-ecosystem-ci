@@ -4,6 +4,7 @@ specifiers:
   '@actions/core': ^1.10.0
   '@antfu/ni': ^0.18.8
   '@types/node': ^18.11.18
+  '@types/semver': ^7.3.13
   '@typescript-eslint/eslint-plugin': ^5.48.1
   '@typescript-eslint/parser': ^5.48.1
   cac: ^6.7.14
@@ -14,6 +15,7 @@ specifiers:
   lint-staged: ^13.1.0
   node-fetch: ^3.3.0
   prettier: ^2.8.3
+  semver: ^7.3.8
   simple-git-hooks: ^2.8.1
   tsx: ^3.12.2
   typescript: ^4.9.4
@@ -27,6 +29,7 @@ dependencies:
 devDependencies:
   '@antfu/ni': 0.18.8
   '@types/node': 18.11.18
+  '@types/semver': 7.3.13
   '@typescript-eslint/eslint-plugin': 5.48.1_oomjohfipuyaxs2zyomcx4f5by
   '@typescript-eslint/parser': 5.48.1_7uibuqfxkfaozanbtbziikiqje
   eslint: 8.32.0
@@ -34,6 +37,7 @@ devDependencies:
   eslint-plugin-n: 15.6.1_eslint@8.32.0
   lint-staged: 13.1.0
   prettier: 2.8.3
+  semver: 7.3.8
   simple-git-hooks: 2.8.1
   tsx: 3.12.2
   typescript: 4.9.4

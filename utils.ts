@@ -13,6 +13,8 @@ import {
 //eslint-disable-next-line n/no-unpublished-import
 import { detect } from '@antfu/ni'
 import actionsCore from '@actions/core'
+// eslint-disable-next-line n/no-unpublished-import
+import * as semver from 'semver'
 
 const isGitHubActions = !!process.env.GITHUB_ACTIONS
 
@@ -274,8 +276,22 @@ export async function setupViteRepo(options: Partial<RepoOptions>) {
 				`expected  "name" field of ${repo}/package.json to indicate vite monorepo, but got ${name}.`,
 			)
 		}
+		const needsWrite = await overridePackageManagerVersion(
+			rootPackageJson,
+			'pnpm',
+		)
+		if (needsWrite) {
+			fs.writeFileSync(
+				rootPackageJsonFile,
+				JSON.stringify(rootPackageJson, null, 2),
+				'utf-8',
+			)
+			if (rootPackageJson.devDependencies?.pnpm) {
+				await $`pnpm install -Dw pnpm --lockfile-only`
+			}
+		}
 	} catch (e) {
-		throw new Error(`Non-vite repository was cloned by setupViteRepo. (${e})`)
+		throw new Error(`Failed to setup vite repo`, { cause: e })
 	}
 }
 
@@ -353,6 +369,54 @@ function isLocalOverride(v: string): boolean {
 		return false
 	}
 }
+
+/**
+ * utility to override packageManager version
+ *
+ * @param pkg parsed package.json
+ * @param pm package manager to override eg. `pnpm`
+ * @returns {boolean} true if pkg was updated, caller is responsible for writing it to disk
+ */
+async function overridePackageManagerVersion(
+	pkg: { [key: string]: any },
+	pm: string,
+): Promise<boolean> {
+	const versionInUse = pkg.packageManager?.startsWith(`${pm}@`)
+		? pkg.packageManager.substring(pm.length + 1)
+		: await $`${pm} --version`
+	let overrideWithVersion: string | null = null
+	if (pm === 'pnpm') {
+		if (semver.eq(versionInUse, '7.18.0')) {
+			// avoid bug with absolute overrides in pnpm 7.18.0
+			overrideWithVersion = '7.18.1'
+		} else if (semver.gt(versionInUse, '7.23.0')) {
+			// avoid bug `ni` binary not found in pnpm 7.24+
+			// TODO  remove or set max version after we found the cause and fixed it
+			overrideWithVersion = '7.23.0'
+		}
+	}
+	if (overrideWithVersion) {
+		console.warn(
+			`detected ${pm}@${versionInUse} used in ${pkg.name}, changing pkg.packageManager and pkg.engines.${pm} to enforce use of ${pm}@${overrideWithVersion}`,
+		)
+		// corepack reads this and uses pnpm @ newVersion then
+		pkg.packageManager = `${pm}@${overrideWithVersion}`
+		if (!pkg.engines) {
+			pkg.engines = {}
+		}
+		pkg.engines[pm] = overrideWithVersion
+
+		if (pkg.devDependencies?.[pm]) {
+			// if for some reason the pm is in devDependencies, that would be a local version that'd be preferred over our forced global
+			// so ensure it here too.
+			pkg.devDependencies[pm] = overrideWithVersion
+		}
+
+		return true
+	}
+	return false
+}
+
 export async function applyPackageOverrides(
 	dir: string,
 	pkg: any,
@@ -370,26 +434,17 @@ export async function applyPackageOverrides(
 	await $`git clean -fdxq` // remove current install
 
 	const agent = await detect({ cwd: dir, autoInstall: false })
-
+	if (!agent) {
+		throw new Error(`failed to detect packageManager in ${dir}`)
+	}
 	// Remove version from agent string:
 	// yarn@berry => yarn
 	// pnpm@6, pnpm@7 => pnpm
 	const pm = agent?.split('@')[0]
 
+	await overridePackageManagerVersion(pkg, pm)
+
 	if (pm === 'pnpm') {
-		const version = await $`pnpm --version`
-		// avoid bug with absolute overrides in pnpm 7.18.0
-		if (version === '7.18.0') {
-			console.warn(
-				'detected pnpm@7.18.0, changing pkg.packageManager and pkg.engines.pnpm to enforce use of pnpm@7.18.1',
-			)
-			// corepack reads this and uses pnpm 7.18.1 then
-			pkg.packageManager = 'pnpm@7.18.1'
-			if (!pkg.engines) {
-				pkg.engines = {}
-			}
-			pkg.engines.pnpm = '7.18.1'
-		}
 		if (!pkg.devDependencies) {
 			pkg.devDependencies = {}
 		}
