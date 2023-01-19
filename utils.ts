@@ -383,14 +383,14 @@ export async function applyPackageOverrides(
 
 	if (pm === 'pnpm') {
 		const version = await $`pnpm --version`
-		// avoid bug with absolute overrides in pnpm 7.18.0
+
 		const replacements: { [key: string]: string } = {
-			'7.18.0': '7.18.1', // avoid bug
-			'7.24.0': '7.23.0', // avoid bug
-			'7.24.1': '7.23.0', // avoid bug
-			'7.24.2': '7.23.0', // avoid bug
-			'7.24.3': '7.23.0', // avoid bug
-			'7.25.0': '7.23.0', // avoid bug
+			'7.18.0': '7.18.1', // avoid bug with absolute overrides in pnpm 7.18.0
+			'7.24.0': '7.25.1', // avoid bug
+			'7.24.1': '7.25.1', // avoid bug
+			'7.24.2': '7.25.1', // avoid bug
+			'7.24.3': '7.25.1', // avoid bug
+			'7.25.0': '7.25.1', // avoid bug
 		}
 		const newVersion = replacements[version]
 		if (newVersion) {
