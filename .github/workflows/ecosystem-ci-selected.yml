@@ -74,7 +74,6 @@ jobs:
       - run: corepack enable
       - run: pnpm --version
       - run: pnpm i --frozen-lockfile
-      - run: ls -la node_modules/.bin
       - run: >-
           pnpm tsx ecosystem-ci.ts
           --${{ inputs.refType }} ${{ inputs.ref }}
