@@ -11,7 +11,7 @@ import {
 	Task,
 } from './types'
 //eslint-disable-next-line n/no-unpublished-import
-import { detect } from '@antfu/ni'
+import { detect, AGENTS, Agent, getCommand } from '@antfu/ni'
 import actionsCore from '@actions/core'
 // eslint-disable-next-line n/no-unpublished-import
 import * as semver from 'semver'
@@ -132,6 +132,7 @@ export async function setupRepo(options: RepoOptions) {
 
 function toCommand(
 	task: Task | Task[] | void,
+	agent: Agent,
 ): ((scripts: any) => Promise<any>) | void {
 	return async (scripts: any) => {
 		const tasks = Array.isArray(task) ? task : [task]
@@ -140,7 +141,12 @@ function toCommand(
 				continue
 			} else if (typeof task === 'string') {
 				const scriptOrBin = task.trim().split(/\s+/)[0]
-				await (scripts?.[scriptOrBin] != null ? $`nr ${task}` : $`${task}`)
+				if (scripts?.[scriptOrBin] != null) {
+					const runTaskWithAgent = getCommand(agent, 'run', [task])
+					await $`${runTaskWithAgent}`
+				} else {
+					await $`${task}`
+				}
 			} else if (typeof task === 'function') {
 				await task()
 			} else {
@@ -162,6 +168,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	if (options.branch == null) {
 		options.branch = 'main'
 	}
+
 	const {
 		build,
 		test,
@@ -175,11 +182,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		beforeBuild,
 		beforeTest,
 	} = options
-	const beforeInstallCommand = toCommand(beforeInstall)
-	const beforeBuildCommand = toCommand(beforeBuild)
-	const beforeTestCommand = toCommand(beforeTest)
-	const buildCommand = toCommand(build)
-	const testCommand = toCommand(test)
+
 	const dir = path.resolve(
 		options.workspace,
 		options.dir || repo.substring(repo.lastIndexOf('/') + 1),
@@ -190,6 +193,26 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	} else {
 		cd(dir)
 	}
+	if (options.agent == null) {
+		const detectedAgent = await detect({ autoInstall: false })
+		if (detectedAgent == null) {
+			throw new Error(`Failed to detect packagemanager in ${dir}`)
+		}
+		options.agent = detectedAgent
+	}
+	if (!AGENTS[options.agent]) {
+		throw new Error(
+			`Invalid agent ${options.agent}. Allowed values: ${Object.keys(
+				AGENTS,
+			).join(', ')}`,
+		)
+	}
+	const agent = options.agent
+	const beforeInstallCommand = toCommand(beforeInstall, agent)
+	const beforeBuildCommand = toCommand(beforeBuild, agent)
+	const beforeTestCommand = toCommand(beforeTest, agent)
+	const buildCommand = toCommand(build, agent)
+	const testCommand = toCommand(test, agent)
 
 	const pkgFile = path.join(dir, 'package.json')
 	const pkg = JSON.parse(await fs.promises.readFile(pkgFile, 'utf-8'))
@@ -197,7 +220,8 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	await beforeInstallCommand?.(pkg.scripts)
 
 	if (verify && test) {
-		await $`ni --frozen`
+		const frozenInstall = getCommand(agent, 'frozen')
+		await $`${frozenInstall}`
 		await beforeBuildCommand?.(pkg.scripts)
 		await buildCommand?.(pkg.scripts)
 		await beforeTestCommand?.(pkg.scripts)
@@ -308,10 +332,13 @@ export async function getPermanentRef() {
 
 export async function buildVite({ verify = false }) {
 	cd(vitePath)
-	await $`ni --frozen`
-	await $`nr build`
+	const frozenInstall = getCommand('pnpm', 'frozen')
+	const runBuild = getCommand('pnpm', 'run', ['build'])
+	const runTest = getCommand('pnpm', 'run', ['build'])
+	await $`${frozenInstall}`
+	await $`${runBuild}`
 	if (verify) {
-		await $`nr test`
+		await $`${runTest}`
 	}
 }
 
@@ -389,10 +416,6 @@ async function overridePackageManagerVersion(
 		if (semver.eq(versionInUse, '7.18.0')) {
 			// avoid bug with absolute overrides in pnpm 7.18.0
 			overrideWithVersion = '7.18.1'
-		} else if (semver.gt(versionInUse, '7.23.0')) {
-			// avoid bug `ni` binary not found in pnpm 7.24+
-			// TODO  remove or set max version after we found the cause and fixed it
-			overrideWithVersion = '7.23.0'
 		}
 	}
 	if (overrideWithVersion) {
