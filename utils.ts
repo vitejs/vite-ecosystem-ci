@@ -69,21 +69,21 @@ export async function setupEnvironment(): Promise<EnvironmentData> {
 		YARN_ENABLE_IMMUTABLE_INSTALLS: 'false', // to avoid errors with mutated lockfile due to overrides
 		NODE_OPTIONS: '--max-old-space-size=6144', // GITHUB CI has 7GB max, stay below
 	}
-  initWorkspace(workspace);
+	initWorkspace(workspace)
 	return { root, workspace, vitePath, cwd, env }
 }
 
-function initWorkspace(workspace: string){
-	if(!fs.existsSync(workspace)) {
-		fs.mkdirSync(workspace,{recursive:true})
+function initWorkspace(workspace: string) {
+	if (!fs.existsSync(workspace)) {
+		fs.mkdirSync(workspace, { recursive: true })
 	}
-	const eslintrc = path.join(workspace,'.eslintrc.json')
-	if(!fs.existsSync(eslintrc)) {
-		fs.writeFileSync(eslintrc,'{"root":true}\n','utf-8');
+	const eslintrc = path.join(workspace, '.eslintrc.json')
+	if (!fs.existsSync(eslintrc)) {
+		fs.writeFileSync(eslintrc, '{"root":true}\n', 'utf-8')
 	}
-	const editorconfig = path.join(workspace,'.editorconfig')
-	if(!fs.existsSync(editorconfig)) {
-		fs.writeFileSync(editorconfig,'root = true\n','utf-8');
+	const editorconfig = path.join(workspace, '.editorconfig')
+	if (!fs.existsSync(editorconfig)) {
+		fs.writeFileSync(editorconfig, 'root = true\n', 'utf-8')
 	}
 }
 
