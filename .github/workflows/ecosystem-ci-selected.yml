@@ -41,6 +41,7 @@ on:
           - laravel
           - marko
           - nuxt-framework
+          - nx
           - previewjs
           - qwik
           - rakkas
