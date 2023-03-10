@@ -6,6 +6,7 @@ export async function test(options: RunOptions) {
 		...options,
 		repo: 'nrwl/nx',
 		branch: 'master',
+		build: 'build',
 		test: ['npx nx test vite', 'npx nx e2e e2e-vite'],
 	})
 }
