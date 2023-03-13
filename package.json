@@ -41,23 +41,23 @@
   "dependencies": {
     "@actions/core": "^1.10.0",
     "cac": "^6.7.14",
-    "execa": "^7.0.0",
-    "node-fetch": "^3.3.0"
+    "execa": "^7.1.0",
+    "node-fetch": "^3.3.1"
   },
   "devDependencies": {
     "@antfu/ni": "^0.20.0",
-    "@types/node": "^18.15.0",
+    "@types/node": "^18.15.1",
     "@types/semver": "^7.3.13",
     "@typescript-eslint/eslint-plugin": "^5.54.1",
     "@typescript-eslint/parser": "^5.54.1",
-    "eslint": "^8.35.0",
+    "eslint": "^8.36.0",
     "eslint-define-config": "^1.16.0",
     "eslint-plugin-n": "^15.6.1",
     "lint-staged": "^13.2.0",
     "prettier": "^2.8.4",
     "semver": "^7.3.8",
     "simple-git-hooks": "^2.8.1",
-    "tsx": "^3.12.3",
+    "tsx": "^3.12.5",
     "typescript": "^4.9.5"
   }
 }
