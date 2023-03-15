@@ -7,7 +7,7 @@ export async function test(options: RunOptions) {
 	}
 	await runInRepo({
 		...options,
-		repo: 'nuxt/framework',
+		repo: 'nuxt/nuxt',
 		overrides: {
 			'@vitejs/plugin-vue': true,
 		},
