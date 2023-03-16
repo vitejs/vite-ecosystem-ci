@@ -46,7 +46,7 @@ jobs:
           - ladle
           - laravel
           - marko
-          - nuxt-framework
+          - nuxt
           - previewjs
           - qwik
           - rakkas
