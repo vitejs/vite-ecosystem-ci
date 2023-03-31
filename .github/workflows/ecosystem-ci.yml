@@ -41,7 +41,7 @@ jobs:
       matrix:
         suite:
           - astro
-          - histoire
+          # - histoire # disabled until tsc build fixed
           - iles
           - ladle
           - laravel

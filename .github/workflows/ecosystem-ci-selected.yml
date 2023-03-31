@@ -35,7 +35,7 @@ on:
         type: choice
         options:
           - astro
-          - histoire
+          # - histoire # disabled until tsc build fixed
           - iles
           - ladle
           - laravel
