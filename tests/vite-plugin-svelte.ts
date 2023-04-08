@@ -5,7 +5,7 @@ export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
 		repo: 'sveltejs/vite-plugin-svelte',
-		branch: 'fix/hmr-test-flake-vite4.3',
+		branch: 'try-fix-ci',
 		overrides: {
 			svelte: 'latest',
 		},
