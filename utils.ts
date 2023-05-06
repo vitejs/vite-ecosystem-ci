@@ -326,9 +326,12 @@ export async function buildSvelte({ verify = false }) {
 	cd(sveltePath)
 	const frozenInstall = getCommand('pnpm', 'frozen')
 	const runBuild = getCommand('pnpm', 'run', ['build'])
-	const runTest = getCommand('pnpm', 'run', ['build'])
+	const runTest = getCommand('pnpm', 'run', ['test'])
 	await $`${frozenInstall}`
-	await $`${runBuild}`
+	const oldPublish = process.env.PUBLISH
+	process.env.PUBLISH = '1'
+	await $`${runBuild}` // set publish so build bundles deps
+	process.env.PUBLISH = oldPublish
 	if (verify) {
 		await $`${runTest}`
 	}
