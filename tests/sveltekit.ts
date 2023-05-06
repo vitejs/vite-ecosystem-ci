@@ -2,7 +2,7 @@ import { runInRepo } from '../utils'
 import { RunOptions } from '../types'
 
 export async function test(options: RunOptions) {
-	if (options.viteMajor < 4) {
+	if (options.svelteMajor < 4) {
 		return // no branch with 3.0 version
 	}
 	await runInRepo({
@@ -14,6 +14,6 @@ export async function test(options: RunOptions) {
 			'@sveltejs/vite-plugin-svelte': true,
 		},
 		beforeTest: 'pnpm playwright install',
-		test: ['lint', 'check', 'test:vite-ecosystem-ci'],
+		test: ['lint', 'check', 'test:vite-ecosystem-ci'], // TODO do we want another set of tests for svelte?
 	})
 }

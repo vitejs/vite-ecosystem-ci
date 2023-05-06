@@ -1,5 +1,5 @@
-# integration tests for vite ecosystem - single run of selected testsuite
-name: vite-ecosystem-ci-selected
+# integration tests for svelte ecosystem - single run of selected testsuite
+name: svelte-ecosystem-ci-selected
 
 env:
   # 7 GiB by default on GitHub, setting to 6 GiB
@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       refType:
-        description: "type of vite ref to use"
+        description: "type of svelte ref to use"
         required: true
         type: choice
         options:
@@ -20,42 +20,23 @@ on:
           - release
         default: "branch"
       ref:
-        description: "vite ref to use"
+        description: "svelte ref to use"
         required: true
         type: string
-        default: "main"
+        default: "version-4"
       repo:
-        description: "vite repository to use"
+        description: "svelte repository to use"
         required: true
         type: string
-        default: "vitejs/vite"
+        default: "sveltejs/svelte"
       suite:
         description: "testsuite to run"
         required: true
         type: choice
         options:
-          - astro
-          - histoire
-          - iles
-          - ladle
-          - laravel
-          - marko
-          - nuxt
-          - previewjs
-          - qwik
-          - rakkas
-          #          - storybook  # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
           - sveltekit
-          - vite-plugin-ssr
-          - vite-plugin-react
-          - vite-plugin-react-pages
-          - vite-plugin-react-swc
           - vite-plugin-svelte
-          - vite-plugin-vue
-          - vite-setup-catalogue
-          - vitepress
-          - vitest
-          - windicss
+
 jobs:
   execute-selected-suite:
     timeout-minutes: 30

@@ -18,7 +18,7 @@ import * as semver from 'semver'
 
 const isGitHubActions = !!process.env.GITHUB_ACTIONS
 
-let vitePath: string
+let sveltePath: string
 let cwd: string
 let env: ProcessEnv
 
@@ -60,7 +60,7 @@ export async function setupEnvironment(): Promise<EnvironmentData> {
 	// @ts-expect-error import.meta
 	const root = dirnameFrom(import.meta.url)
 	const workspace = path.resolve(root, 'workspace')
-	vitePath = path.resolve(workspace, 'vite')
+	sveltePath = path.resolve(workspace, 'svelte')
 	cwd = process.cwd()
 	env = {
 		...process.env,
@@ -71,7 +71,7 @@ export async function setupEnvironment(): Promise<EnvironmentData> {
 		ECOSYSTEM_CI: 'true', // flag for tests, can be used to conditionally skip irrelevant tests.
 	}
 	initWorkspace(workspace)
-	return { root, workspace, vitePath, cwd, env }
+	return { root, workspace, sveltePath, cwd, env }
 }
 
 function initWorkspace(workspace: string) {
@@ -245,43 +245,20 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	}
 	let overrides = options.overrides || {}
 	if (options.release) {
-		if (overrides.vite && overrides.vite !== options.release) {
+		if (overrides.svelte && overrides.svelte !== options.release) {
 			throw new Error(
-				`conflicting overrides.vite=${overrides.vite} and --release=${options.release} config. Use either one or the other`,
+				`conflicting overrides.svelte=${overrides.svelte} and --release=${options.release} config. Use either one or the other`,
 			)
 		} else {
-			overrides.vite = options.release
+			overrides.svelte = options.release
 		}
 	} else {
-		overrides.vite ||= `${options.vitePath}/packages/vite`
-
-		overrides[
-			`@vitejs/plugin-legacy`
-		] ||= `${options.vitePath}/packages/plugin-legacy`
-		if (options.viteMajor < 4) {
-			overrides[
-				`@vitejs/plugin-vue`
-			] ||= `${options.vitePath}/packages/plugin-vue`
-			overrides[
-				`@vitejs/plugin-vue-jsx`
-			] ||= `${options.vitePath}/packages/plugin-vue-jsx`
-			overrides[
-				`@vitejs/plugin-react`
-			] ||= `${options.vitePath}/packages/plugin-react`
-			// vite-3 dependency setup could have caused problems if we don't synchronize node versions
-			// vite-4 uses an optional peerDependency instead so keep project types
-			const typesNodePath = fs.realpathSync(
-				`${options.vitePath}/node_modules/@types/node`,
-			)
-			overrides[`@types/node`] ||= `${typesNodePath}`
-		} else {
-			// starting with vite-4, we apply automatic overrides
-			const localOverrides = await buildOverrides(pkg, options, overrides)
-			cd(dir) // buildOverrides changed dir, change it back
-			overrides = {
-				...overrides,
-				...localOverrides,
-			}
+		overrides.svelte ||= `${options.sveltePath}`
+		const localOverrides = await buildOverrides(pkg, options, overrides)
+		cd(dir) // buildOverrides changed dir, change it back
+		overrides = {
+			...overrides,
+			...localOverrides,
 		}
 	}
 	await applyPackageOverrides(dir, pkg, overrides)
@@ -294,26 +271,25 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	return { dir }
 }
 
-export async function setupViteRepo(options: Partial<RepoOptions>) {
-	const repo = options.repo || 'vitejs/vite'
+export async function setupSvelteRepo(options: Partial<RepoOptions>) {
+	const repo = options.repo || 'sveltejs/svelte'
 	await setupRepo({
 		repo,
-		dir: vitePath,
+		dir: sveltePath,
 		branch: 'main',
 		shallow: true,
 		...options,
 	})
 
 	try {
-		const rootPackageJsonFile = path.join(vitePath, 'package.json')
+		const rootPackageJsonFile = path.join(sveltePath, 'package.json')
 		const rootPackageJson = JSON.parse(
 			await fs.promises.readFile(rootPackageJsonFile, 'utf-8'),
 		)
-		const viteMonoRepoNames = ['@vitejs/vite-monorepo', 'vite-monorepo']
 		const { name } = rootPackageJson
-		if (!viteMonoRepoNames.includes(name)) {
+		if (name !== 'svelte') {
 			throw new Error(
-				`expected  "name" field of ${repo}/package.json to indicate vite monorepo, but got ${name}.`,
+				`expected  "name" field of ${repo}/package.json to be "svelte", but got ${name}.`,
 			)
 		}
 		const needsWrite = await overridePackageManagerVersion(
@@ -331,12 +307,12 @@ export async function setupViteRepo(options: Partial<RepoOptions>) {
 			}
 		}
 	} catch (e) {
-		throw new Error(`Failed to setup vite repo`, { cause: e })
+		throw new Error(`Failed to setup svelte repo`, { cause: e })
 	}
 }
 
 export async function getPermanentRef() {
-	cd(vitePath)
+	cd(sveltePath)
 	try {
 		const ref = await $`git log -1 --pretty=format:%h`
 		return ref
@@ -346,8 +322,8 @@ export async function getPermanentRef() {
 	}
 }
 
-export async function buildVite({ verify = false }) {
-	cd(vitePath)
+export async function buildSvelte({ verify = false }) {
+	cd(sveltePath)
 	const frozenInstall = getCommand('pnpm', 'frozen')
 	const runBuild = getCommand('pnpm', 'run', ['build'])
 	const runTest = getCommand('pnpm', 'run', ['build'])
@@ -358,16 +334,16 @@ export async function buildVite({ verify = false }) {
 	}
 }
 
-export async function bisectVite(
+export async function bisectSvelte(
 	good: string,
 	runSuite: () => Promise<Error | void>,
 ) {
-	// sometimes vite build modifies files in git, e.g. LICENSE.md
+	// sometimes build modifies files in git, e.g. LICENSE.md
 	// this would stop bisect, so to reset those changes
 	const resetChanges = async () => $`git reset --hard HEAD`
 
 	try {
-		cd(vitePath)
+		cd(sveltePath)
 		await resetChanges()
 		await $`git bisect start`
 		await $`git bisect bad`
@@ -381,7 +357,7 @@ export async function bisectVite(
 				continue // see if next commit can be skipped too
 			}
 			const error = await runSuite()
-			cd(vitePath)
+			cd(sveltePath)
 			await resetChanges()
 			const bisectOut = await $`git bisect ${error ? 'bad' : 'good'}`
 			bisecting = bisectOut.substring(0, 10).toLowerCase() === 'bisecting:' // as long as git prints 'bisecting: ' there are more revisions to test
@@ -390,7 +366,7 @@ export async function bisectVite(
 		console.log('error while bisecting', e)
 	} finally {
 		try {
-			cd(vitePath)
+			cd(sveltePath)
 			await $`git bisect reset`
 		} catch (e) {
 			console.log('Error while resetting bisect', e)
@@ -537,9 +513,9 @@ export function dirnameFrom(url: string) {
 	return path.dirname(fileURLToPath(url))
 }
 
-export function parseViteMajor(vitePath: string): number {
+export function parseSvelteMajor(sveltePath: string): number {
 	const content = fs.readFileSync(
-		path.join(vitePath, 'packages', 'vite', 'package.json'),
+		path.join(sveltePath, 'package.json'),
 		'utf-8',
 	)
 	const pkg = JSON.parse(content)
@@ -582,8 +558,8 @@ async function buildOverrides(
 		const { dir } = await buildDef.build({
 			root: options.root,
 			workspace: options.workspace,
-			vitePath: options.vitePath,
-			viteMajor: options.viteMajor,
+			sveltePath: options.sveltePath,
+			svelteMajor: options.svelteMajor,
 			skipGit: options.skipGit,
 			release: options.release,
 			verify: options.verify,
