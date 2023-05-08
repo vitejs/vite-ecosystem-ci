@@ -55,7 +55,6 @@ on:
           - vite-setup-catalogue
           - vitepress
           - vitest
-          - windicss
 jobs:
   execute-selected-suite:
     timeout-minutes: 30

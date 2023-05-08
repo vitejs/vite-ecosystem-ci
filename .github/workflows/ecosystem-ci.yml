@@ -61,7 +61,6 @@ jobs:
           - vite-setup-catalogue
           - vitepress
           - vitest
-          - windicss
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
