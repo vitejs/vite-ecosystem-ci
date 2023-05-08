@@ -34,6 +34,9 @@ on:
         required: true
         type: choice
         options:
+          - eslint-plugin-svelte
+          - language-tools
+          - prettier-plugin-svelte
           - svelte-preprocess
           - sveltekit
           - vite-plugin-svelte
