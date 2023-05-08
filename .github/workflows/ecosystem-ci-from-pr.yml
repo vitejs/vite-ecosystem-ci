@@ -50,7 +50,6 @@ on:
           - vite-setup-catalogue
           - vitepress
           - vitest
-          - windicss
 jobs:
   init:
     runs-on: ubuntu-latest
@@ -132,7 +131,6 @@ jobs:
           - vite-setup-catalogue
           - vitepress
           - vitest
-          - windicss
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
