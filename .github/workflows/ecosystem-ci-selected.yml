@@ -37,6 +37,7 @@ on:
           - eslint-plugin-svelte
           - language-tools
           - prettier-plugin-svelte
+          - svelte-loader
           - svelte-preprocess
           - sveltekit
           - vite-plugin-svelte
