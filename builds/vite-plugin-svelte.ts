@@ -6,9 +6,6 @@ export async function build(options: RunOptions) {
 		...options,
 		repo: 'sveltejs/vite-plugin-svelte',
 		branch: 'svelte-4',
-		overrides: {
-			svelte: 'latest',
-		},
 		build: 'build',
 	})
 }
