@@ -29,6 +29,7 @@ on:
         type: choice
         options:
           - "-"
+          - svelte-preprocess
           - sveltekit
           - vite-plugin-svelte
 jobs:
@@ -91,6 +92,7 @@ jobs:
     strategy:
       matrix:
         suite:
+          - svelte-preprocess
           - sveltekit
           - vite-plugin-svelte
       fail-fast: false

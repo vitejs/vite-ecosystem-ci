@@ -40,6 +40,7 @@ jobs:
     strategy:
       matrix:
         suite:
+          - svelte-preprocess
           - sveltekit
           - vite-plugin-svelte
       fail-fast: false
@@ -68,7 +69,7 @@ jobs:
         env:
           WORKFLOW_NAME: ci
           REF_TYPE: ${{ inputs.refType || github.event.client_payload.refType || 'branch' }}
-          REF: ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
+          REF: ${{ inputs.ref || github.event.client_payload.ref || 'version-4' }}
           REPO: ${{ inputs.repo || github.event.client_payload.repo || 'sveltejs/svelte' }}
           SUITE: ${{ matrix.suite }}
           STATUS: ${{ job.status }}
