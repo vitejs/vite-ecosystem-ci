@@ -32,6 +32,7 @@ on:
           - eslint-plugin-svelte
           - language-tools
           - prettier-plugin-svelte
+          - rollup-plugin-svelte
           - svelte-loader
           - svelte-preprocess
           - sveltekit
@@ -99,6 +100,7 @@ jobs:
           - eslint-plugin-svelte
           - language-tools
           - prettier-plugin-svelte
+          - rollup-plugin-svelte
           - svelte-loader
           - svelte-preprocess
           - sveltekit
