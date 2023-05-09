@@ -53,6 +53,7 @@ jobs:
           - rakkas
           #          - storybook  # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
           - sveltekit
+          - unocss
           - vite-plugin-ssr
           - vite-plugin-react
           - vite-plugin-react-pages
@@ -62,7 +63,6 @@ jobs:
           - vite-setup-catalogue
           - vitepress
           - vitest
-          - windicss
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
