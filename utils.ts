@@ -261,6 +261,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		'nest',
 		'next',
 		'node',
+		'plugin',
 		'react',
 		'rollup',
 		'storybook',
