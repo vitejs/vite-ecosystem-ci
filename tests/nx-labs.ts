@@ -7,6 +7,6 @@ export async function test(options: RunOptions) {
 		repo: 'mandarini/nx-labs',
 		branch: 'test/ecosystem-tests',
 		build: 'ecosystem:build',
-		test: 'ecosystem:test',
+		test: 'ecosystem:e2e',
 	})
 }

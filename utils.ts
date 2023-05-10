@@ -18,6 +18,37 @@ import * as semver from 'semver'
 
 const isGitHubActions = !!process.env.GITHUB_ACTIONS
 
+const nxVersion = '16.1.4'
+
+const nxPackages = [
+	'angular',
+	'create-nx-plugin',
+	'create-nx-workspace',
+	'cypress',
+	'detox',
+	'devkit',
+	'esbuild',
+	'eslint-plugin',
+	'expo',
+	'express',
+	'jest',
+	'js',
+	'linter',
+	'nest',
+	'next',
+	'node',
+	'plugin',
+	'react',
+	'react-native',
+	'rollup',
+	'storybook',
+	'tao',
+	'vite',
+	'web',
+	'webpack',
+	'workspace',
+]
+
 let nxPath: string
 let cwd: string
 let env: ProcessEnv
@@ -174,6 +205,8 @@ function toCommand(
 }
 
 export async function runInRepo(options: RunOptions & RepoOptions) {
+	setLocalVersionOfNx(options.nxPath)
+
 	if (options.verify == null) {
 		options.verify = true
 	}
@@ -246,32 +279,6 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 
 	overrides.nx ||= `${options.nxPath}/build/packages/nx`
 
-	const nxPackages = [
-		'angular',
-		'cypress',
-		'devkit',
-		'detox',
-		'esbuild',
-		'expo',
-		'express',
-		'eslint-plugin',
-		'jest',
-		'js',
-		'linter',
-		'nest',
-		'next',
-		'node',
-		'plugin',
-		'react',
-		'rollup',
-		'storybook',
-		'tao',
-		'vite',
-		'web',
-		'webpack',
-		'workspace',
-	]
-
 	nxPackages.forEach((pkg) => {
 		overrides[`@nx/${pkg}`] ||= `${options.nxPath}/build/packages/${pkg}`
 	})
@@ -284,6 +291,26 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		await testCommand?.(pkg.scripts)
 	}
 	return { dir }
+}
+
+export function setLocalVersionOfNx(nxPath: string) {
+	const allPackagesAndNx = ['nx', ...nxPackages]
+	allPackagesAndNx.forEach((pkgName) => {
+		const packageJsonPath = path.join(
+			nxPath,
+			'packages',
+			pkgName,
+			'package.json',
+		)
+		const content = fs.readFileSync(packageJsonPath, 'utf-8')
+		const packageJson = JSON.parse(content)
+		packageJson.version = nxVersion
+		fs.writeFileSync(
+			path.join(packageJsonPath),
+			JSON.stringify(packageJson, null, 2),
+			'utf-8',
+		)
+	})
 }
 
 export async function setupNxRepo(options: Partial<RepoOptions>) {
@@ -339,6 +366,7 @@ export async function getPermanentRef() {
 }
 
 export async function buildNx({ verify = false }) {
+	setLocalVersionOfNx(nxPath)
 	cd(nxPath)
 	const frozenInstall = getCommand('pnpm', 'frozen')
 	const runBuild = getCommand('pnpm', 'run', ['build'])
