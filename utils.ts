@@ -18,8 +18,6 @@ import * as semver from 'semver'
 
 const isGitHubActions = !!process.env.GITHUB_ACTIONS
 
-const nxVersion = '16.1.4'
-
 const nxPackages = [
 	'angular',
 	'create-nx-plugin',
@@ -205,8 +203,6 @@ function toCommand(
 }
 
 export async function runInRepo(options: RunOptions & RepoOptions) {
-	setLocalVersionOfNx(options.nxPath)
-
 	if (options.verify == null) {
 		options.verify = true
 	}
@@ -277,7 +273,9 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		await beforeTestCommand?.(pkg.scripts)
 		await testCommand?.(pkg.scripts)
 		if (e2e) {
-			await publishLocalVerdaccio(options.nxPath, dir)
+			const nxLocalVersion = await publishLocalVersion(options.nxPath, dir)
+			setLocalVersionOfNx(options.nxPath, nxLocalVersion)
+			await $`${frozenInstall}`
 			await e2eCommand?.(pkg.scripts)
 			await disableLocalRegistry(options.nxPath, dir)
 		}
@@ -299,38 +297,50 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	}
 
 	if (e2e) {
-		await publishLocalVerdaccio(options.nxPath, dir)
+		const nxLocalVersion = await publishLocalVersion(options.nxPath, dir)
+		setLocalVersionOfNx(options.nxPath, nxLocalVersion)
+		await applyPackageOverrides(dir, pkg, overrides, true)
 		await e2eCommand?.(pkg.scripts)
 		await disableLocalRegistry(options.nxPath, dir)
 	}
 	return { dir }
 }
 
-export function setLocalVersionOfNx(nxPath: string) {
-	const allPackagesAndNx = ['nx', ...nxPackages]
-	allPackagesAndNx.forEach((pkgName) => {
-		const packageJsonPath = path.join(
-			nxPath,
-			'packages',
-			pkgName,
-			'package.json',
-		)
-		const content = fs.readFileSync(packageJsonPath, 'utf-8')
-		const packageJson = JSON.parse(content)
-		packageJson.version = nxVersion
-		fs.writeFileSync(
-			path.join(packageJsonPath),
-			JSON.stringify(packageJson, null, 2),
-			'utf-8',
-		)
-	})
+export async function setLocalVersionOfNx(nxPath: string, nxVersion?: string) {
+	if (nxVersion) {
+		const allPackagesAndNx = ['nx', ...nxPackages]
+		allPackagesAndNx.forEach((pkgName) => {
+			const packageJsonPath = path.join(
+				nxPath,
+				'packages',
+				pkgName,
+				'package.json',
+			)
+			const content = fs.readFileSync(packageJsonPath, 'utf-8')
+			const packageJson = JSON.parse(content)
+			packageJson.version = nxVersion
+			fs.writeFileSync(
+				path.join(packageJsonPath),
+				JSON.stringify(packageJson, null, 2),
+				'utf-8',
+			)
+		})
+	}
 }
 
-export async function publishLocalVerdaccio(nxPath: string, prevDir: string) {
+export async function publishLocalVersion(
+	nxPath: string,
+	prevDir: string,
+): Promise<string | undefined> {
 	cd(nxPath)
 	await $`pnpm e2e-start-local-registry`
-	await $`pnpm e2e-build-package-publish`
+	const output = await $`pnpm e2e-build-package-publish`
+	const pattern = /Published local version:.*$/m
+	const foundPublishedLine = output.match(pattern)
+	const patternForVersion = /Published local version: (\d+\.\d+\.\d+)/
+	const version = foundPublishedLine?.[0].match(patternForVersion)
 	cd(prevDir)
+	return version?.[1] || undefined
 }
 
 export async function disableLocalRegistry(nxPath: string, prevDir: string) {
@@ -507,6 +517,7 @@ export async function applyPackageOverrides(
 	dir: string,
 	pkg: any,
 	overrides: Overrides = {},
+	onlyInstall?: boolean,
 ) {
 	const useFileProtocol = (v: string) =>
 		isLocalOverride(v) ? `file:${path.resolve(v)}` : v
@@ -527,48 +538,49 @@ export async function applyPackageOverrides(
 	// yarn@berry => yarn
 	// pnpm@6, pnpm@7 => pnpm
 	const pm = agent?.split('@')[0]
+	if (!onlyInstall) {
+		await overridePackageManagerVersion(pkg, pm)
 
-	await overridePackageManagerVersion(pkg, pm)
-
-	if (pm === 'pnpm') {
-		if (!pkg.devDependencies) {
-			pkg.devDependencies = {}
-		}
-		pkg.devDependencies = {
-			...pkg.devDependencies,
-			...overrides, // overrides must be present in devDependencies or dependencies otherwise they may not work
-		}
-		if (!pkg.pnpm) {
-			pkg.pnpm = {}
-		}
-		pkg.pnpm.overrides = {
-			...pkg.pnpm.overrides,
-			...overrides,
-		}
-	} else if (pm === 'yarn') {
-		pkg.resolutions = {
-			...pkg.resolutions,
-			...overrides,
-		}
-	} else if (pm === 'npm') {
-		pkg.overrides = {
-			...pkg.overrides,
-			...overrides,
-		}
-		// npm does not allow overriding direct dependencies, force it by updating the blocks themselves
-		for (const [name, version] of Object.entries(overrides)) {
-			if (pkg.dependencies?.[name]) {
-				pkg.dependencies[name] = version
+		if (pm === 'pnpm') {
+			if (!pkg.devDependencies) {
+				pkg.devDependencies = {}
 			}
-			if (pkg.devDependencies?.[name]) {
-				pkg.devDependencies[name] = version
+			pkg.devDependencies = {
+				...pkg.devDependencies,
+				...overrides, // overrides must be present in devDependencies or dependencies otherwise they may not work
 			}
+			if (!pkg.pnpm) {
+				pkg.pnpm = {}
+			}
+			pkg.pnpm.overrides = {
+				...pkg.pnpm.overrides,
+				...overrides,
+			}
+		} else if (pm === 'yarn') {
+			pkg.resolutions = {
+				...pkg.resolutions,
+				...overrides,
+			}
+		} else if (pm === 'npm') {
+			pkg.overrides = {
+				...pkg.overrides,
+				...overrides,
+			}
+			// npm does not allow overriding direct dependencies, force it by updating the blocks themselves
+			for (const [name, version] of Object.entries(overrides)) {
+				if (pkg.dependencies?.[name]) {
+					pkg.dependencies[name] = version
+				}
+				if (pkg.devDependencies?.[name]) {
+					pkg.devDependencies[name] = version
+				}
+			}
+		} else {
+			throw new Error(`unsupported package manager detected: ${pm}`)
 		}
-	} else {
-		throw new Error(`unsupported package manager detected: ${pm}`)
+		const pkgFile = path.join(dir, 'package.json')
+		await fs.promises.writeFile(pkgFile, JSON.stringify(pkg, null, 2), 'utf-8')
 	}
-	const pkgFile = path.join(dir, 'package.json')
-	await fs.promises.writeFile(pkgFile, JSON.stringify(pkg, null, 2), 'utf-8')
 
 	// use of `ni` command here could cause lockfile violation errors so fall back to native commands that avoid these
 	if (pm === 'pnpm') {
