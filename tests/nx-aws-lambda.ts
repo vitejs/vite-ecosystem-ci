@@ -4,8 +4,9 @@ import { RunOptions } from '../types'
 export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
-		repo: 'Shopify/hydrogen',
-		build: 'build',
-		test: 'test:vite-ci',
+		repo: 'nrwl/nx-labs',
+		branch: 'main',
+		build: ['build aws-lambda'],
+		test: ['test aws-lambda'],
 	})
 }
