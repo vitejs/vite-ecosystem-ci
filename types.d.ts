@@ -19,6 +19,7 @@ export interface RunOptions {
 	agent?: Agent
 	build?: Task | Task[]
 	test?: Task | Task[]
+	e2e?: Task | Task[]
 	beforeInstall?: Task | Task[]
 	beforeBuild?: Task | Task[]
 	beforeTest?: Task | Task[]

@@ -220,6 +220,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	const {
 		build,
 		test,
+		e2e,
 		repo,
 		branch,
 		tag,
@@ -261,6 +262,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	const beforeTestCommand = toCommand(beforeTest, agent)
 	const buildCommand = toCommand(build, agent)
 	const testCommand = toCommand(test, agent)
+	const e2eCommand = toCommand(e2e, agent)
 
 	const pkgFile = path.join(dir, 'package.json')
 	const pkg = JSON.parse(await fs.promises.readFile(pkgFile, 'utf-8'))
@@ -274,6 +276,11 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		await buildCommand?.(pkg.scripts)
 		await beforeTestCommand?.(pkg.scripts)
 		await testCommand?.(pkg.scripts)
+		if (e2e) {
+			await publishLocalVerdaccio(options.nxPath, dir)
+			await e2eCommand?.(pkg.scripts)
+			await disableLocalRegistry(options.nxPath, dir)
+		}
 	}
 	const overrides = options.overrides || {}
 
@@ -289,6 +296,12 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	if (test) {
 		await beforeTestCommand?.(pkg.scripts)
 		await testCommand?.(pkg.scripts)
+	}
+
+	if (e2e) {
+		await publishLocalVerdaccio(options.nxPath, dir)
+		await e2eCommand?.(pkg.scripts)
+		await disableLocalRegistry(options.nxPath, dir)
 	}
 	return { dir }
 }
@@ -311,6 +324,20 @@ export function setLocalVersionOfNx(nxPath: string) {
 			'utf-8',
 		)
 	})
+}
+
+export async function publishLocalVerdaccio(nxPath: string, prevDir: string) {
+	cd(nxPath)
+	await $`pnpm e2e-start-local-registry`
+	await $`pnpm e2e-build-package-publish`
+	cd(prevDir)
+}
+
+export async function disableLocalRegistry(nxPath: string, prevDir: string) {
+	cd(nxPath)
+	await $`pnpm local-registry clear`
+	await $`pnpm local-registry disable`
+	cd(prevDir)
 }
 
 export async function setupNxRepo(options: Partial<RepoOptions>) {

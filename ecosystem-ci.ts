@@ -60,7 +60,6 @@ cli
 		await setupEnvironment()
 		await setupNxRepo(options)
 		await buildNx({ verify: options.verify })
-		// run command to publish nx to local verdaccio
 	})
 
 cli
