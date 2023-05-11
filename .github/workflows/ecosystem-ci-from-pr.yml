@@ -36,6 +36,7 @@ on:
           - laravel
           - marko
           - nuxt
+          - nx
           - previewjs
           - qwik
           - rakkas
@@ -118,6 +119,7 @@ jobs:
           - laravel
           - marko
           - nuxt
+          - nx
           - previewjs
           - qwik
           - rakkas
