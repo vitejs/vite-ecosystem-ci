@@ -63,8 +63,8 @@ async function run() {
 	const targetText = createTargetText(refType, env.REF, permRef, env.REPO)
 
 	const webhookContent = {
-		username: `vite-ecosystem-ci (${env.WORKFLOW_NAME})`,
-		avatar_url: 'https://github.com/vitejs.png',
+		username: `nx-ecosystem-ci (${env.WORKFLOW_NAME})`,
+		avatar_url: 'https://github.com/nrwl.png',
 		embeds: [
 			{
 				title: `${statusConfig[env.STATUS].emoji}  ${env.SUITE}`,
@@ -167,7 +167,7 @@ function createTargetText(
 	permRef: string | undefined,
 	repo: string,
 ) {
-	const repoText = repo !== 'vitejs/vite' ? `${repo}:` : ''
+	const repoText = repo !== 'nrwl/nx' ? `${repo}:` : ''
 	if (refType === 'branch') {
 		const link = `https://github.com/${repo}/commits/${permRef || ref}`
 		return `[${repoText}${ref} (${permRef || 'unknown'})](${link})`

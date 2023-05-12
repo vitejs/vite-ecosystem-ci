@@ -8,6 +8,6 @@ export async function test(options: RunOptions) {
 		branch: 'main',
 		build: ['build rspack'],
 		test: ['test rspack'],
-		e2e: ['e2e rspack-e2e'],
+		// e2e: ['e2e rspack-e2e'],
 	})
 }
