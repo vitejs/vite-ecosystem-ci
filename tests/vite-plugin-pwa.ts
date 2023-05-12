@@ -4,7 +4,7 @@ import { RunOptions } from '../types'
 export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
-		repo: '@vite-pwa/vite-plugin-pwa',
+		repo: 'vite-pwa/vite-plugin-pwa',
 		branch: 'userquin/feat-add-tests',
 		overrides: {
 			svelte: 'latest',
@@ -12,7 +12,6 @@ export async function test(options: RunOptions) {
 			preact: 'latest',
 			vue: 'latest',
 			'solid-js': 'latest',
-			'@sveltejs/vite-plugin-svelte': true,
 		},
 		beforeTest: 'pnpm playwright install',
 		test: ['build', 'test'],
