@@ -1,5 +1,5 @@
-# integration tests for vite ecosystem - run from pr comments
-name: vite-ecosystem-ci-from-pr
+# integration tests for nx ecosystem - run from pr comments
+name: nx-ecosystem-ci-from-pr
 
 env:
   # 7 GiB by default on GitHub, setting to 6 GiB
@@ -14,42 +14,28 @@ on:
         required: true
         type: string
       branchName:
-        description: "vite branch to use"
+        description: "nx branch to use"
         required: true
         type: string
-        default: "main"
+        default: "master"
       repo:
-        description: "vite repository to use"
+        description: "nx repository to use"
         required: true
         type: string
-        default: "vitejs/vite"
+        default: "nrwl/nx"
       suite:
         description: "testsuite to run. runs all testsuits when `-`."
         required: false
         type: choice
         options:
           - "-"
-          - astro
-          - histoire
-          - iles
-          - ladle
-          - laravel
-          - marko
-          - nuxt
-          - previewjs
-          - qwik
-          - rakkas
-          #          - storybook  # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
-          - sveltekit
-          - vite-plugin-ssr
-          - vite-plugin-react
-          - vite-plugin-react-pages
-          - vite-plugin-react-swc
-          - vite-plugin-svelte
-          - vite-plugin-vue
-          - vite-setup-catalogue
-          - vitepress
-          - vitest
+          - nx-aws-lambda
+          - nx-deno
+          - nx-examples
+          - nx-netlify
+          - nx-nx-ignore
+          - nx-remix
+          - nx-rspack
 jobs:
   init:
     runs-on: ubuntu-latest
@@ -61,7 +47,7 @@ jobs:
         with:
           app_id: ${{ secrets.PR_GITHUB_APP_ID }}
           private_key: ${{ secrets.PR_GITHUB_APP_PRIVATE_KEY }}
-          repository: "${{ github.repository_owner }}/vite"
+          repository: "${{ github.repository_owner }}/nx"
       - id: create-comment
         uses: actions/github-script@v6
         with:
@@ -74,7 +60,7 @@ jobs:
             const { data: comment } = await github.rest.issues.createComment({
               issue_number: context.payload.inputs.prNumber,
               owner: context.repo.owner,
-              repo: 'vite',
+              repo: 'nx',
               body: `⏳ Triggered ecosystem CI: ${urlLink}`
             })
             return comment.id
@@ -110,27 +96,13 @@ jobs:
     strategy:
       matrix:
         suite:
-          - astro
-          - histoire
-          - iles
-          - ladle
-          - laravel
-          - marko
-          - nuxt
-          - previewjs
-          - qwik
-          - rakkas
-          #          - storybook  # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
-          - sveltekit
-          - vite-plugin-ssr
-          - vite-plugin-react
-          - vite-plugin-react-pages
-          - vite-plugin-react-swc
-          - vite-plugin-svelte
-          - vite-plugin-vue
-          - vite-setup-catalogue
-          - vitepress
-          - vitest
+          - nx-aws-lambda
+          - nx-deno
+          - nx-examples
+          - nx-netlify
+          - nx-nx-ignore
+          - nx-remix
+          - nx-rspack
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
@@ -160,7 +132,7 @@ jobs:
         with:
           app_id: ${{ secrets.PR_GITHUB_APP_ID }}
           private_key: ${{ secrets.PR_GITHUB_APP_PRIVATE_KEY }}
-          repository: "${{ github.repository_owner }}/vite"
+          repository: "${{ github.repository_owner }}/nx"
       - uses: actions/github-script@v6
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
@@ -205,7 +177,7 @@ jobs:
 
             await github.rest.issues.updateComment({
               owner: context.repo.owner,
-              repo: 'vite',
+              repo: 'nx',
               comment_id: ${{ needs.init.outputs.comment-id }},
               body
             })

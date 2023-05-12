@@ -272,7 +272,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		await buildCommand?.(pkg.scripts)
 		await beforeTestCommand?.(pkg.scripts)
 		await testCommand?.(pkg.scripts)
-		if (e2e) {
+		if (e2e && e2e.length > 0) {
 			const nxLocalVersion = await publishLocalVersion(options.nxPath, dir)
 			setLocalVersionOfNx(options.nxPath, nxLocalVersion)
 			await $`${frozenInstall}`
@@ -296,7 +296,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		await testCommand?.(pkg.scripts)
 	}
 
-	if (e2e) {
+	if (e2e && e2e.length > 0) {
 		const nxLocalVersion = await publishLocalVersion(options.nxPath, dir)
 		setLocalVersionOfNx(options.nxPath, nxLocalVersion)
 		await applyPackageOverrides(dir, pkg, overrides, true)

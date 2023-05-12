@@ -42,9 +42,29 @@ cli
 			verify: options.verify,
 			skipGit: false,
 		}
+		const failed = []
+		const passed = []
 		for (const suite of suitesToRun) {
-			await run(suite, runOptions)
+			try {
+				await run(suite, runOptions)
+				passed.push(suite)
+			} catch (e) {
+				failed.push(suite)
+			}
 		}
+
+		console.log(`
+Ecosystem tests ran.
+Summary:
+${passed.length} passed
+${failed.length} failed
+
+Successfull tests:
+${passed.join('\n')}
+
+Failed tests:
+${failed.join('\n')}
+		`)
 	})
 
 cli

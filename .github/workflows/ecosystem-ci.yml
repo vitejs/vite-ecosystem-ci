@@ -1,5 +1,5 @@
-# integration tests for vite ecosystem projects - scheduled or manual run for all suites
-name: vite-ecosystem-ci
+# integration tests for nx ecosystem projects - scheduled or manual run for all suites
+name: nx-ecosystem-ci
 
 env:
   # 7 GiB by default on GitHub, setting to 6 GiB
@@ -22,15 +22,15 @@ on:
           - release
         default: "branch"
       ref:
-        description: "vite ref to use"
+        description: "nx ref to use"
         required: true
         type: string
-        default: "main"
+        default: "master"
       repo:
-        description: "vite repository to use"
+        description: "nx repository to use"
         required: true
         type: string
-        default: "vitejs/vite"
+        default: "nrwl/nx"
   repository_dispatch:
     types: [ecosystem-ci]
 jobs:
@@ -40,27 +40,13 @@ jobs:
     strategy:
       matrix:
         suite:
-          - astro
-          - histoire
-          - iles
-          - ladle
-          - laravel
-          - marko
-          - nuxt
-          - previewjs
-          - qwik
-          - rakkas
-          #          - storybook  # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
-          - sveltekit
-          - vite-plugin-ssr
-          - vite-plugin-react
-          - vite-plugin-react-pages
-          - vite-plugin-react-swc
-          - vite-plugin-svelte
-          - vite-plugin-vue
-          - vite-setup-catalogue
-          - vitepress
-          - vitest
+          - nx-aws-lambda
+          - nx-deno
+          - nx-examples
+          - nx-netlify
+          - nx-nx-ignore
+          - nx-remix
+          - nx-rspack
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
@@ -78,18 +64,18 @@ jobs:
       - run: pnpm i --frozen-lockfile
       - run: >-
           pnpm tsx ecosystem-ci.ts
-          --${{ inputs.refType || github.event.client_payload.refType || 'branch' }} ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
-          --repo ${{ inputs.repo || github.event.client_payload.repo || 'vitejs/vite' }}
+          --${{ inputs.refType || github.event.client_payload.refType || 'branch' }} ${{ inputs.ref || github.event.client_payload.ref || 'master' }}
+          --repo ${{ inputs.repo || github.event.client_payload.repo || 'nrwl/nx' }}
           ${{ matrix.suite }}
         id: ecosystem-ci-run
-      - if: always()
-        run: pnpm tsx discord-webhook.ts
-        env:
-          WORKFLOW_NAME: ci
-          REF_TYPE: ${{ inputs.refType || github.event.client_payload.refType || 'branch' }}
-          REF: ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
-          REPO: ${{ inputs.repo || github.event.client_payload.repo || 'vitejs/vite' }}
-          SUITE: ${{ matrix.suite }}
-          STATUS: ${{ job.status }}
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - if: always()
+      #   run: pnpm tsx discord-webhook.ts
+      #   env:
+      #     WORKFLOW_NAME: ci
+      #     REF_TYPE: ${{ inputs.refType || github.event.client_payload.refType || 'branch' }}
+      #     REF: ${{ inputs.ref || github.event.client_payload.ref || 'master' }}
+      #     REPO: ${{ inputs.repo || github.event.client_payload.repo || 'nrwl/nx' }}
+      #     SUITE: ${{ matrix.suite }}
+      #     STATUS: ${{ job.status }}
+      #     DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

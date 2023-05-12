@@ -1,5 +1,5 @@
-# integration tests for vite ecosystem - single run of selected testsuite
-name: vite-ecosystem-ci-selected
+# integration tests for nx ecosystem - single run of selected testsuite
+name: nx-ecosystem-ci-selected
 
 env:
   # 7 GiB by default on GitHub, setting to 6 GiB
@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       refType:
-        description: "type of vite ref to use"
+        description: "type of nx ref to use"
         required: true
         type: choice
         options:
@@ -20,41 +20,27 @@ on:
           - release
         default: "branch"
       ref:
-        description: "vite ref to use"
+        description: "nx ref to use"
         required: true
         type: string
-        default: "main"
+        default: "master"
       repo:
-        description: "vite repository to use"
+        description: "nx repository to use"
         required: true
         type: string
-        default: "vitejs/vite"
+        default: "nrwl/nx"
       suite:
         description: "testsuite to run"
         required: true
         type: choice
         options:
-          - astro
-          - histoire
-          - iles
-          - ladle
-          - laravel
-          - marko
-          - nuxt
-          - previewjs
-          - qwik
-          - rakkas
-          #          - storybook  # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
-          - sveltekit
-          - vite-plugin-ssr
-          - vite-plugin-react
-          - vite-plugin-react-pages
-          - vite-plugin-react-swc
-          - vite-plugin-svelte
-          - vite-plugin-vue
-          - vite-setup-catalogue
-          - vitepress
-          - vitest
+          - nx-aws-lambda
+          - nx-deno
+          - nx-examples
+          - nx-netlify
+          - nx-nx-ignore
+          - nx-remix
+          - nx-rspack
 jobs:
   execute-selected-suite:
     timeout-minutes: 30
@@ -79,14 +65,14 @@ jobs:
           --repo ${{ inputs.repo }}
           ${{ inputs.suite }}
         id: ecosystem-ci-run
-      - if: always()
-        run: pnpm tsx discord-webhook.ts
-        env:
-          WORKFLOW_NAME: ci-selected
-          REF_TYPE: ${{ inputs.refType }}
-          REF: ${{ inputs.ref }}
-          REPO: ${{ inputs.repo }}
-          SUITE: ${{ inputs.suite }}
-          STATUS: ${{ job.status }}
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - if: always()
+      #   run: pnpm tsx discord-webhook.ts
+      #   env:
+      #     WORKFLOW_NAME: ci-selected
+      #     REF_TYPE: ${{ inputs.refType }}
+      #     REF: ${{ inputs.ref }}
+      #     REPO: ${{ inputs.repo }}
+      #     SUITE: ${{ inputs.suite }}
+      #     STATUS: ${{ job.status }}
+      #     DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
