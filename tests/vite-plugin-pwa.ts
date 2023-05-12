@@ -3,8 +3,7 @@ import { RunOptions } from '../types'
 
 export async function test(options: RunOptions) {
 	if (options.viteMajor < 4) {
-		// no branch with 3.0 version
-		// ts test will fail since asset hash separator now is rollup default (-) instead dot (.)
+		// only latest version
 		return
 	}
 
