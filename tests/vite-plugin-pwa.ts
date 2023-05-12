@@ -20,6 +20,7 @@ export async function test(options: RunOptions) {
 			'solid-js': 'latest',
 		},
 		beforeTest: 'pnpm playwright install',
-		test: ['build', 'test'],
+		build: 'build',
+		test: ['test'],
 	})
 }
