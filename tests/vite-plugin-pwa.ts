@@ -20,6 +20,6 @@ export async function test(options: RunOptions) {
 		},
 		beforeTest: 'pnpm playwright install',
 		build: 'build',
-		test: ['test'],
+		test: 'test',
 	})
 }
