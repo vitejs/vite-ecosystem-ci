@@ -11,15 +11,8 @@ export async function test(options: RunOptions) {
 		...options,
 		repo: 'vite-pwa/vite-plugin-pwa',
 		branch: 'userquin/feat-add-tests',
-		overrides: {
-			svelte: 'latest',
-			react: 'latest',
-			preact: 'latest',
-			vue: 'latest',
-			'solid-js': 'latest',
-		},
-		beforeTest: 'pnpm playwright install',
+		beforeTest: 'pnpm playwright install chromium',
 		build: 'build',
-		test: 'test',
+		test: 'test:vite-ecosystem-ci',
 	})
 }
