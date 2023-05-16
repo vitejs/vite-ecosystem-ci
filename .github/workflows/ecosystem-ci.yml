@@ -40,6 +40,7 @@ jobs:
     strategy:
       matrix:
         suite:
+          - monodon-rust
           - nx-aws-lambda
           - nx-deno
           - nx-examples
@@ -47,6 +48,8 @@ jobs:
           - nx-nx-ignore
           - nx-remix
           - nx-rspack
+          - nxext-svelte
+          - qwik-nx
       fail-fast: false
     steps:
       - uses: actions/checkout@v3

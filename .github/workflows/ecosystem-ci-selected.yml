@@ -34,6 +34,7 @@ on:
         required: true
         type: choice
         options:
+          - monodon-rust
           - nx-aws-lambda
           - nx-deno
           - nx-examples
@@ -41,6 +42,8 @@ on:
           - nx-nx-ignore
           - nx-remix
           - nx-rspack
+          - nxext-svelte
+          - qwik-nx
 jobs:
   execute-selected-suite:
     timeout-minutes: 30
