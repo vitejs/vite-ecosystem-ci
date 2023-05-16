@@ -4,10 +4,10 @@ import { RunOptions } from '../types'
 export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
-		repo: 'nrwl/nx-labs',
+		repo: 'Cammisuli/monodon',
 		branch: 'main',
-		build: ['build rspack'],
-		test: ['test rspack'],
-		// e2e: ['e2e rspack-e2e'],
+		build: ['build rust'],
+		test: ['test rust'],
+		// e2e: ['e2e rust-e2e'],
 	})
 }
