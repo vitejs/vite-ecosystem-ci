@@ -12,6 +12,7 @@ export async function test(options: RunOptions) {
 		overrides: {
 			svelte: 'latest',
 			'@sveltejs/vite-plugin-svelte': true,
+			'@sveltejs/vite-plugin-svelte-inspector': true,
 		},
 		beforeTest: 'pnpm playwright install',
 		test: ['lint', 'check', 'test:vite-ecosystem-ci'],

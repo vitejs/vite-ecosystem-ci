@@ -15,4 +15,6 @@ export async function build(options: RunOptions) {
 
 export const packages = {
 	'@sveltejs/vite-plugin-svelte': 'packages/vite-plugin-svelte',
+	'@sveltejs/vite-plugin-svelte-inspector':
+		'packages/vite-plugin-svelte-inspector',
 }
