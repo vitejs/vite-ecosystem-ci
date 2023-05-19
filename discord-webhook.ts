@@ -1,5 +1,5 @@
 import fetch from 'node-fetch'
-import { getPermanentRef, setupEnvironment } from './utils'
+import { setupEnvironment } from './utils'
 
 type RefType = 'branch' | 'tag' | 'commit' | 'release'
 type Status = 'success' | 'failure' | 'cancelled'
@@ -57,8 +57,7 @@ async function run() {
 	await setupEnvironment()
 
 	const refType = env.REF_TYPE
-	// vite repo is not cloned when release
-	const permRef = refType === 'release' ? undefined : await getPermanentRef()
+	const permRef = undefined
 
 	const targetText = createTargetText(refType, env.REF, permRef, env.REPO)
 

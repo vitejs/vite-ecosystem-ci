@@ -15,39 +15,12 @@ import { detect, AGENTS, Agent, getCommand } from '@antfu/ni'
 import actionsCore from '@actions/core'
 // eslint-disable-next-line n/no-unpublished-import
 import * as semver from 'semver'
+import fetch from 'node-fetch'
 
 const isGitHubActions = !!process.env.GITHUB_ACTIONS
 
-const nxPackages = [
-	'angular',
-	'create-nx-plugin',
-	'create-nx-workspace',
-	'cypress',
-	'detox',
-	'devkit',
-	'esbuild',
-	'eslint-plugin',
-	'expo',
-	'express',
-	'jest',
-	'js',
-	'linter',
-	'nest',
-	'next',
-	'node',
-	'plugin',
-	'react',
-	'react-native',
-	'rollup',
-	'storybook',
-	'tao',
-	'vite',
-	'web',
-	'webpack',
-	'workspace',
-]
+const nxCliCommands = ['create-nx-plugin', 'create-nx-workspace', 'nx']
 
-let nxPath: string
 let cwd: string
 let env: ProcessEnv
 
@@ -89,7 +62,6 @@ export async function setupEnvironment(): Promise<EnvironmentData> {
 	// @ts-expect-error import.meta
 	const root = dirnameFrom(import.meta.url)
 	const workspace = path.resolve(root, 'workspace')
-	nxPath = path.resolve(workspace, 'nx')
 	cwd = process.cwd()
 	env = {
 		...process.env,
@@ -99,7 +71,7 @@ export async function setupEnvironment(): Promise<EnvironmentData> {
 		ECOSYSTEM_CI: 'true', // flag for tests, can be used to conditionally skip irrelevant tests.
 	}
 	initWorkspace(workspace)
-	return { root, workspace, nxPath, cwd, env }
+	return { root, workspace, cwd, env }
 }
 
 function initWorkspace(workspace: string) {
@@ -272,21 +244,13 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		await buildCommand?.(pkg.scripts)
 		await beforeTestCommand?.(pkg.scripts)
 		await testCommand?.(pkg.scripts)
-		if (e2e && e2e.length > 0) {
-			const nxLocalVersion = await publishLocalVersion(options.nxPath, dir)
-			setLocalVersionOfNx(options.nxPath, nxLocalVersion)
-			await $`${frozenInstall}`
-			await e2eCommand?.(pkg.scripts)
-			await disableLocalRegistry(options.nxPath, dir)
-		}
+		await e2eCommand?.(pkg.scripts)
 	}
-	const overrides = options.overrides || {}
 
-	overrides.nx ||= `${options.nxPath}/build/packages/nx`
-
-	nxPackages.forEach((pkg) => {
-		overrides[`@nx/${pkg}`] ||= `${options.nxPath}/build/packages/${pkg}`
-	})
+	const overrides = await getOverrides(
+		options.overrides || {},
+		getNxDependencies(pkg),
+	)
 
 	await applyPackageOverrides(dir, pkg, overrides)
 	await beforeBuildCommand?.(pkg.scripts)
@@ -296,163 +260,9 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		await testCommand?.(pkg.scripts)
 	}
 
-	if (e2e && e2e.length > 0) {
-		const nxLocalVersion = await publishLocalVersion(options.nxPath, dir)
-		setLocalVersionOfNx(options.nxPath, nxLocalVersion)
-		await applyPackageOverrides(dir, pkg, overrides, true)
-		await e2eCommand?.(pkg.scripts)
-		await disableLocalRegistry(options.nxPath, dir)
-	}
+	await e2eCommand?.(pkg.scripts)
+
 	return { dir }
-}
-
-export async function setLocalVersionOfNx(nxPath: string, nxVersion?: string) {
-	if (nxVersion) {
-		const allPackagesAndNx = ['nx', ...nxPackages]
-		allPackagesAndNx.forEach((pkgName) => {
-			const packageJsonPath = path.join(
-				nxPath,
-				'packages',
-				pkgName,
-				'package.json',
-			)
-			const content = fs.readFileSync(packageJsonPath, 'utf-8')
-			const packageJson = JSON.parse(content)
-			packageJson.version = nxVersion
-			fs.writeFileSync(
-				path.join(packageJsonPath),
-				JSON.stringify(packageJson, null, 2),
-				'utf-8',
-			)
-		})
-	}
-}
-
-export async function publishLocalVersion(
-	nxPath: string,
-	prevDir: string,
-): Promise<string | undefined> {
-	cd(nxPath)
-	await $`pnpm e2e-start-local-registry`
-	const output = await $`pnpm e2e-build-package-publish`
-	const pattern = /Published local version:.*$/m
-	const foundPublishedLine = output.match(pattern)
-	const patternForVersion = /Published local version: (\d+\.\d+\.\d+)/
-	const version = foundPublishedLine?.[0].match(patternForVersion)
-	cd(prevDir)
-	return version?.[1] || undefined
-}
-
-export async function disableLocalRegistry(nxPath: string, prevDir: string) {
-	cd(nxPath)
-	await $`pnpm local-registry clear`
-	await $`pnpm local-registry disable`
-	cd(prevDir)
-}
-
-export async function setupNxRepo(options: Partial<RepoOptions>) {
-	const repo = options.repo || 'nrwl/nx'
-	await setupRepo({
-		repo,
-		dir: nxPath,
-		branch: 'master',
-		shallow: true,
-		...options,
-	})
-
-	try {
-		const rootPackageJsonFile = path.join(nxPath, 'package.json')
-		const rootPackageJson = JSON.parse(
-			await fs.promises.readFile(rootPackageJsonFile, 'utf-8'),
-		)
-		// const viteMonoRepoNames = ['@vitejs/vite-monorepo', 'vite-monorepo']
-		// const { name } = rootPackageJson
-		// if (!viteMonoRepoNames.includes(name)) {
-		// 	throw new Error(
-		// 		`expected  "name" field of ${repo}/package.json to indicate vite monorepo, but got ${name}.`,
-		// 	)
-		// }
-		const needsWrite = await overridePackageManagerVersion(
-			rootPackageJson,
-			'pnpm',
-		)
-		if (needsWrite) {
-			fs.writeFileSync(
-				rootPackageJsonFile,
-				JSON.stringify(rootPackageJson, null, 2),
-				'utf-8',
-			)
-			if (rootPackageJson.devDependencies?.pnpm) {
-				await $`pnpm install -Dw pnpm --lockfile-only`
-			}
-		}
-	} catch (e) {
-		throw new Error(`Failed to setup Nx repo`, { cause: e })
-	}
-}
-
-export async function getPermanentRef() {
-	cd(nxPath)
-	try {
-		const ref = await $`git log -1 --pretty=format:%h`
-		return ref
-	} catch (e) {
-		console.warn(`Failed to obtain perm ref. ${e}`)
-		return undefined
-	}
-}
-
-export async function buildNx({ verify = false }) {
-	setLocalVersionOfNx(nxPath)
-	cd(nxPath)
-	const frozenInstall = getCommand('pnpm', 'frozen')
-	const runBuild = getCommand('pnpm', 'run', ['build'])
-	const runTest = getCommand('pnpm', 'run', ['build'])
-	await $`${frozenInstall}`
-	await $`${runBuild}`
-	if (verify) {
-		await $`${runTest}`
-	}
-}
-
-export async function bisectNx(
-	good: string,
-	runSuite: () => Promise<Error | void>,
-) {
-	// sometimes vite build modifies files in git, e.g. LICENSE.md
-	// this would stop bisect, so to reset those changes
-	const resetChanges = async () => $`git reset --hard HEAD`
-
-	try {
-		cd(nxPath)
-		await resetChanges()
-		await $`git bisect start`
-		await $`git bisect bad`
-		await $`git bisect good ${good}`
-		let bisecting = true
-		while (bisecting) {
-			const commitMsg = await $`git log -1 --format=%s`
-			const isNonCodeCommit = commitMsg.match(/^(?:release|docs)[:(]/)
-			if (isNonCodeCommit) {
-				await $`git bisect skip`
-				continue // see if next commit can be skipped too
-			}
-			const error = await runSuite()
-			cd(nxPath)
-			await resetChanges()
-			const bisectOut = await $`git bisect ${error ? 'bad' : 'good'}`
-			bisecting = bisectOut.substring(0, 10).toLowerCase() === 'bisecting:' // as long as git prints 'bisecting: ' there are more revisions to test
-		}
-	} catch (e) {
-		console.log('error while bisecting', e)
-	} finally {
-		try {
-			cd(nxPath)
-			await $`git bisect reset`
-		} catch (e) {
-			console.log('Error while resetting bisect', e)
-		}
-	}
 }
 
 function isLocalOverride(v: string): boolean {
@@ -511,6 +321,30 @@ async function overridePackageManagerVersion(
 		return true
 	}
 	return false
+}
+
+async function getOverrides(
+	optionsOverrides: Overrides,
+	nxPackages: string[],
+): Promise<Overrides> {
+	const overrides = optionsOverrides || {}
+
+	for (const pkg of nxPackages) {
+		overrides[pkg] ||= await nextVersion(pkg)
+	}
+
+	return overrides
+}
+
+function getNxDependencies(pkg: any): string[] {
+	const dependencies = Object.keys(pkg['dependencies'] || {}).filter((dep) =>
+		dep.startsWith('@nx'),
+	)
+	const devDependencies = Object.keys(pkg['devDependencies'] || {}).filter(
+		(dep) => dep.startsWith('@nx'),
+	)
+
+	return [...(dependencies ?? []), ...(devDependencies ?? []), ...nxCliCommands]
 }
 
 export async function applyPackageOverrides(
@@ -596,15 +430,38 @@ export function dirnameFrom(url: string) {
 	return path.dirname(fileURLToPath(url))
 }
 
-export function parseNxMajor(nxPath: string): number {
-	const content = fs.readFileSync(
-		path.join(nxPath, 'packages', 'nx', 'package.json'),
-		'utf-8',
-	)
-	const pkg = JSON.parse(content)
-	return parseMajorVersion(pkg.version)
+async function nextVersion(packageName: string): Promise<string> {
+	return fetch(`https://registry.npmjs.org/${packageName}`)
+		.then((response) => response.json())
+		.then(
+			(jsonData) =>
+				(jsonData as any)?.['dist-tags']?.['next'] ??
+				(jsonData as any)?.['dist-tags']?.['latest'],
+		)
 }
 
-export function parseMajorVersion(version: string) {
-	return parseInt(version.split('.', 1)[0], 10)
-}
+const nxPackagesList = [
+	'angular',
+	'cypress',
+	'detox',
+	'devkit',
+	'esbuild',
+	'eslint-plugin',
+	'expo',
+	'express',
+	'jest',
+	'js',
+	'linter',
+	'nest',
+	'next',
+	'node',
+	'plugin',
+	'react',
+	'react-native',
+	'rollup',
+	'storybook',
+	'vite',
+	'web',
+	'webpack',
+	'workspace',
+]
