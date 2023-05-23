@@ -29,6 +29,7 @@ on:
         type: choice
         options:
           - "-"
+          - analogjs
           - astro
           - histoire
           - iles
@@ -113,6 +114,7 @@ jobs:
     strategy:
       matrix:
         suite:
+          - analogjs
           - astro
           - histoire
           - iles

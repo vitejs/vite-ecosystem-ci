@@ -34,6 +34,7 @@ on:
         required: true
         type: choice
         options:
+          - analogjs
           - astro
           - histoire
           - iles
