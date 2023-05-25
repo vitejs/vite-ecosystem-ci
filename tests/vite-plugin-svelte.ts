@@ -2,15 +2,17 @@ import { runInRepo } from '../utils'
 import { RunOptions } from '../types'
 
 export async function test(options: RunOptions) {
+	if (options.viteMajor < 4) {
+		return
+	}
 	await runInRepo({
 		...options,
 		repo: 'sveltejs/vite-plugin-svelte',
-		branch: options.viteMajor === 4 ? 'main' : 'v1',
+		branch: 'main',
 		overrides: {
 			svelte: 'latest',
 		},
-		build: 'build',
 		beforeTest: 'pnpm playwright install chromium',
-		test: ['lint', 'test'],
+		test: ['check:lint', 'check:types', 'test'],
 	})
 }

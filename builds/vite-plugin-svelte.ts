@@ -2,14 +2,16 @@ import { runInRepo } from '../utils'
 import { RunOptions } from '../types'
 
 export async function build(options: RunOptions) {
+	if (options.viteMajor < 4) {
+		return
+	}
 	return runInRepo({
 		...options,
 		repo: 'sveltejs/vite-plugin-svelte',
-		branch: options.viteMajor === 4 ? 'main' : 'v1',
+		branch: 'main',
 		overrides: {
 			svelte: 'latest',
 		},
-		build: 'build',
 	})
 }
 
