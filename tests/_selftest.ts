@@ -6,7 +6,7 @@ import { RunOptions } from '../types'
 export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
-		repo: 'dominikg/svelte-ecosystem-ci',
+		repo: 'sveltejs/svelte-ecosystem-ci',
 		build: async () => {
 			const dir = path.resolve(options.workspace, 'svelte-ecosystem-ci')
 			const pkgFile = path.join(dir, 'package.json')
@@ -17,7 +17,7 @@ export async function test(options: RunOptions) {
 				)
 			}
 			pkg.scripts.selftestscript =
-				"[ -f ../../svelte/index.mjs ] || (echo 'svelte build failed' && exit 1)"
+				"[ -f ../../svelte/compiler.cjs ] || (echo 'svelte build failed' && exit 1)"
 			await fs.promises.writeFile(
 				pkgFile,
 				JSON.stringify(pkg, null, 2),
