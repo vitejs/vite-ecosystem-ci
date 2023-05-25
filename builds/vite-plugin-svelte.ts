@@ -6,10 +6,11 @@ export async function build(options: RunOptions) {
 		...options,
 		repo: 'sveltejs/vite-plugin-svelte',
 		branch: 'svelte-4',
-		build: 'build',
 	})
 }
 
 export const packages = {
 	'@sveltejs/vite-plugin-svelte': 'packages/vite-plugin-svelte',
+	'@sveltejs/vite-plugin-svelte-inspector':
+		'packages/vite-plugin-svelte-inspector',
 }
