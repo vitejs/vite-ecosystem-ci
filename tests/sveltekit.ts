@@ -8,6 +8,7 @@ export async function test(options: RunOptions) {
 		branch: 'master',
 		overrides: {
 			'@sveltejs/vite-plugin-svelte': true,
+			'@sveltejs/vite-plugin-svelte-inspector': true,
 		},
 		beforeTest: 'pnpm playwright install',
 		test: ['lint', 'check', 'test:vite-ecosystem-ci'], // TODO do we want another set of tests for svelte?
