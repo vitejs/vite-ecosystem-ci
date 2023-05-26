@@ -1,13 +1,9 @@
 import fetch from 'node-fetch'
 import { setupEnvironment } from './utils'
 
-type RefType = 'branch' | 'tag' | 'commit' | 'release'
 type Status = 'success' | 'failure' | 'cancelled'
 type Env = {
 	WORKFLOW_NAME?: string
-	REF_TYPE?: RefType
-	REF?: string
-	REPO?: string
 	SUITE?: string
 	STATUS?: Status
 	SLACK_WEBHOOK_URL?: string
@@ -47,21 +43,15 @@ async function run() {
 	const env = process.env as Env
 
 	assertEnv('WORKFLOW_NAME', env.WORKFLOW_NAME)
-	assertEnv('REF_TYPE', env.REF_TYPE)
-	assertEnv('REF', env.REF)
-	assertEnv('REPO', env.REPO)
 	assertEnv('SUITE', env.SUITE)
 	assertEnv('STATUS', env.STATUS)
 	assertEnv('SLACK_WEBHOOK_URL', env.SLACK_WEBHOOK_URL)
 
 	await setupEnvironment()
 
-	const refType = env.REF_TYPE
-	const permRef = undefined
+	const targetText = await createTargetText()
 
-	const targetText = createTargetText(refType, env.REF, permRef, env.REPO)
-
-	const webhookContent = {
+	const oldwebhookContent = {
 		username: `nx-ecosystem-ci (${env.WORKFLOW_NAME})`,
 		avatar_url: 'https://github.com/nrwl.png',
 		embeds: [
@@ -69,6 +59,120 @@ async function run() {
 				title: `${statusConfig[env.STATUS].emoji}  ${env.SUITE}`,
 				description: await createDescription(env.SUITE, targetText),
 				color: statusConfig[env.STATUS].color,
+			},
+		],
+	}
+
+	const xwebhookContent = {
+		username: 'nx-ecosystem-ci (ci)',
+		icon_url: 'https://github.com/nrwl.png',
+		blocks: [
+			{
+				type: 'header',
+				text: {
+					type: 'plain_text',
+					text: `${statusConfig[env.STATUS].emoji}  ${env.SUITE}`,
+				},
+			},
+			{
+				type: 'section',
+				text: {
+					type: 'mrkdwn',
+					text: await createDescription(env.SUITE, targetText),
+				},
+			},
+		],
+	}
+
+	const webhookContent = {
+		blocks: [
+			{
+				type: 'section',
+				text: {
+					type: 'mrkdwn',
+					text: `Hello, this is the result of the CI's test run. ${
+						statusConfig[env.STATUS].emoji
+					}  ${env.SUITE}`,
+				},
+			},
+			{
+				type: 'divider',
+			},
+			{
+				type: 'section',
+				text: {
+					type: 'mrkdwn',
+					text: '*Farmhouse Thai Cuisine*\n:star::star::star::star: 1528 reviews\n They do have some vegan options, like the roti and curry, plus they have a ton of salad stuff and noodles can be ordered without meat!! They have something for everyone here',
+				},
+				accessory: {
+					type: 'image',
+					image_url:
+						'https://s3-media3.fl.yelpcdn.com/bphoto/c7ed05m9lC2EmA3Aruue7A/o.jpg',
+					alt_text: 'alt text for image',
+				},
+			},
+			{
+				type: 'section',
+				text: {
+					type: 'mrkdwn',
+					text: '*Kin Khao*\n:star::star::star::star: 1638 reviews\n The sticky rice also goes wonderfully with the caramelized pork belly, which is absolutely melt-in-your-mouth and so soft.',
+				},
+				accessory: {
+					type: 'image',
+					image_url:
+						'https://s3-media2.fl.yelpcdn.com/bphoto/korel-1YjNtFtJlMTaC26A/o.jpg',
+					alt_text: 'alt text for image',
+				},
+			},
+			{
+				type: 'section',
+				text: {
+					type: 'mrkdwn',
+					text: '*Ler Ros*\n:star::star::star::star: 2082 reviews\n I would really recommend the  Yum Koh Moo Yang - Spicy lime dressing and roasted quick marinated pork shoulder, basil leaves, chili & rice powder.',
+				},
+				accessory: {
+					type: 'image',
+					image_url:
+						'https://s3-media2.fl.yelpcdn.com/bphoto/DawwNigKJ2ckPeDeDM7jAg/o.jpg',
+					alt_text: 'alt text for image',
+				},
+			},
+			{
+				type: 'divider',
+			},
+			{
+				type: 'actions',
+				elements: [
+					{
+						type: 'button',
+						text: {
+							type: 'plain_text',
+							text: 'Farmhouse',
+							emoji: true,
+						},
+						value: 'click_me_123',
+					},
+					{
+						type: 'button',
+						text: {
+							type: 'plain_text',
+							text: 'Kin Khao',
+							emoji: true,
+						},
+						value: 'click_me_123',
+						url: 'https://google.com',
+					},
+					{
+						type: 'button',
+						text: {
+							type: 'plain_text',
+							text: 'Ler Ros',
+							emoji: true,
+						},
+						value: 'click_me_123',
+						url: 'https://google.com',
+					},
+				],
 			},
 		],
 	}
@@ -160,23 +264,24 @@ async function createDescription(suite: string, targetText: string) {
 `.trim()
 }
 
-function createTargetText(
-	refType: RefType,
-	ref: string,
-	permRef: string | undefined,
-	repo: string,
-) {
-	const repoText = repo !== 'nrwl/nx' ? `${repo}:` : ''
-	if (refType === 'branch') {
-		const link = `https://github.com/${repo}/commits/${permRef || ref}`
-		return `[${repoText}${ref} (${permRef || 'unknown'})](${link})`
-	}
+async function createTargetText() {
+	const repoText = 'nrwl/nx'
+	const nextVersion = await nextNxVersion()
 
-	const refTypeText = refType === 'release' ? ' (release)' : ''
-	const link = `https://github.com/${repo}/commits/${ref}`
-	return `[${repoText}${ref}${refTypeText}](${link})`
+	const link = `https://github.com/nrwl/nx/commits/${nextVersion}`
+	return `[${repoText}@${nextVersion}](${link})`
 }
 
 run().catch((e) => {
 	console.error('Error sending webhook:', e)
 })
+
+async function nextNxVersion(): Promise<string> {
+	return fetch(`https://registry.npmjs.org/nx`)
+		.then((response) => response.json())
+		.then(
+			(jsonData) =>
+				(jsonData as any)?.['dist-tags']?.['next'] ??
+				(jsonData as any)?.['dist-tags']?.['latest'],
+		)
+}
