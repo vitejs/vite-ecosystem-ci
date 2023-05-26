@@ -8,5 +8,6 @@ export async function test(options: RunOptions) {
 		branch: 'main',
 		build: ['build deno'],
 		test: ['test deno'],
+		e2e: ['e2e deno-e2e'],
 	})
 }

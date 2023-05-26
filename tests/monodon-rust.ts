@@ -8,6 +8,6 @@ export async function test(options: RunOptions) {
 		branch: 'main',
 		build: ['build rust'],
 		test: ['test rust'],
-		// e2e: ['e2e rust-e2e'],
+		e2e: ['e2e rust-e2e'],
 	})
 }

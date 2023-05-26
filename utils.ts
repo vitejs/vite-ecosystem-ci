@@ -237,22 +237,22 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 
 	await beforeInstallCommand?.(pkg.scripts)
 
+	const frozenInstall = getCommand(agent, 'frozen')
+	await $`${frozenInstall}`
 	if (verify && test) {
-		const frozenInstall = getCommand(agent, 'frozen')
-		await $`${frozenInstall}`
 		await beforeBuildCommand?.(pkg.scripts)
 		await buildCommand?.(pkg.scripts)
 		await beforeTestCommand?.(pkg.scripts)
 		await testCommand?.(pkg.scripts)
-		await e2eCommand?.(pkg.scripts)
+		// await e2eCommand?.(pkg.scripts)
 	}
 
-	const overrides = await getOverrides(
-		options.overrides || {},
-		getNxDependencies(pkg),
-	)
+	const pm = agent?.split('@')[0]
+	await $`${pm} nx migrate next`
+	const justInstall = getCommand(agent, 'install')
+	await $`${justInstall}`
+	await $`${pm} nx migrate --run-migrations --no-interactive`
 
-	await applyPackageOverrides(dir, pkg, overrides)
 	await beforeBuildCommand?.(pkg.scripts)
 	await buildCommand?.(pkg.scripts)
 	if (test) {
@@ -263,21 +263,6 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	await e2eCommand?.(pkg.scripts)
 
 	return { dir }
-}
-
-function isLocalOverride(v: string): boolean {
-	if (!v.includes('/') || v.startsWith('@')) {
-		// not path-like (either a version number or a package name)
-		return false
-	}
-	try {
-		return !!fs.lstatSync(v)?.isDirectory()
-	} catch (e) {
-		if (e.code !== 'ENOENT') {
-			throw e
-		}
-		return false
-	}
 }
 
 /**
@@ -347,21 +332,19 @@ function getNxDependencies(pkg: any): string[] {
 	return [...(dependencies ?? []), ...(devDependencies ?? []), ...nxCliCommands]
 }
 
-export async function applyPackageOverrides(
+export async function applyPackageOverridesAndInstall(
 	dir: string,
 	pkg: any,
 	overrides: Overrides = {},
-	onlyInstall?: boolean,
 ) {
-	const useFileProtocol = (v: string) =>
-		isLocalOverride(v) ? `file:${path.resolve(v)}` : v
 	// remove boolean flags
 	overrides = Object.fromEntries(
 		Object.entries(overrides)
 			//eslint-disable-next-line @typescript-eslint/no-unused-vars
-			.filter(([key, value]) => typeof value === 'string')
-			.map(([key, value]) => [key, useFileProtocol(value as string)]),
+			.filter(([_key, value]) => typeof value === 'string')
+			.map(([key, value]) => [key, value]),
 	)
+
 	await $`git clean -fdxq` // remove current install
 
 	const agent = await detect({ cwd: dir, autoInstall: false })
@@ -372,49 +355,23 @@ export async function applyPackageOverrides(
 	// yarn@berry => yarn
 	// pnpm@6, pnpm@7 => pnpm
 	const pm = agent?.split('@')[0]
-	if (!onlyInstall) {
-		await overridePackageManagerVersion(pkg, pm)
 
-		if (pm === 'pnpm') {
-			if (!pkg.devDependencies) {
-				pkg.devDependencies = {}
+	await overridePackageManagerVersion(pkg, pm)
+
+	if (pm === 'pnpm' || pm === 'yarn' || pm === 'npm') {
+		for (const [name, version] of Object.entries(overrides)) {
+			if (pkg.dependencies?.[name]) {
+				pkg.dependencies[name] = version
 			}
-			pkg.devDependencies = {
-				...pkg.devDependencies,
-				...overrides, // overrides must be present in devDependencies or dependencies otherwise they may not work
+			if (pkg.devDependencies?.[name]) {
+				pkg.devDependencies[name] = version
 			}
-			if (!pkg.pnpm) {
-				pkg.pnpm = {}
-			}
-			pkg.pnpm.overrides = {
-				...pkg.pnpm.overrides,
-				...overrides,
-			}
-		} else if (pm === 'yarn') {
-			pkg.resolutions = {
-				...pkg.resolutions,
-				...overrides,
-			}
-		} else if (pm === 'npm') {
-			pkg.overrides = {
-				...pkg.overrides,
-				...overrides,
-			}
-			// npm does not allow overriding direct dependencies, force it by updating the blocks themselves
-			for (const [name, version] of Object.entries(overrides)) {
-				if (pkg.dependencies?.[name]) {
-					pkg.dependencies[name] = version
-				}
-				if (pkg.devDependencies?.[name]) {
-					pkg.devDependencies[name] = version
-				}
-			}
-		} else {
-			throw new Error(`unsupported package manager detected: ${pm}`)
 		}
-		const pkgFile = path.join(dir, 'package.json')
-		await fs.promises.writeFile(pkgFile, JSON.stringify(pkg, null, 2), 'utf-8')
+	} else {
+		throw new Error(`unsupported package manager detected: ${pm}`)
 	}
+	const pkgFile = path.join(dir, 'package.json')
+	await fs.promises.writeFile(pkgFile, JSON.stringify(pkg, null, 2), 'utf-8')
 
 	// use of `ni` command here could cause lockfile violation errors so fall back to native commands that avoid these
 	if (pm === 'pnpm') {
@@ -424,6 +381,30 @@ export async function applyPackageOverrides(
 	} else if (pm === 'npm') {
 		await $`npm install`
 	}
+}
+
+export async function getInstallCommand(dir: string): Promise<string> {
+	const agent = await detect({ cwd: dir, autoInstall: false })
+	if (!agent) {
+		throw new Error(`failed to detect packageManager in ${dir}`)
+	}
+	// Remove version from agent string:
+	// yarn@berry => yarn
+	// pnpm@6, pnpm@7 => pnpm
+	const pm = agent?.split('@')[0]
+	if (pm === 'pnpm') {
+		return `pnpm install --prefer-frozen-lockfile --prefer-offline --strict-peer-dependencies false`
+	} else if (pm === 'yarn') {
+		return `yarn install`
+	} else if (pm === 'npm') {
+		return `npm install`
+	} else {
+		throw new Error(`unsupported package manager detected: ${pm}`)
+	}
+}
+
+export async function nxMigrateNext() {
+	await $`nx migrate next`
 }
 
 export function dirnameFrom(url: string) {
@@ -439,29 +420,3 @@ async function nextVersion(packageName: string): Promise<string> {
 				(jsonData as any)?.['dist-tags']?.['latest'],
 		)
 }
-
-const nxPackagesList = [
-	'angular',
-	'cypress',
-	'detox',
-	'devkit',
-	'esbuild',
-	'eslint-plugin',
-	'expo',
-	'express',
-	'jest',
-	'js',
-	'linter',
-	'nest',
-	'next',
-	'node',
-	'plugin',
-	'react',
-	'react-native',
-	'rollup',
-	'storybook',
-	'vite',
-	'web',
-	'webpack',
-	'workspace',
-]
