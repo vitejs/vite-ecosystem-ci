@@ -8,5 +8,6 @@ export async function test(options: RunOptions) {
 		branch: 'main',
 		build: ['build remix'],
 		test: ['test remix'],
+		e2e: ['e2e remix-e2e'],
 	})
 }

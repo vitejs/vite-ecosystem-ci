@@ -8,5 +8,6 @@ export async function test(options: RunOptions) {
 		branch: 'main',
 		build: ['build nx-ignore'],
 		test: ['test nx-ignore'],
+		e2e: ['e2e nx-ignore-e2e'],
 	})
 }
