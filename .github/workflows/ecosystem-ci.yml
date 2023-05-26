@@ -80,5 +80,5 @@ jobs:
           REPO: ${{ inputs.repo || github.event.client_payload.repo || 'nrwl/nx' }}
           SUITE: ${{ matrix.suite }}
           STATUS: ${{ job.status }}
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

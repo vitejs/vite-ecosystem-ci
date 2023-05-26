@@ -51,6 +51,6 @@ Results are posted automatically to `#ecosystem-ci` on [vite discord](https://ch
 #### how to add a discord webhook here
 
 - Go to `<github repo>/settings/secrets/actions` and click on `New repository secret`
-- set `Name` as `DISCORD_WEBHOOK_URL`
+- set `Name` as `SLACK_WEBHOOK_URL`
 - paste the discord webhook url you copied from above into `Value`
 - Click `Add secret`

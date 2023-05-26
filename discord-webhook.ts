@@ -10,7 +10,7 @@ type Env = {
 	REPO?: string
 	SUITE?: string
 	STATUS?: Status
-	DISCORD_WEBHOOK_URL?: string
+	SLACK_WEBHOOK_URL?: string
 }
 
 const statusConfig = {
@@ -32,9 +32,9 @@ async function run() {
 	if (!process.env.GITHUB_ACTIONS) {
 		throw new Error('This script can only run on GitHub Actions.')
 	}
-	if (!process.env.DISCORD_WEBHOOK_URL) {
+	if (!process.env.SLACK_WEBHOOK_URL) {
 		console.warn(
-			"Skipped beacuse process.env.DISCORD_WEBHOOK_URL was empty or didn't exist",
+			"Skipped beacuse process.env.SLACK_WEBHOOK_URL was empty or didn't exist",
 		)
 		return
 	}
@@ -52,7 +52,7 @@ async function run() {
 	assertEnv('REPO', env.REPO)
 	assertEnv('SUITE', env.SUITE)
 	assertEnv('STATUS', env.STATUS)
-	assertEnv('DISCORD_WEBHOOK_URL', env.DISCORD_WEBHOOK_URL)
+	assertEnv('SLACK_WEBHOOK_URL', env.SLACK_WEBHOOK_URL)
 
 	await setupEnvironment()
 
@@ -73,7 +73,7 @@ async function run() {
 		],
 	}
 
-	const res = await fetch(env.DISCORD_WEBHOOK_URL, {
+	const res = await fetch(env.SLACK_WEBHOOK_URL, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
