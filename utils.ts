@@ -287,9 +287,10 @@ export async function setupSvelteRepo(options: Partial<RepoOptions>) {
 			await fs.promises.readFile(rootPackageJsonFile, 'utf-8'),
 		)
 		const { name } = rootPackageJson
-		if (name !== 'svelte') {
+		const expected = 'svelte-monorepo'
+		if (name !== expected) {
 			throw new Error(
-				`expected  "name" field of ${repo}/package.json to be "svelte", but got ${name}.`,
+				`expected  "name" field of ${repo}/package.json to be "${expected}", but got "${name}".`,
 			)
 		}
 		const needsWrite = await overridePackageManagerVersion(
