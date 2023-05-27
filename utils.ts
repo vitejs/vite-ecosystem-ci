@@ -253,7 +253,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			overrides.svelte = options.release
 		}
 	} else {
-		overrides.svelte ||= `${options.sveltePath}`
+		overrides.svelte ||= `${options.sveltePath}/packages/svelte`
 		const localOverrides = await buildOverrides(pkg, options, overrides)
 		cd(dir) // buildOverrides changed dir, change it back
 		overrides = {
