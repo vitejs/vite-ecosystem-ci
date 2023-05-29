@@ -65,7 +65,7 @@ jobs:
       - run: pnpm i --frozen-lockfile
       - run: >-
           pnpm tsx ecosystem-ci.ts
-          --${{ inputs.refType || github.event.client_payload.refType || 'branch' }} ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
+          --${{ inputs.refType || github.event.client_payload.refType || 'branch' }} ${{ inputs.ref || github.event.client_payload.ref || 'version-4' }}
           --repo ${{ inputs.repo || github.event.client_payload.repo || 'sveltejs/svelte' }}
           ${{ matrix.suite }}
         id: ecosystem-ci-run
