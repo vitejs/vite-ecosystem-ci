@@ -17,7 +17,9 @@ const cli = cac()
 cli
 	.command('[...suites]', 'build svelte and run selected suites')
 	.option('--verify', 'verify checkouts by running tests', { default: false })
-	.option('--repo <repo>', 'svelte repository to use', { default: 'sveltejs/svelte' })
+	.option('--repo <repo>', 'svelte repository to use', {
+		default: 'sveltejs/svelte',
+	})
 	.option('--branch <branch>', 'svelte branch to use', { default: 'version-4' })
 	.option('--tag <tag>', 'svelte tag to use')
 	.option('--commit <commit>', 'svelte commit sha to use')
@@ -52,7 +54,9 @@ cli
 	.option('--verify', 'verify svelte checkout by running tests', {
 		default: false,
 	})
-	.option('--repo <repo>', 'svelte repository to use', { default: 'sveltejs/svelte' })
+	.option('--repo <repo>', 'svelte repository to use', {
+		default: 'sveltejs/svelte',
+	})
 	.option('--branch <branch>', 'svelte branch to use', { default: 'main' })
 	.option('--tag <tag>', 'svelte tag to use')
 	.option('--commit <commit>', 'svelte commit sha to use')
@@ -69,7 +73,9 @@ cli
 		'verify checkout by running tests before using local svelte',
 		{ default: false },
 	)
-	.option('--repo <repo>', 'svelte repository to use', { default: 'sveltejs/svelte' })
+	.option('--repo <repo>', 'svelte repository to use', {
+		default: 'sveltejs/svelte',
+	})
 	.option('--release <version>', 'svelte release to use from npm registry')
 	.action(async (suites, options: CommandOptions) => {
 		const { root, sveltePath, workspace } = await setupEnvironment()
@@ -93,7 +99,9 @@ cli
 	)
 	.option('--good <ref>', 'last known good ref, e.g. a previous tag. REQUIRED!')
 	.option('--verify', 'verify checkouts by running tests', { default: false })
-	.option('--repo <repo>', 'svelte repository to use', { default: 'sveltejs/svelte' })
+	.option('--repo <repo>', 'svelte repository to use', {
+		default: 'sveltejs/svelte',
+	})
 	.option('--branch <branch>', 'svelte branch to use', { default: 'version-4' })
 	.option('--tag <tag>', 'svelte tag to use')
 	.option('--commit <commit>', 'svelte commit sha to use')

@@ -19,11 +19,11 @@
     "*": [
       "prettier --write --ignore-unknown"
     ],
-    "**/*.js": [
+    "*.ts": [
       "eslint"
     ]
   },
-  "packageManager": "pnpm@8.4.0",
+  "packageManager": "pnpm@8.6.0",
   "type": "module",
   "engines": {
     "node": ">=18",

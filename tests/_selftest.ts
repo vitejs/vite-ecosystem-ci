@@ -17,7 +17,7 @@ export async function test(options: RunOptions) {
 				)
 			}
 			pkg.scripts.selftestscript =
-				"[ -f ../../svelte/compiler.cjs ] || (echo 'svelte build failed' && exit 1)"
+				"[ -f ../../svelte/packages/svelte/compiler.cjs ] || (echo 'svelte build failed' && exit 1)"
 			await fs.promises.writeFile(
 				pkgFile,
 				JSON.stringify(pkg, null, 2),
