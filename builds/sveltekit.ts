@@ -9,6 +9,7 @@ export async function build(options: RunOptions) {
 		overrides: {
 			'@sveltejs/vite-plugin-svelte': true,
 			'@sveltejs/vite-plugin-svelte-inspector': true,
+			'svelte-check': true,
 		},
 	})
 }

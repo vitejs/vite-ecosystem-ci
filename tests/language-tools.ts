@@ -6,6 +6,7 @@ export async function test(options: RunOptions) {
 		...options,
 		repo: 'sveltejs/language-tools',
 		branch: 'master',
+		beforeBuild: 'bootstrap',
 		build: 'build',
 		test: 'test',
 	})
