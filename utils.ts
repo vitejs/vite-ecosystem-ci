@@ -324,7 +324,7 @@ export async function getPermanentRef() {
 }
 
 export async function buildSvelte({ verify = false }) {
-	cd(sveltePath)
+	cd(`${sveltePath}/packages/svelte`)
 	const frozenInstall = getCommand('pnpm', 'frozen')
 	const runBuild = getCommand('pnpm', 'run', ['build'])
 	const runTest = getCommand('pnpm', 'run', ['test'])
