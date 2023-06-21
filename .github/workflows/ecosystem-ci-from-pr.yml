@@ -17,7 +17,7 @@ on:
         description: "svelte branch to use"
         required: true
         type: string
-        default: "version-4"
+        default: "master"
       repo:
         description: "svelte repository to use"
         required: true
