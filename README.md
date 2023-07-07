@@ -28,6 +28,15 @@ If you pass `--release 2.7.13`, vite build will be skipped and vite is fetched f
 
 The repositories are checked out into `workspace` subdirectory as shallow clones
 
+## via comment on PR
+
+- comment `/ecosystem-ci run` on a PR
+- or `/ecosystem-ci run <suitename>` to select a suite
+
+Users with triage permission to vitejs/vite repository can only use this.
+
+See [docs/pr-comment-setup.md](./docs/pr-comment-setup.md) for how to setup this feature.
+
 # how to add a new integration test
 
 - check out the existing [tests](./tests) and add one yourself. Thanks to some utilities it is really easy
