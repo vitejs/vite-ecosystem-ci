@@ -6,7 +6,10 @@ export async function test(options: RunOptions) {
 		...options,
 		repo: 'nrwl/nx',
 		branch: 'master',
-		build: 'build-project vite --skip-nx-cache',
-		test: ['test vite --skip-nx-cache', 'e2e e2e-vite --skip-nx-cache'],
+		build: { script: 'build-project', args: ['vite', '--skip-nx-cache'] },
+		test: [
+			{ script: 'test', args: ['vite', '--skip-nx-cache'] },
+			{ script: 'e2e', args: ['e2e-vite', '--skip-nx-cache'] },
+		],
 	})
 }

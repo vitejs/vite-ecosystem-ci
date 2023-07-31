@@ -156,8 +156,7 @@ function toCommand(
 			if (task == null || task === '') {
 				continue
 			} else if (typeof task === 'string') {
-				const scriptOrBin = task.trim().split(/\s+/)[0]
-				if (scripts?.[scriptOrBin] != null) {
+				if (scripts[task] != null) {
 					const runTaskWithAgent = getCommand(agent, 'run', [task])
 					await $`${runTaskWithAgent}`
 				} else {
@@ -165,6 +164,18 @@ function toCommand(
 				}
 			} else if (typeof task === 'function') {
 				await task()
+			} else if (task?.script) {
+				if (scripts[task.script] != null) {
+					const runTaskWithAgent = getCommand(agent, 'run', [
+						task.script,
+						...(task.args ?? []),
+					])
+					await $`${runTaskWithAgent}`
+				} else {
+					throw new Error(
+						`invalid task, script "${task.script}" does not exist in package.json`,
+					)
+				}
 			} else {
 				throw new Error(
 					`invalid task, expected string or function but got ${typeof task}: ${task}`,
