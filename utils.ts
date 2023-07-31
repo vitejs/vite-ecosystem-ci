@@ -146,6 +146,13 @@ export async function setupRepo(options: RepoOptions) {
 	}
 }
 
+function splitInCliArgs(task: string) {
+	return task
+		.split(/("[^"]+"|[^\s"]+)/gim)
+		.filter((p) => p.trim() !== '')
+		.map((p) => p.replace(/^"(.*)"$/, '$1'))
+}
+
 function toCommand(
 	task: Task | Task[] | void,
 	agent: Agent,
@@ -158,7 +165,11 @@ function toCommand(
 			} else if (typeof task === 'string') {
 				const scriptOrBin = task.trim().split(/\s+/)[0]
 				if (scripts?.[scriptOrBin] != null) {
-					const runTaskWithAgent = getCommand(agent, 'run', [task])
+					const runTaskWithAgent = getCommand(
+						agent,
+						'run',
+						splitInCliArgs(task),
+					)
 					await $`${runTaskWithAgent}`
 				} else {
 					await $`${task}`
