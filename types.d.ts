@@ -17,14 +17,15 @@ export interface RunOptions {
 	skipGit?: boolean
 	release?: string
 	agent?: Agent
-	build?: Task | Task[]
-	test?: Task | Task[]
-	beforeInstall?: Task | Task[]
-	beforeBuild?: Task | Task[]
-	beforeTest?: Task | Task[]
+	build?: SingleArgTask | Task[]
+	test?: SingleArgTask | Task[]
+	beforeInstall?: SingleArgTask | Task[]
+	beforeBuild?: SingleArgTask | Task[]
+	beforeTest?: SingleArgTask | Task[]
 }
 
-type Task = string | (() => Promise<any>)
+type SingleArgTask = string | (() => Promise<any>)
+type Task = string | string[] | (() => Promise<any>)
 
 export interface CommandOptions {
 	suites?: string[]

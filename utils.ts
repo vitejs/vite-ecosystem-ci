@@ -8,6 +8,7 @@ import {
 	ProcessEnv,
 	RepoOptions,
 	RunOptions,
+	SingleArgTask,
 	Task,
 } from './types'
 //eslint-disable-next-line n/no-unpublished-import
@@ -147,7 +148,7 @@ export async function setupRepo(options: RepoOptions) {
 }
 
 function toCommand(
-	task: Task | Task[] | void,
+	task: SingleArgTask | Task[] | void,
 	agent: Agent,
 ): ((scripts: any) => Promise<any>) | void {
 	return async (scripts: any) => {
@@ -155,10 +156,11 @@ function toCommand(
 		for (const task of tasks) {
 			if (task == null || task === '') {
 				continue
-			} else if (typeof task === 'string') {
-				const scriptOrBin = task.trim().split(/\s+/)[0]
+			} else if (typeof task === 'string' || Array.isArray(task)) {
+				const args = Array.isArray(task) ? task : [task]
+				const scriptOrBin = task[0].trim().split(/\s+/)[0]
 				if (scripts?.[scriptOrBin] != null) {
-					const runTaskWithAgent = getCommand(agent, 'run', [task])
+					const runTaskWithAgent = getCommand(agent, 'run', args)
 					await $`${runTaskWithAgent}`
 				} else {
 					await $`${task}`
