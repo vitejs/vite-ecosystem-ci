@@ -4,8 +4,8 @@ import { RunOptions } from '../types'
 export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
-		repo: 'nrwl/nx',
-		branch: 'master',
+		repo: 'mandarini/nx',
+		branch: 'test/try-catch-pm',
 		build: { script: 'build-project', args: ['vite', '--skip-nx-cache'] },
 		test: [
 			{ script: 'test', args: ['vite', '--skip-nx-cache'] },
