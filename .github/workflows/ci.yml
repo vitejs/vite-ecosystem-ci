@@ -43,8 +43,8 @@ jobs:
     outputs:
       changed: ${{steps.list.outputs.changed_suites}}
     steps:
+      - uses: actions/checkout@v3
       - id: list
-        uses: actions/checkout@v3
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.number }}
