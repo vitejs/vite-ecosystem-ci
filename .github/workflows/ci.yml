@@ -42,9 +42,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.number }}
         run: |
-          GH_DIFF=$(gh pr diff $PR_NUMBER --name-only --color never)
-          echo "diff output: $GH_DIFF"
-          CHANGED_SUITES=$(echo -e $GH_DIFF | grep '^tests/[^_].*\.ts' | xargs -d '\n' ls -1df 2>/dev/null |cut -d '/' -f 2 | cut -d '.' -f 1 | xargs -rd '\n')
+          CHANGED_SUITES=$(\
+            gh pr diff $PR_NUMBER --name-only --color never \
+            | grep '^tests/[^_].*\.ts' \
+            | xargs -d '\n' ls -1df 2>/dev/null \
+            | cut -d '/' -f 2 | cut -d '.' -f 1 \
+            | xargs -rd '\n'\
+          )
           echo "changed suites output: $CHANGED_SUITES"
           if [ -n "$CHANGED_SUITES" ]; then
             pnpm tsx ecosystem-ci.ts $CHANGED_SUITES
