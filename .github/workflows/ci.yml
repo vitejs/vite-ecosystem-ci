@@ -37,33 +37,34 @@ jobs:
       #   if: (${{ success() }} || ${{ failure() }})
       #   run: pnpm test:self
 
-  list_changed_suites:
+  find_changed_testfiles:
     if: (${{ github.event.number }})
     runs-on: ubuntu-latest
     outputs:
       changed: ${{steps.list.outputs.changed_suites}}
     steps:
       - id: list
+        uses: actions/checkout@v3
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.number }}
         run: |
-          echo "::set-output name=changed_suites::$(\
+          echo "changed_suites=$(\
             gh pr diff $PR_NUMBER --name-only --color never \
             | grep '^tests/[^_].*\.ts' \
             | xargs -d '\n' ls -1df 2>/dev/null \
             | cut -d '/' -f 2 | cut -d '.' -f 1 \
             | jq -cnR '[inputs]' \
-          )"
+          )" >> $GITHUB_OUTPUT
 
-  execute-changed-tests:
-    if: (${{ github.event.number }} && ${{needs.list_changed_suites.outputs.changed}} )
+  run_changed_tests:
+    if: (${{ github.event.number }} && ${{needs.find_changed_testfiles.outputs.changed}} )
     runs-on: ubuntu-latest
-    needs: list_changed_suites
+    needs: find_changed_testfiles
     timeout-minutes: 30
     strategy:
       matrix:
-        suite: ${{fromJson(needs.list_changed_suites.outputs.changed)}}
+        suite: ${{fromJson(needs.find_changed_testfiles.outputs.changed)}}
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
