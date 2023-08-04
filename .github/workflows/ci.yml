@@ -70,15 +70,17 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
+      - run: corepack enable
+      - run: pnpm --version
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
-        id: setup-node
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
         id: setup-deno
         continue-on-error: true
-      - run: corepack enable
-      - run: pnpm --version
       - run: pnpm i --frozen-lockfile
       - run: pnpm tsx ecosystem-ci.ts ${{ matrix.suite }}
