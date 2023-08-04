@@ -36,20 +36,49 @@ jobs:
       # - name: test self
       #   if: (${{ success() }} || ${{ failure() }})
       #   run: pnpm test:self
-      - name: test changed suites
-        if: (${{ github.event.number }} != null )
+
+  list_changed_suites:
+    if: (${{ github.event.number }})
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{steps.list.outputs.changed_suites}}
+    steps:
+      - id: list
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.number }}
         run: |
-          CHANGED_SUITES=$(\
+          echo "::set-output name=changed_suites::$(\
             gh pr diff $PR_NUMBER --name-only --color never \
             | grep '^tests/[^_].*\.ts' \
             | xargs -d '\n' ls -1df 2>/dev/null \
             | cut -d '/' -f 2 | cut -d '.' -f 1 \
-            | xargs -rd '\n'\
-          )
-          echo "changed suites output: $CHANGED_SUITES"
-          if [ -n "$CHANGED_SUITES" ]; then
-            pnpm tsx ecosystem-ci.ts $CHANGED_SUITES
-          fi
+            | jq -cnR '[inputs]' \
+          )"
+
+  execute-changed-tests:
+    if: (${{ github.event.number }} && ${{needs.list_changed_suites.outputs.changed}} )
+    runs-on: ubuntu-latest
+    needs: list_changed_suites
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        suite: ${{fromJson(needs.list_changed_suites.outputs.changed)}}
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: "pnpm"
+          cache-dependency-path: "**/pnpm-lock.yaml"
+        id: setup-node
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+        id: setup-deno
+        continue-on-error: true
+      - run: corepack enable
+      - run: pnpm --version
+      - run: pnpm i --frozen-lockfile
+      - run: pnpm tsx ecosystem-ci.ts ${{ matrix.suite }}
