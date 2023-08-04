@@ -37,6 +37,8 @@ jobs:
         if: (${{ success() }} || ${{ failure() }})
         run: pnpm test:self
       - name: test changed suites
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           GH_DIFF=$(gh pr diff --name-only --color never)
           echo $GH_DIFF
