@@ -43,7 +43,7 @@ jobs:
           - analogjs
           - astro
           - histoire
-          - iles
+          # - iles # disabled until its CI is fixed
           - ladle
           - laravel
           - marko
