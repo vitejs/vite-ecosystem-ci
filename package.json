@@ -1,5 +1,6 @@
 {
   "name": "vite-ecosystem-ci",
+  "private": true,
   "version": "0.0.1",
   "description": "Vite Ecosystem CI",
   "scripts": {
@@ -23,7 +24,7 @@
       "eslint --fix"
     ]
   },
-  "packageManager": "pnpm@8.6.12",
+  "packageManager": "pnpm@8.7.5",
   "type": "module",
   "engines": {
     "node": ">=18",
@@ -39,25 +40,25 @@
   },
   "homepage": "https://github.com/vitejs/vite-ecosystem-ci#readme",
   "dependencies": {
-    "@actions/core": "^1.10.0",
+    "@actions/core": "^1.10.1",
     "cac": "^6.7.14",
-    "execa": "^7.2.0",
+    "execa": "^8.0.1",
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
-    "@antfu/ni": "^0.21.5",
-    "@types/node": "^18.17.5",
-    "@types/semver": "^7.5.0",
-    "@typescript-eslint/eslint-plugin": "^5.62.0",
-    "@typescript-eslint/parser": "^5.62.0",
-    "eslint": "^8.47.0",
+    "@antfu/ni": "^0.21.8",
+    "@types/node": "^20.6.0",
+    "@types/semver": "^7.5.2",
+    "@typescript-eslint/eslint-plugin": "^6.7.0",
+    "@typescript-eslint/parser": "^6.7.0",
+    "eslint": "^8.49.0",
     "eslint-define-config": "^1.23.0",
-    "eslint-plugin-n": "^16.0.1",
-    "lint-staged": "^13.3.0",
-    "prettier": "^3.0.1",
+    "eslint-plugin-n": "^16.1.0",
+    "lint-staged": "^14.0.1",
+    "prettier": "^3.0.3",
     "semver": "^7.5.4",
     "simple-git-hooks": "^2.9.0",
-    "tsx": "^3.12.7",
-    "typescript": "^5.1.6"
+    "tsx": "^3.12.10",
+    "typescript": "^5.2.2"
   }
 }
