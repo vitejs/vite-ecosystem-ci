@@ -61,11 +61,11 @@ jobs:
       comment-id: ${{ steps.create-comment.outputs.result }}
     steps:
       - id: generate-token
-        uses: tibdex/github-app-token@v1
+        uses: tibdex/github-app-token@v2
         with:
           app_id: ${{ secrets.PR_GITHUB_APP_ID }}
+          installation_retrieval_payload: "${{ github.repository_owner }}/vite"
           private_key: ${{ secrets.PR_GITHUB_APP_PRIVATE_KEY }}
-          repository: "${{ github.repository_owner }}/vite"
       - id: create-comment
         uses: actions/github-script@v6
         with:
@@ -164,11 +164,11 @@ jobs:
     if: always()
     steps:
       - id: generate-token
-        uses: tibdex/github-app-token@v1
+        uses: tibdex/github-app-token@v2
         with:
           app_id: ${{ secrets.PR_GITHUB_APP_ID }}
+          installation_retrieval_payload: "${{ github.repository_owner }}/vite"
           private_key: ${{ secrets.PR_GITHUB_APP_PRIVATE_KEY }}
-          repository: "${{ github.repository_owner }}/vite"
       - uses: actions/github-script@v6
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
