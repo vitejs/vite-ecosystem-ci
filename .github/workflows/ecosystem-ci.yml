@@ -44,7 +44,7 @@ jobs:
           - astro
           - histoire
           # - iles # disabled until its CI is fixed
-          - ladle
+          # - ladle # disabled until ecosystem-ci runs node20
           - laravel
           - marko
           - nuxt
