@@ -38,7 +38,7 @@ on:
           - astro
           - histoire
           # - iles # disabled until its CI is fixed
-          # - ladle # disabled until ecosystem-ci runs node20
+          - ladle
           - laravel
           - marko
           - nuxt
