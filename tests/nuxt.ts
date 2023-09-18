@@ -12,6 +12,7 @@ export async function test(options: RunOptions) {
 			'@vitejs/plugin-vue': true,
 		},
 		build: 'build',
+		beforeTest: 'pnpm playwright-core install',
 		test: ['test:fixtures', 'test:types'],
 	})
 }
