@@ -45,7 +45,7 @@ on:
           - sveltekit
           - unocss
           - vite-plugin-pwa
-          - vite-plugin-ssr
+          - vike
           - vite-plugin-react
           - vite-plugin-react-pages
           - vite-plugin-react-swc
@@ -130,7 +130,7 @@ jobs:
           - sveltekit
           - unocss
           - vite-plugin-pwa
-          - vite-plugin-ssr
+          - vike
           - vite-plugin-react
           - vite-plugin-react-pages
           - vite-plugin-react-swc

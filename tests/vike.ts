@@ -4,7 +4,7 @@ import { RunOptions } from '../types'
 export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
-		repo: 'brillout/vite-plugin-ssr',
+		repo: 'vikejs/vike',
 		branch: 'main',
 		overrides: {
 			'@vitejs/plugin-react': true,
