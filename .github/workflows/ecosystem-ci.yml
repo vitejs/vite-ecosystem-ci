@@ -55,8 +55,8 @@ jobs:
           #          - storybook  # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
           - sveltekit
           - unocss
+          - vike
           - vite-plugin-pwa
-          - vite-plugin-ssr
           - vite-plugin-react
           - vite-plugin-react-pages
           - vite-plugin-react-swc
