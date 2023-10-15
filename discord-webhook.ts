@@ -169,8 +169,9 @@ function createTargetText(
 ) {
 	const repoText = repo !== 'sveltejs/svelte' ? `${repo}:` : ''
 	if (refType === 'branch') {
+		const shortRef = permRef?.slice(0, 7)
 		const link = `https://github.com/${repo}/commits/${permRef || ref}`
-		return `[${repoText}${ref} (${permRef || 'unknown'})](${link})`
+		return `[${repoText}${ref} (${shortRef || 'unknown'})](${link})`
 	}
 
 	const refTypeText = refType === 'release' ? ' (release)' : ''

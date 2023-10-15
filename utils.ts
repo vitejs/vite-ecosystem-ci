@@ -315,7 +315,7 @@ export async function setupSvelteRepo(options: Partial<RepoOptions>) {
 export async function getPermanentRef() {
 	cd(sveltePath)
 	try {
-		const ref = await $`git log -1 --pretty=format:%h`
+		const ref = await $`git log -1 --pretty=format:%H`
 		return ref
 	} catch (e) {
 		console.warn(`Failed to obtain perm ref. ${e}`)

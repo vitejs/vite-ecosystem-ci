@@ -75,7 +75,7 @@ jobs:
     needs: init
     if: "inputs.suite != '-'"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
           node-version: 18
@@ -113,7 +113,7 @@ jobs:
           - vite-plugin-svelte
       fail-fast: false
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
           node-version: 18
