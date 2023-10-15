@@ -3,6 +3,7 @@ import fs from 'fs'
 import { fileURLToPath, pathToFileURL } from 'url'
 import { execaCommand } from 'execa'
 import {
+	PackageInfo,
 	EnvironmentData,
 	Overrides,
 	ProcessEnv,
@@ -270,6 +271,11 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		overrides[
 			`@vitejs/plugin-legacy`
 		] ||= `${options.vitePath}/packages/plugin-legacy`
+
+		const vitePackageInfo = await getVitePackageInfo(options.vitePath)
+		if (vitePackageInfo.dependencies.rollup?.version && !overrides.rollup) {
+			overrides.rollup = vitePackageInfo.dependencies.rollup.version
+		}
 
 		// build and apply local overrides
 		const localOverrides = await buildOverrides(pkg, options, overrides)
@@ -591,4 +597,19 @@ async function buildOverrides(
 		}
 	}
 	return overrides
+}
+
+/**
+ * 	use pnpm ls to get information about installed dependency versions of vite
+ * @param vitePath - workspace vite root
+ */
+async function getVitePackageInfo(vitePath: string): Promise<PackageInfo> {
+	try {
+		const lsOutput = await $`pnpm --dir ${vitePath}/packages/vite ls --json`
+		const lsParsed = JSON.parse(lsOutput)
+		return lsParsed[0] as PackageInfo
+	} catch (e) {
+		console.error('failed to retrieve vite package infos', e)
+		throw e
+	}
 }

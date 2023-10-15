@@ -54,3 +54,19 @@ export interface Overrides {
 export interface ProcessEnv {
 	[key: string]: string | undefined
 }
+
+interface DependencyInfo {
+	from: string
+	version: string
+	resolved: string
+	path: string
+}
+interface PackageInfo {
+	name: string
+	version: string
+	path: string
+	private: boolean
+	dependencies: Record<string, DependencyInfo>
+	devDependencies: Record<string, DependencyInfo>
+	optionalDependencies: Record<string, DependencyInfo>
+}
