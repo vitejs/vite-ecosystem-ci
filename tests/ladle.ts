@@ -5,7 +5,7 @@ export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
 		repo: 'tajo/ladle',
-		branch: options.viteMajor === 4 ? 'vite-4' : 'main',
+		branch: 'main',
 		build: 'build',
 		beforeTest: 'pnpm playwright install chromium',
 		test: 'test',

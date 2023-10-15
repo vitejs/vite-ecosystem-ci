@@ -2,11 +2,6 @@ import { runInRepo } from '../utils'
 import { RunOptions } from '../types'
 
 export async function test(options: RunOptions) {
-	if (options.viteMajor < 4) {
-		// only latest version
-		return
-	}
-
 	await runInRepo({
 		...options,
 		repo: 'vite-pwa/vite-plugin-pwa',

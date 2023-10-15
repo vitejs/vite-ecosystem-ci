@@ -270,30 +270,13 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		overrides[
 			`@vitejs/plugin-legacy`
 		] ||= `${options.vitePath}/packages/plugin-legacy`
-		if (options.viteMajor < 4) {
-			overrides[
-				`@vitejs/plugin-vue`
-			] ||= `${options.vitePath}/packages/plugin-vue`
-			overrides[
-				`@vitejs/plugin-vue-jsx`
-			] ||= `${options.vitePath}/packages/plugin-vue-jsx`
-			overrides[
-				`@vitejs/plugin-react`
-			] ||= `${options.vitePath}/packages/plugin-react`
-			// vite-3 dependency setup could have caused problems if we don't synchronize node versions
-			// vite-4 uses an optional peerDependency instead so keep project types
-			const typesNodePath = fs.realpathSync(
-				`${options.vitePath}/node_modules/@types/node`,
-			)
-			overrides[`@types/node`] ||= `${typesNodePath}`
-		} else {
-			// starting with vite-4, we apply automatic overrides
-			const localOverrides = await buildOverrides(pkg, options, overrides)
-			cd(dir) // buildOverrides changed dir, change it back
-			overrides = {
-				...overrides,
-				...localOverrides,
-			}
+
+		// build and apply local overrides
+		const localOverrides = await buildOverrides(pkg, options, overrides)
+		cd(dir) // buildOverrides changed dir, change it back
+		overrides = {
+			...overrides,
+			...localOverrides,
 		}
 	}
 	await applyPackageOverrides(dir, pkg, overrides)
