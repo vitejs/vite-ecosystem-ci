@@ -245,15 +245,15 @@ jobs:
             }).join("\n")}
             `
 
-            await github.rest.issues.deleteComment({
-              owner: context.repo.owner,
-              repo: 'vite',
-              comment_id: ${{ needs.init.outputs.comment-id }}
-            })
-
             await github.rest.issues.createComment({
               issue_number: context.payload.inputs.prNumber,
               owner: context.repo.owner,
               repo: 'vite',
               body
+            })
+
+            await github.rest.issues.deleteComment({
+              owner: context.repo.owner,
+              repo: 'vite',
+              comment_id: ${{ needs.init.outputs.comment-id }}
             })
