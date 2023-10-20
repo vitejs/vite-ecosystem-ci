@@ -181,12 +181,12 @@ jobs:
             });
 
             const selectedSuite = context.payload.inputs.suite
-            let result
+            let results
             if (selectedSuite !== "-") {
               const { conclusion, html_url } = jobs.find(job => job.name === "execute-selected-suite")
-              result = [{ suite: selectedSuite, conclusion, link: html_url }]
+              results = [{ suite: selectedSuite, conclusion, link: html_url }]
             } else {
-              result = jobs
+              results = jobs
                 .filter(job => job.name.startsWith('execute-all '))
                 .map(job => {
                   const suite = job.name.replace(/^execute-all \(([^)]+)\)$/, "$1")
@@ -203,12 +203,46 @@ jobs:
               cancelled: ":stop_button:"
             }
 
+            // check for previous ecosystem-ci runs against the main branch
+
+            // first, list workflow runs for ecosystem-ci.yml
+            const { data: { workflow_runs } } = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'ecosystem-ci.yml'
+            });
+
+            // for simplity, we only take the latest completed scheduled run
+            // otherwise we would have to check the inputs for every maunally triggerred runs, which is an overkill
+            const latestScheduledRun = workflow_runs.find(run => run.event === "schedule" && run.status === "completed")
+
+            // get the jobs for the latest scheduled run
+            const { data: { jobs: scheduledJobs } } = await github.rest.actions.listJobsForWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: latestScheduledRun.id
+            });
+            const scheduledResults = scheduledJobs
+              .filter(job => job.name.startsWith('test-ecosystem '))
+              .map(job => {
+                const suite = job.name.replace(/^test-ecosystem \(([^)]+)\)$/, "$1")
+                return { suite, conclusion: job.conclusion, link: job.html_url }
+              })
+
             const body = `
             📝 Ran ecosystem CI: ${urlLink}
 
-            | suite | result |
-            |-------|--------|
-            ${result.map(r => `| [${r.suite}](${r.link}) | ${conclusionEmoji[r.conclusion]} ${r.conclusion} |`).join("\n")}
+            | suite | result | [latest scheduled](${latestScheduledRun.html_url}) |
+            |-------|--------|----------------|
+            ${results.map(current => {
+              const latest = scheduledResults.find(s => s.suite === current.suite) || {} // in case a new suite is added after latest scheduled
+
+              const firstColumn = current.suite
+              const secondColumn = `${conclusionEmoji[current.conclusion]} [${current.conclusion}](${current.link})`
+              const thirdColumn = `${conclusionEmoji[latest.conclusion]} [${latest.conclusion}](${latest.link})`
+
+              return `| ${firstColumn} | ${secondColumn} | ${thirdColumn} |`
+            }).join("\n")}
             `
 
             await github.rest.issues.updateComment({
