@@ -187,8 +187,9 @@ jobs:
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
+            const mainRepoName = 'vite'
             const ref = "${{ needs.execute-all.outputs.ref }}" || "${{ needs.execute-selected-suite.outputs.ref }}"
-            const refLink = `${context.serverUrl}//${context.repo.owner}/${context.repo.repo}/pull/${context.payload.inputs.prNumber}/commits/${ref}`
+            const refLink = `${context.serverUrl}/${context.repo.owner}/${mainRepoName}/pull/${context.payload.inputs.prNumber}/commits/${ref}`
 
             const { data: { jobs } } = await github.rest.actions.listJobsForWorkflowRun({
               owner: context.repo.owner,
@@ -211,7 +212,7 @@ jobs:
                 })
             }
 
-            const url = `${context.serverUrl}//${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            const url = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
             const urlLink = `[Open](${url})`
 
             const conclusionEmoji = {
@@ -265,12 +266,12 @@ jobs:
             await github.rest.issues.createComment({
               issue_number: context.payload.inputs.prNumber,
               owner: context.repo.owner,
-              repo: 'vite',
+              repo: mainRepoName,
               body
             })
 
             await github.rest.issues.deleteComment({
               owner: context.repo.owner,
-              repo: 'vite',
+              repo: mainRepoName,
               comment_id: ${{ needs.init.outputs.comment-id }}
             })
