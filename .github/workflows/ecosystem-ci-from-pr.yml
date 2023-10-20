@@ -112,7 +112,7 @@ jobs:
         run: |
           ref=$(git log -1 --pretty=format:%H)
           echo "ref=$ref" >> $GITHUB_OUTPUT
-          working-directory: workspace/vite
+        working-directory: workspace/vite
 
   execute-all:
     timeout-minutes: 30
