@@ -7,6 +7,7 @@
     "prepare": "pnpm exec simple-git-hooks",
     "lint": "eslint --ignore-path .gitignore '**/*.ts'",
     "lint:fix": "pnpm lint --fix",
+    "typecheck": "tsc",
     "format": "prettier --ignore-path .gitignore --check .",
     "format:fix": "pnpm format --write",
     "test:self": "tsx ecosystem-ci.ts _selftest",

@@ -10,8 +10,8 @@ import {
 	bisectVite,
 	parseViteMajor,
 	parseMajorVersion,
-} from './utils'
-import { CommandOptions, RunOptions } from './types'
+} from './utils.ts'
+import type { CommandOptions, RunOptions } from './types.d.ts'
 
 const cli = cac()
 cli

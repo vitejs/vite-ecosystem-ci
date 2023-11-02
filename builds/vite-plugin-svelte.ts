@@ -1,5 +1,5 @@
-import { runInRepo } from '../utils'
-import { RunOptions } from '../types'
+import { runInRepo } from '../utils.ts'
+import type { RunOptions } from '../types.d.ts'
 
 export async function build(options: RunOptions) {
 	if (options.viteMajor < 4) {

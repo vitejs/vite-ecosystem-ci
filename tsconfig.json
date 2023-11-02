@@ -1,10 +1,13 @@
 {
 	"include": ["./**/*.ts"],
-	"exclude": ["**/node_modules/**"],
+	"exclude": ["**/node_modules/**", "./workspace/**"],
 	"compilerOptions": {
 		"target": "esnext",
 		"module": "nodenext",
-		"moduleResolution": "node",
+		"moduleResolution": "nodenext",
+		"allowImportingTsExtensions": true,
+		"noEmit": true,
+		"skipLibCheck": true,
 		"strict": true,
 		"declaration": true,
 		"noImplicitOverride": true,

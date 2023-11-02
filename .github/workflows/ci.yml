@@ -30,6 +30,8 @@ jobs:
         run: pnpm format
       - name: lint
         run: pnpm run lint
+      - name: typecheck
+        run: pnpm run typecheck
       - name: audit
         if: (${{ success() }} || ${{ failure() }})
         run: pnpm audit

@@ -2,7 +2,7 @@ import path from 'path'
 import fs from 'fs'
 import { fileURLToPath, pathToFileURL } from 'url'
 import { execaCommand } from 'execa'
-import {
+import type {
 	PackageInfo,
 	EnvironmentData,
 	Overrides,
@@ -10,7 +10,7 @@ import {
 	RepoOptions,
 	RunOptions,
 	Task,
-} from './types'
+} from './types.d.ts'
 //eslint-disable-next-line n/no-unpublished-import
 import { detect, AGENTS, Agent, getCommand } from '@antfu/ni'
 import actionsCore from '@actions/core'
@@ -58,7 +58,6 @@ export async function $(literals: TemplateStringsArray, ...values: any[]) {
 }
 
 export async function setupEnvironment(): Promise<EnvironmentData> {
-	// @ts-expect-error import.meta
 	const root = dirnameFrom(import.meta.url)
 	const workspace = path.resolve(root, 'workspace')
 	vitePath = path.resolve(workspace, 'vite')
