@@ -272,11 +272,11 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			`@vitejs/plugin-legacy`
 		] ||= `${options.vitePath}/packages/plugin-legacy`
 
-		if (overrides.rollup !== false) {
-			const vitePackageInfo = await getVitePackageInfo(options.vitePath)
-			if (vitePackageInfo.dependencies.rollup?.version && !overrides.rollup) {
-				overrides.rollup = vitePackageInfo.dependencies.rollup.version
-			}
+		const vitePackageInfo = await getVitePackageInfo(options.vitePath)
+		//skip if `overrides.rollup` is `false`
+		if (vitePackageInfo.dependencies.rollup?.version && overrides.rollup == null) {
+			overrides.rollup = vitePackageInfo.dependencies.rollup.version
+		}
 		}
 
 		// build and apply local overrides
