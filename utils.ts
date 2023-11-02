@@ -277,7 +277,6 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		if (vitePackageInfo.dependencies.rollup?.version && overrides.rollup == null) {
 			overrides.rollup = vitePackageInfo.dependencies.rollup.version
 		}
-		}
 
 		// build and apply local overrides
 		const localOverrides = await buildOverrides(pkg, options, overrides)
