@@ -273,7 +273,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		] ||= `${options.vitePath}/packages/plugin-legacy`
 
 		const vitePackageInfo = await getVitePackageInfo(options.vitePath)
-		//skip if `overrides.rollup` is `false`
+		// skip if `overrides.rollup` is `false`
 		if (
 			vitePackageInfo.dependencies.rollup?.version &&
 			overrides.rollup == null
