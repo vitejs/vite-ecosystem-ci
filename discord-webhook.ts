@@ -1,5 +1,5 @@
 import fetch from 'node-fetch'
-import { getPermanentRef, setupEnvironment } from './utils'
+import { getPermanentRef, setupEnvironment } from './utils.ts'
 
 type RefType = 'branch' | 'tag' | 'commit' | 'release'
 type Status = 'success' | 'failure' | 'cancelled'
