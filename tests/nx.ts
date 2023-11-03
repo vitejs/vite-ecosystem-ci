@@ -11,5 +11,8 @@ export async function test(options: RunOptions) {
 			{ script: 'test', args: ['vite', '--skip-nx-cache'] },
 			{ script: 'e2e', args: ['e2e-vite', '--skip-nx-cache'] },
 		],
+		overrides: {
+			rollup: false,
+		},
 	})
 }
