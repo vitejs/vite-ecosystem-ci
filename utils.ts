@@ -276,7 +276,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		// skip if `overrides.rollup` is `false`
 		if (
 			vitePackageInfo.dependencies.rollup?.version &&
-			overrides.rollup == null
+			overrides.rollup !== false
 		) {
 			overrides.rollup = vitePackageInfo.dependencies.rollup.version
 		}
