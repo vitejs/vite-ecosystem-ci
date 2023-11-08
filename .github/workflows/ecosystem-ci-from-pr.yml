@@ -17,7 +17,7 @@ on:
         description: "svelte branch to use"
         required: true
         type: string
-        default: "master"
+        default: "svelte-4"
       repo:
         description: "svelte repository to use"
         required: true
@@ -76,9 +76,9 @@ jobs:
     if: "inputs.suite != '-'"
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
@@ -114,9 +114,9 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
