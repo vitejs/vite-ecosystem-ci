@@ -68,7 +68,7 @@ jobs:
       - run: pnpm i --frozen-lockfile
       - run: >-
           pnpm tsx ecosystem-ci.ts
-          --${{ inputs.refType || github.event.client_payload.refType || 'branch' }} ${{ inputs.ref || github.event.client_payload.ref || 'master' }}
+          --${{ inputs.refType || github.event.client_payload.refType || 'branch' }} ${{ inputs.ref || github.event.client_payload.ref || 'svelte-4' }}
           --repo ${{ inputs.repo || github.event.client_payload.repo || 'sveltejs/svelte' }}
           ${{ matrix.suite }}
         id: ecosystem-ci-run
@@ -77,7 +77,7 @@ jobs:
         env:
           WORKFLOW_NAME: ci
           REF_TYPE: ${{ inputs.refType || github.event.client_payload.refType || 'branch' }}
-          REF: ${{ inputs.ref || github.event.client_payload.ref || 'master' }}
+          REF: ${{ inputs.ref || github.event.client_payload.ref || 'svelte-4' }}
           REPO: ${{ inputs.repo || github.event.client_payload.repo || 'sveltejs/svelte' }}
           SUITE: ${{ matrix.suite }}
           STATUS: ${{ job.status }}
