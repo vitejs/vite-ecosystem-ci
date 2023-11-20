@@ -38,8 +38,8 @@ devDependencies:
     specifier: ^8.53.0
     version: 8.53.0
   eslint-define-config:
-    specifier: ^1.24.1
-    version: 1.24.1
+    specifier: ^2.0.0
+    version: 2.0.0
   eslint-plugin-n:
     specifier: ^16.3.0
     version: 16.3.0(eslint@8.53.0)
@@ -749,9 +749,9 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /eslint-define-config@1.24.1:
-    resolution: {integrity: sha512-o36vBhPSWyIQlHoMqGhhcGmOOm2A2ccBVIdLTG/AWdm9YmjpsLpf+5ntf9LlHR6dduLREgxtGwvwPwSt7vnXJg==}
-    engines: {node: '>=18.0.0', npm: '>=9.0.0', pnpm: '>= 8.6.0'}
+  /eslint-define-config@2.0.0:
+    resolution: {integrity: sha512-M8ao9mAE35BGwjZeT8ZlsRA42wcJHWS29Avd0qfeclRXig6uTnGXcaO7UxVyFzUA1VJtxeV/acw4KrhJA3JqxQ==}
+    engines: {node: '>=18.0.0', npm: '>=9.0.0', pnpm: '>=8.6.0'}
     dev: true
 
   /eslint-plugin-es-x@7.2.0(eslint@8.53.0):
