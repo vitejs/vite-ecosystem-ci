@@ -271,9 +271,8 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	} else {
 		overrides.vite ||= `${options.vitePath}/packages/vite`
 
-		overrides[
-			`@vitejs/plugin-legacy`
-		] ||= `${options.vitePath}/packages/plugin-legacy`
+		overrides[`@vitejs/plugin-legacy`] ||=
+			`${options.vitePath}/packages/plugin-legacy`
 
 		const vitePackageInfo = await getVitePackageInfo(options.vitePath)
 		// skip if `overrides.rollup` is `false`
