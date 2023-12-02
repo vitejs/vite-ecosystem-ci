@@ -87,6 +87,10 @@ function initWorkspace(workspace: string) {
 	if (!fs.existsSync(editorconfig)) {
 		fs.writeFileSync(editorconfig, 'root = true\n', 'utf-8')
 	}
+	const tsconfig = path.join(workspace, 'tsconfig.json')
+	if (!fs.existsSync(tsconfig)) {
+		fs.writeFileSync(tsconfig, '{}\n', 'utf-8')
+	}
 }
 
 export async function setupRepo(options: RepoOptions) {
