@@ -32,6 +32,8 @@ on:
           - eslint-plugin-svelte
           - language-tools
           - mdsvex
+          - melt-ui
+          - melt-ui-preprocessor
           - prettier-plugin-svelte
           - rollup-plugin-svelte
           - skeleton
@@ -103,6 +105,8 @@ jobs:
           - eslint-plugin-svelte
           - language-tools
           - mdsvex
+          - melt-ui
+          - melt-ui-preprocessor
           - prettier-plugin-svelte
           - rollup-plugin-svelte
           - skeleton
