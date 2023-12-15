@@ -5,7 +5,7 @@ export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
 		repo: 'melt-ui/melt-ui',
-		branch: 'main',
+		branch: 'develop',
 		test: 'pnpm test',
 	})
 }
