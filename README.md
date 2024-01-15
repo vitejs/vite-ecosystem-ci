@@ -6,7 +6,7 @@ This repository is used to run integration tests for vite ecosystem projects
 
 ### scheduled
 
-Workflows are sheduled to run automatically every Monday, Wednesday and Friday
+Workflows are scheduled to run automatically every Monday, Wednesday and Friday
 
 ### manually
 
@@ -40,7 +40,7 @@ See [docs/pr-comment-setup.md](./docs/pr-comment-setup.md) for how to setup this
 # how to add a new integration test
 
 - check out the existing [tests](./tests) and add one yourself. Thanks to some utilities it is really easy
-- once you are confidente the suite works, add it to the lists of suites in the [workflows](../../actions/)
+- once you are confident the suite works, add it to the lists of suites in the [workflows](../../actions/)
 
 > the current utilities focus on pnpm based projects. Consider switching to pnpm or contribute utilities for other pms
 
