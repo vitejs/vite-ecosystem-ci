@@ -42,8 +42,6 @@ See [docs/pr-comment-setup.md](./docs/pr-comment-setup.md) for how to setup this
 - check out the existing [tests](./tests) and add one yourself. Thanks to some utilities it is really easy
 - once you are confidente the suite works, add it to the lists of suites in the [workflows](../../actions/)
 
-> the current utilities focus on pnpm based projects. Consider switching to pnpm or contribute utilities for other pms
-
 # reporting results
 
 ## Discord
