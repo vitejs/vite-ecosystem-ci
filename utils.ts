@@ -611,8 +611,12 @@ async function buildOverrides(
  */
 async function getVitePackageInfo(vitePath: string): Promise<PackageInfo> {
 	try {
-		const lsOutput = await $`pnpm --dir ${vitePath}/packages/vite ls --json`
-		const lsParsed = JSON.parse(lsOutput)
+		// run in vite dir to avoid package manager mismatch error from corepack
+		const current = cwd
+		cd(`${vitePath}/packages/vite`)
+		const lsOutput = $`pnpm ls --json`
+		cd(current)
+		const lsParsed = JSON.parse(await lsOutput)
 		return lsParsed[0] as PackageInfo
 	} catch (e) {
 		console.error('failed to retrieve vite package infos', e)
