@@ -6,7 +6,7 @@ export async function test(options: RunOptions) {
 		...options,
 		repo: 'remix-run/remix',
 		branch: 'dev',
-    build: 'vite-ecosystem-ci:build',
+		build: 'vite-ecosystem-ci:build',
 		beforeTest: 'vite-ecosystem-ci:before-test',
 		test: 'vite-ecosystem-ci:test',
 	})
