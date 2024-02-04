@@ -357,7 +357,7 @@ export async function buildVite({ verify = false }) {
 	cd(vitePath)
 	const frozenInstall = getCommand('pnpm', 'frozen')
 	const runBuild = getCommand('pnpm', 'run', ['build'])
-	const runTest = getCommand('pnpm', 'run', ['build'])
+	const runTest = getCommand('pnpm', 'run', ['test'])
 	await $`${frozenInstall}`
 	await $`${runBuild}`
 	if (verify) {
