@@ -1,5 +1,5 @@
 import fetch from 'node-fetch'
-import { getPermanentRef, setupEnvironment } from './utils'
+import { getPermanentRef, setupEnvironment } from './utils.ts'
 
 type RefType = 'branch' | 'tag' | 'commit' | 'release'
 type Status = 'success' | 'failure' | 'cancelled'
@@ -134,7 +134,7 @@ async function fetchJobs() {
 				? {
 						Authorization: `token ${process.env.GITHUB_TOKEN}`,
 						// eslint-disable-next-line no-mixed-spaces-and-tabs
-				  }
+					}
 				: undefined),
 		},
 	})

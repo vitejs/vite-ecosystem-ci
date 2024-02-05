@@ -1,11 +1,13 @@
 {
   "name": "svelte-ecosystem-ci",
+  "private": true,
   "version": "0.0.1",
   "description": "svelte Ecosystem CI",
   "scripts": {
     "prepare": "pnpm exec simple-git-hooks",
     "lint": "eslint --ignore-path .gitignore '**/*.ts'",
     "lint:fix": "pnpm lint --fix",
+    "typecheck": "tsc",
     "format": "prettier --ignore-path .gitignore --check .",
     "format:fix": "pnpm format --write",
     "test:self": "tsx ecosystem-ci.ts _selftest",
@@ -20,13 +22,13 @@
       "prettier --write --ignore-unknown"
     ],
     "*.ts": [
-      "eslint"
+      "eslint --fix"
     ]
   },
   "packageManager": "pnpm@8.10.2",
   "type": "module",
   "engines": {
-    "node": ">=20",
+    "node": ">=18",
     "pnpm": "^8.0.0"
   },
   "repository": {
@@ -45,19 +47,19 @@
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
-    "@antfu/ni": "^0.21.8",
-    "@types/node": "^20.9.0",
-    "@types/semver": "^7.5.5",
-    "@typescript-eslint/eslint-plugin": "^6.10.0",
-    "@typescript-eslint/parser": "^6.10.0",
-    "eslint": "^8.53.0",
-    "eslint-define-config": "^1.24.1",
-    "eslint-plugin-n": "^16.3.0",
-    "lint-staged": "^15.0.2",
-    "prettier": "^3.0.3",
+    "@antfu/ni": "^0.21.12",
+    "@types/node": "^20.11.16",
+    "@types/semver": "^7.5.6",
+    "@typescript-eslint/eslint-plugin": "^6.20.0",
+    "@typescript-eslint/parser": "^6.20.0",
+    "eslint": "^8.56.0",
+    "eslint-define-config": "^2.1.0",
+    "eslint-plugin-n": "^16.6.2",
+    "lint-staged": "^15.2.1",
+    "prettier": "^3.2.5",
     "semver": "^7.5.4",
     "simple-git-hooks": "^2.9.0",
-    "tsx": "^3.14.0",
-    "typescript": "^5.2.2"
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
   }
 }

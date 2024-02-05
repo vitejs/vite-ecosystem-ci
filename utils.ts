@@ -2,14 +2,14 @@ import path from 'path'
 import fs from 'fs'
 import { fileURLToPath, pathToFileURL } from 'url'
 import { execaCommand } from 'execa'
-import {
+import type {
 	EnvironmentData,
 	Overrides,
 	ProcessEnv,
 	RepoOptions,
 	RunOptions,
 	Task,
-} from './types'
+} from './types.d.ts'
 //eslint-disable-next-line n/no-unpublished-import
 import { detect, AGENTS, Agent, getCommand } from '@antfu/ni'
 import actionsCore from '@actions/core'
@@ -57,7 +57,6 @@ export async function $(literals: TemplateStringsArray, ...values: any[]) {
 }
 
 export async function setupEnvironment(): Promise<EnvironmentData> {
-	// @ts-expect-error import.meta
 	const root = dirnameFrom(import.meta.url)
 	const workspace = path.resolve(root, 'workspace')
 	sveltePath = path.resolve(workspace, 'svelte')
@@ -69,6 +68,7 @@ export async function setupEnvironment(): Promise<EnvironmentData> {
 		YARN_ENABLE_IMMUTABLE_INSTALLS: 'false', // to avoid errors with mutated lockfile due to overrides
 		NODE_OPTIONS: '--max-old-space-size=6144', // GITHUB CI has 7GB max, stay below
 		ECOSYSTEM_CI: 'true', // flag for tests, can be used to conditionally skip irrelevant tests.
+		NO_COLOR: '1',
 	}
 	initWorkspace(workspace)
 	return { root, workspace, sveltePath, cwd, env }
@@ -85,6 +85,10 @@ function initWorkspace(workspace: string) {
 	const editorconfig = path.join(workspace, '.editorconfig')
 	if (!fs.existsSync(editorconfig)) {
 		fs.writeFileSync(editorconfig, 'root = true\n', 'utf-8')
+	}
+	const tsconfig = path.join(workspace, 'tsconfig.json')
+	if (!fs.existsSync(tsconfig)) {
+		fs.writeFileSync(tsconfig, '{}\n', 'utf-8')
 	}
 }
 
@@ -156,8 +160,7 @@ function toCommand(
 			if (task == null || task === '') {
 				continue
 			} else if (typeof task === 'string') {
-				const scriptOrBin = task.trim().split(/\s+/)[0]
-				if (scripts?.[scriptOrBin] != null) {
+				if (scripts[task] != null) {
 					const runTaskWithAgent = getCommand(agent, 'run', [task])
 					await $`${runTaskWithAgent}`
 				} else {
@@ -165,6 +168,18 @@ function toCommand(
 				}
 			} else if (typeof task === 'function') {
 				await task()
+			} else if (task?.script) {
+				if (scripts[task.script] != null) {
+					const runTaskWithAgent = getCommand(agent, 'run', [
+						task.script,
+						...(task.args ?? []),
+					])
+					await $`${runTaskWithAgent}`
+				} else {
+					throw new Error(
+						`invalid task, script "${task.script}" does not exist in package.json`,
+					)
+				}
 			} else {
 				throw new Error(
 					`invalid task, expected string or function but got ${typeof task}: ${task}`,
@@ -505,7 +520,7 @@ export async function applyPackageOverrides(
 
 	// use of `ni` command here could cause lockfile violation errors so fall back to native commands that avoid these
 	if (pm === 'pnpm') {
-		await $`pnpm install --prefer-frozen-lockfile --prefer-offline --strict-peer-dependencies false`
+		await $`pnpm install --prefer-frozen-lockfile --strict-peer-dependencies false`
 	} else if (pm === 'yarn') {
 		await $`yarn install`
 	} else if (pm === 'npm') {

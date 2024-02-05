@@ -24,7 +24,7 @@ export interface RunOptions {
 	beforeTest?: Task | Task[]
 }
 
-type Task = string | (() => Promise<any>)
+type Task = string | { script: string; args?: string[] } | (() => Promise<any>)
 
 export interface CommandOptions {
 	suites?: string[]
@@ -53,4 +53,20 @@ export interface Overrides {
 
 export interface ProcessEnv {
 	[key: string]: string | undefined
+}
+
+interface DependencyInfo {
+	from: string
+	version: string
+	resolved: string
+	path: string
+}
+interface PackageInfo {
+	name: string
+	version: string
+	path: string
+	private: boolean
+	dependencies: Record<string, DependencyInfo>
+	devDependencies: Record<string, DependencyInfo>
+	optionalDependencies: Record<string, DependencyInfo>
 }
