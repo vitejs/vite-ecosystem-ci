@@ -357,7 +357,7 @@ export async function buildVite({ verify = false }) {
 	cd(vitePath)
 	const frozenInstall = getCommand('pnpm', 'frozen')
 	const runBuild = getCommand('pnpm', 'run', ['build'])
-	const runTest = getCommand('pnpm', 'run', ['build'])
+	const runTest = getCommand('pnpm', 'run', ['test'])
 	await $`${frozenInstall}`
 	await $`${runBuild}`
 	if (verify) {
@@ -532,7 +532,7 @@ export async function applyPackageOverrides(
 
 	// use of `ni` command here could cause lockfile violation errors so fall back to native commands that avoid these
 	if (pm === 'pnpm') {
-		await $`pnpm install --prefer-frozen-lockfile --prefer-offline --strict-peer-dependencies false`
+		await $`pnpm install --prefer-frozen-lockfile --strict-peer-dependencies false`
 	} else if (pm === 'yarn') {
 		await $`yarn install`
 	} else if (pm === 'npm') {
@@ -611,8 +611,12 @@ async function buildOverrides(
  */
 async function getVitePackageInfo(vitePath: string): Promise<PackageInfo> {
 	try {
-		const lsOutput = await $`pnpm --dir ${vitePath}/packages/vite ls --json`
-		const lsParsed = JSON.parse(lsOutput)
+		// run in vite dir to avoid package manager mismatch error from corepack
+		const current = cwd
+		cd(`${vitePath}/packages/vite`)
+		const lsOutput = $`pnpm ls --json`
+		cd(current)
+		const lsParsed = JSON.parse(await lsOutput)
 		return lsParsed[0] as PackageInfo
 	} catch (e) {
 		console.error('failed to retrieve vite package infos', e)
