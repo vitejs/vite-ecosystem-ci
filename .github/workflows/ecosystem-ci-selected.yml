@@ -46,8 +46,8 @@ on:
           - previewjs
           - qwik
           - rakkas
-          - remix
-          #          - storybook  # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
+          # - remix # disabled until they move to pnpm
+          # - storybook # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
           - sveltekit
           - unocss
           - vike
