@@ -7,6 +7,7 @@ export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
 		repo: 'laravel/vite-plugin',
+		branch: '1.x',
 		build: 'build',
 		test: 'test',
 	})
