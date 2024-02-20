@@ -11,6 +11,6 @@ export async function test(options: RunOptions) {
 			'@vitejs/plugin-vue': true,
 		},
 		build: 'build',
-		test: 'test',
+		test: 'test:vite-ecosystem-ci',
 	})
 }
