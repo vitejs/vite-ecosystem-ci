@@ -276,7 +276,7 @@ jobs:
               |-------|--------|----------------|
               ${rows.join("\n")}
 
-              Succesful suites without change: ${successfulSuitesWithoutChanges.join(", ")}
+              Successful suites without change: ${successfulSuitesWithoutChanges.join(", ")}
               `
             } else {
               body += `${conclusionEmoji.success} ${successfulSuitesWithoutChanges.join(", ")}
