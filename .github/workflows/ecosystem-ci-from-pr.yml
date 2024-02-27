@@ -256,7 +256,7 @@ jobs:
               const latest = scheduledResults.find(s => s.suite === current.suite) || {} // in case a new suite is added after latest scheduled
 
               if (current.conclusion === "success" && latest.conclusion === "success") {
-                successfulSuitesWithoutChanges.push(`[${current.conclusion}](${current.link})`)
+                successfulSuitesWithoutChanges.push(`[${current.suite}](${current.link})`)
               }
               else {
                 const firstColumn = current.suite
@@ -276,7 +276,7 @@ jobs:
             |-------|--------|----------------|
             ${rows.join("\n")}
 
-            Successful suites without change: ${successfulSuitesWithoutChanges.join(", ")}
+            ${conclusionEmoji.success} ${successfulSuitesWithoutChanges.join(", ")}
             `
             } else {
               body += `${conclusionEmoji.success} ${successfulSuitesWithoutChanges.join(", ")}
