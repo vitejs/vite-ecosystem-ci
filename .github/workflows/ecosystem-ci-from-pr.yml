@@ -250,21 +250,38 @@ jobs:
                 return { suite, conclusion: job.conclusion, link: job.html_url }
               })
 
-            const body = `
-            📝 Ran ecosystem CI on ${refLink}: ${urlLink}
-
-            | suite | result | [latest scheduled](${latestScheduledRun.html_url}) |
-            |-------|--------|----------------|
-            ${results.map(current => {
+            const rows = []
+            const successfulSuitesWithoutChanges = []
+            results.forEach(current => {
               const latest = scheduledResults.find(s => s.suite === current.suite) || {} // in case a new suite is added after latest scheduled
 
-              const firstColumn = current.suite
-              const secondColumn = `${conclusionEmoji[current.conclusion]} [${current.conclusion}](${current.link})`
-              const thirdColumn = `${conclusionEmoji[latest.conclusion]} [${latest.conclusion}](${latest.link})`
+              if (current.conclusion === "success" && latest.conclusion === "success") {
+                successfulSuitesWithoutChanges.push(`[${current.conclusion}](${current.link})`)
+              }
+              else {
+                const firstColumn = current.suite
+                const secondColumn = `${conclusionEmoji[current.conclusion]} [${current.conclusion}](${current.link})`
+                const thirdColumn = `${conclusionEmoji[latest.conclusion]} [${latest.conclusion}](${latest.link})`
 
-              return `| ${firstColumn} | ${secondColumn} | ${thirdColumn} |`
-            }).join("\n")}
+                rows.push(`| ${firstColumn} | ${secondColumn} | ${thirdColumn} |`)
+              }
+            })
+
+            let body = `
+            📝 Ran ecosystem CI on ${refLink}: ${urlLink}
+
             `
+            if (rows.length > 0) {
+              body += `| suite | result | [latest scheduled](${latestScheduledRun.html_url}) |
+            |-------|--------|----------------|
+            ${rows.join("\n")}
+
+            Successful suites without change: ${successfulSuitesWithoutChanges.join(", ")}
+            `
+            } else {
+              body += `${conclusionEmoji.success} ${successfulSuitesWithoutChanges.join(", ")}
+            `
+            }
 
             await github.rest.issues.createComment({
               issue_number: context.payload.inputs.prNumber,
