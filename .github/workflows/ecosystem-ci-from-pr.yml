@@ -273,14 +273,14 @@ jobs:
             `
             if (rows.length > 0) {
               body += `| suite | result | [latest scheduled](${latestScheduledRun.html_url}) |
-              |-------|--------|----------------|
-              ${rows.join("\n")}
+            |-------|--------|----------------|
+            ${rows.join("\n")}
 
-              Successful suites without change: ${successfulSuitesWithoutChanges.join(", ")}
-              `
+            Successful suites without change: ${successfulSuitesWithoutChanges.join(", ")}
+            `
             } else {
               body += `${conclusionEmoji.success} ${successfulSuitesWithoutChanges.join(", ")}
-              `
+            `
             }
 
             await github.rest.issues.createComment({
