@@ -23,8 +23,8 @@ devDependencies:
     specifier: ^0.21.12
     version: 0.21.12
   '@types/node':
-    specifier: ^20.11.20
-    version: 20.11.20
+    specifier: ^20.11.24
+    version: 20.11.24
   '@types/semver':
     specifier: ^7.5.8
     version: 7.5.8
@@ -53,8 +53,8 @@ devDependencies:
     specifier: ^7.6.0
     version: 7.6.0
   simple-git-hooks:
-    specifier: ^2.9.0
-    version: 2.9.0
+    specifier: ^2.10.0
+    version: 2.10.0
   tsx:
     specifier: ^4.7.1
     version: 4.7.1
@@ -376,8 +376,8 @@ packages:
     resolution: {integrity: sha512-Hr5Jfhc9eYOQNPYO5WLDq/n4jqijdHNlDXjuAQkkt+mWdQR+XJToOHrsD4cPaMXpn6KO7y2+wM8AZEs8VpBLVA==}
     dev: true
 
-  /@types/node@20.11.20:
-    resolution: {integrity: sha512-7/rR21OS+fq8IyHTgtLkDK949uzsa6n8BkziAKtPVpugIkO6D+/ooXMvzXxDnZrmtXVfjb1bKQafYpb8s89LOg==}
+  /@types/node@20.11.24:
+    resolution: {integrity: sha512-Kza43ewS3xoLgCEpQrsT+xRo/EJej1y0kVYGiLFE1NEODXGzTfwiC6tXTLMQskn1X4/Rjlh0MQUvx9W+L9long==}
     dependencies:
       undici-types: 5.26.5
     dev: true
@@ -1525,8 +1525,8 @@ packages:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
 
-  /simple-git-hooks@2.9.0:
-    resolution: {integrity: sha512-waSQ5paUQtyGC0ZxlHmcMmD9I1rRXauikBwX31bX58l5vTOhCEcBC5Bi+ZDkPXTjDnZAF8TbCqKBY+9+sVPScw==}
+  /simple-git-hooks@2.10.0:
+    resolution: {integrity: sha512-TtCytVYfV77pILCkzVxpOSgYKHQyaO7fBI/iwG5bLGb0dIo/v/K1Y1IZ5DN40RQu6WNNJiN0gkuRvSYjxOhFog==}
     hasBin: true
     requiresBuild: true
     dev: true

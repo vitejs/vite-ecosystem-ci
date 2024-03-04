@@ -48,7 +48,7 @@
   },
   "devDependencies": {
     "@antfu/ni": "^0.21.12",
-    "@types/node": "^20.11.20",
+    "@types/node": "^20.11.24",
     "@types/semver": "^7.5.8",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
@@ -58,7 +58,7 @@
     "lint-staged": "^15.2.2",
     "prettier": "^3.2.5",
     "semver": "^7.6.0",
-    "simple-git-hooks": "^2.9.0",
+    "simple-git-hooks": "^2.10.0",
     "tsx": "^4.7.1",
     "typescript": "^5.3.3"
   }
