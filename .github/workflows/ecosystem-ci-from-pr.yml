@@ -32,7 +32,7 @@ on:
           - analogjs
           - astro
           - histoire
-          # - iles # disabled until its CI is fixed
+          - iles
           - ladle
           - laravel
           - marko
@@ -41,7 +41,7 @@ on:
           - previewjs
           - qwik
           - rakkas
-          #          - storybook  # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
+          - storybook
           - sveltekit
           - unocss
           - vike
