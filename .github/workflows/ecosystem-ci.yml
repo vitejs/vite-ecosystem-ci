@@ -43,6 +43,7 @@ jobs:
           - analogjs
           - astro
           - histoire
+          # - hydrogen # disabled until they complete they migration back to Vite
           # - iles # disabled until its CI is fixed
           - ladle
           - laravel

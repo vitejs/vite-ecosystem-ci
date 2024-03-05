@@ -37,6 +37,7 @@ on:
           - analogjs
           - astro
           - histoire
+          - hydrogen
           - iles
           - ladle
           - laravel
