@@ -37,7 +37,7 @@ on:
           - laravel
           - marko
           - nuxt
-          # - nx # disabled temporarly
+          # - nx # disabled temporarily
           - previewjs
           - qwik
           - rakkas
@@ -133,7 +133,7 @@ jobs:
           - laravel
           - marko
           - nuxt
-          # - nx # disabled temporarly
+          # - nx # disabled temporarily
           - previewjs
           - qwik
           - rakkas
