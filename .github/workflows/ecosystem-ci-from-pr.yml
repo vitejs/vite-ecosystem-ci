@@ -32,17 +32,17 @@ on:
           - analogjs
           - astro
           - histoire
-          # - iles # disabled until its CI is fixed
+          - hydrogen
+          - iles
           - ladle
           - laravel
           - marko
           - nuxt
-          # - nx # disabled temporarily
+          - nx
           - previewjs
           - qwik
           - rakkas
-          # - remix # disabled until they move to pnpm
-          # - storybook  # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
+          - storybook
           - sveltekit
           - unocss
           - vike
@@ -128,6 +128,7 @@ jobs:
           - analogjs
           - astro
           - histoire
+          # - hydrogen # disabled until they complete they migration back to Vite
           # - iles # disabled until its CI is fixed
           - ladle
           - laravel
