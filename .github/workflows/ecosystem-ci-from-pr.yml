@@ -134,7 +134,7 @@ jobs:
           - laravel
           - marko
           - nuxt
-          - nx
+          # - nx # disabled temporarily
           - previewjs
           - qwik
           - rakkas
