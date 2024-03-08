@@ -55,6 +55,7 @@ on:
           - vite-setup-catalogue
           - vitepress
           - vitest
+          - wxt
 jobs:
   init:
     runs-on: ubuntu-latest

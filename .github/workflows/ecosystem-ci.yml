@@ -67,6 +67,7 @@ jobs:
           - vite-setup-catalogue
           - vitepress
           - vitest
+          - wxt
       fail-fast: false
     steps:
       - uses: actions/checkout@v4

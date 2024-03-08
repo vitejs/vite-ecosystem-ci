@@ -61,6 +61,7 @@ on:
           - vite-setup-catalogue
           - vitepress
           - vitest
+          - wxt
 jobs:
   execute-selected-suite:
     timeout-minutes: 30
