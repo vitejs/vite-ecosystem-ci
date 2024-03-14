@@ -4,12 +4,9 @@ import type { RunOptions } from '../types.d.ts'
 export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
-		repo: 'sveltejs/vite-plugin-svelte',
+		repo: 'analogjs/analog',
 		branch: 'main',
-		overrides: {
-			svelte: 'latest',
-		},
-		beforeTest: 'pnpm playwright install chromium',
-		test: ['check:lint', 'check:types', 'test'],
+		build: 'build:vite-ci',
+		test: 'test:vite-ci',
 	})
 }

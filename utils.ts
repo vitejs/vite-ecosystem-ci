@@ -2,14 +2,15 @@ import path from 'path'
 import fs from 'fs'
 import { fileURLToPath, pathToFileURL } from 'url'
 import { execaCommand } from 'execa'
-import {
+import type {
+	PackageInfo,
 	EnvironmentData,
 	Overrides,
 	ProcessEnv,
 	RepoOptions,
 	RunOptions,
 	Task,
-} from './types'
+} from './types.d.ts'
 //eslint-disable-next-line n/no-unpublished-import
 import { detect, AGENTS, Agent, getCommand } from '@antfu/ni'
 import actionsCore from '@actions/core'
@@ -57,7 +58,6 @@ export async function $(literals: TemplateStringsArray, ...values: any[]) {
 }
 
 export async function setupEnvironment(): Promise<EnvironmentData> {
-	// @ts-expect-error import.meta
 	const root = dirnameFrom(import.meta.url)
 	const workspace = path.resolve(root, 'workspace')
 	vitePath = path.resolve(workspace, 'vite')
@@ -69,6 +69,7 @@ export async function setupEnvironment(): Promise<EnvironmentData> {
 		YARN_ENABLE_IMMUTABLE_INSTALLS: 'false', // to avoid errors with mutated lockfile due to overrides
 		NODE_OPTIONS: '--max-old-space-size=6144', // GITHUB CI has 7GB max, stay below
 		ECOSYSTEM_CI: 'true', // flag for tests, can be used to conditionally skip irrelevant tests.
+		NO_COLOR: '1',
 	}
 	initWorkspace(workspace)
 	return { root, workspace, vitePath, cwd, env }
@@ -85,6 +86,10 @@ function initWorkspace(workspace: string) {
 	const editorconfig = path.join(workspace, '.editorconfig')
 	if (!fs.existsSync(editorconfig)) {
 		fs.writeFileSync(editorconfig, 'root = true\n', 'utf-8')
+	}
+	const tsconfig = path.join(workspace, 'tsconfig.json')
+	if (!fs.existsSync(tsconfig)) {
+		fs.writeFileSync(tsconfig, '{}\n', 'utf-8')
 	}
 }
 
@@ -156,8 +161,7 @@ function toCommand(
 			if (task == null || task === '') {
 				continue
 			} else if (typeof task === 'string') {
-				const scriptOrBin = task.trim().split(/\s+/)[0]
-				if (scripts?.[scriptOrBin] != null) {
+				if (scripts[task] != null) {
 					const runTaskWithAgent = getCommand(agent, 'run', [task])
 					await $`${runTaskWithAgent}`
 				} else {
@@ -165,6 +169,18 @@ function toCommand(
 				}
 			} else if (typeof task === 'function') {
 				await task()
+			} else if (task?.script) {
+				if (scripts[task.script] != null) {
+					const runTaskWithAgent = getCommand(agent, 'run', [
+						task.script,
+						...(task.args ?? []),
+					])
+					await $`${runTaskWithAgent}`
+				} else {
+					throw new Error(
+						`invalid task, script "${task.script}" does not exist in package.json`,
+					)
+				}
 			} else {
 				throw new Error(
 					`invalid task, expected string or function but got ${typeof task}: ${task}`,
@@ -255,33 +271,24 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	} else {
 		overrides.vite ||= `${options.vitePath}/packages/vite`
 
-		overrides[
-			`@vitejs/plugin-legacy`
-		] ||= `${options.vitePath}/packages/plugin-legacy`
-		if (options.viteMajor < 4) {
-			overrides[
-				`@vitejs/plugin-vue`
-			] ||= `${options.vitePath}/packages/plugin-vue`
-			overrides[
-				`@vitejs/plugin-vue-jsx`
-			] ||= `${options.vitePath}/packages/plugin-vue-jsx`
-			overrides[
-				`@vitejs/plugin-react`
-			] ||= `${options.vitePath}/packages/plugin-react`
-			// vite-3 dependency setup could have caused problems if we don't synchronize node versions
-			// vite-4 uses an optional peerDependency instead so keep project types
-			const typesNodePath = fs.realpathSync(
-				`${options.vitePath}/node_modules/@types/node`,
-			)
-			overrides[`@types/node`] ||= `${typesNodePath}`
-		} else {
-			// starting with vite-4, we apply automatic overrides
-			const localOverrides = await buildOverrides(pkg, options, overrides)
-			cd(dir) // buildOverrides changed dir, change it back
-			overrides = {
-				...overrides,
-				...localOverrides,
-			}
+		overrides[`@vitejs/plugin-legacy`] ||=
+			`${options.vitePath}/packages/plugin-legacy`
+
+		const vitePackageInfo = await getVitePackageInfo(options.vitePath)
+		// skip if `overrides.rollup` is `false`
+		if (
+			vitePackageInfo.dependencies.rollup?.version &&
+			overrides.rollup !== false
+		) {
+			overrides.rollup = vitePackageInfo.dependencies.rollup.version
+		}
+
+		// build and apply local overrides
+		const localOverrides = await buildOverrides(pkg, options, overrides)
+		cd(dir) // buildOverrides changed dir, change it back
+		overrides = {
+			...overrides,
+			...localOverrides,
 		}
 	}
 	await applyPackageOverrides(dir, pkg, overrides)
@@ -338,7 +345,7 @@ export async function setupViteRepo(options: Partial<RepoOptions>) {
 export async function getPermanentRef() {
 	cd(vitePath)
 	try {
-		const ref = await $`git log -1 --pretty=format:%h`
+		const ref = await $`git log -1 --pretty=format:%H`
 		return ref
 	} catch (e) {
 		console.warn(`Failed to obtain perm ref. ${e}`)
@@ -350,7 +357,7 @@ export async function buildVite({ verify = false }) {
 	cd(vitePath)
 	const frozenInstall = getCommand('pnpm', 'frozen')
 	const runBuild = getCommand('pnpm', 'run', ['build'])
-	const runTest = getCommand('pnpm', 'run', ['build'])
+	const runTest = getCommand('pnpm', 'run', ['test'])
 	await $`${frozenInstall}`
 	await $`${runBuild}`
 	if (verify) {
@@ -525,7 +532,7 @@ export async function applyPackageOverrides(
 
 	// use of `ni` command here could cause lockfile violation errors so fall back to native commands that avoid these
 	if (pm === 'pnpm') {
-		await $`pnpm install --prefer-frozen-lockfile --prefer-offline --strict-peer-dependencies false`
+		await $`pnpm install --prefer-frozen-lockfile --strict-peer-dependencies false`
 	} else if (pm === 'yarn') {
 		await $`yarn install`
 	} else if (pm === 'npm') {
@@ -596,4 +603,23 @@ async function buildOverrides(
 		}
 	}
 	return overrides
+}
+
+/**
+ * 	use pnpm ls to get information about installed dependency versions of vite
+ * @param vitePath - workspace vite root
+ */
+async function getVitePackageInfo(vitePath: string): Promise<PackageInfo> {
+	try {
+		// run in vite dir to avoid package manager mismatch error from corepack
+		const current = cwd
+		cd(`${vitePath}/packages/vite`)
+		const lsOutput = $`pnpm ls --json`
+		cd(current)
+		const lsParsed = JSON.parse(await lsOutput)
+		return lsParsed[0] as PackageInfo
+	} catch (e) {
+		console.error('failed to retrieve vite package infos', e)
+		throw e
+	}
 }

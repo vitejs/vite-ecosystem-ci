@@ -1,10 +1,7 @@
-import { runInRepo } from '../utils'
-import { RunOptions } from '../types'
+import { runInRepo } from '../utils.ts'
+import type { RunOptions } from '../types.d.ts'
 
 export async function test(options: RunOptions) {
-	if (options.viteMajor < 4) {
-		return // no branch for vite 3
-	}
 	await runInRepo({
 		...options,
 		repo: 'nuxt/nuxt',
@@ -12,6 +9,7 @@ export async function test(options: RunOptions) {
 			'@vitejs/plugin-vue': true,
 		},
 		build: 'build',
+		beforeTest: 'pnpm playwright-core install',
 		test: ['test:fixtures', 'test:types'],
 	})
 }

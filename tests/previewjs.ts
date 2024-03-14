@@ -1,5 +1,5 @@
-import { RunOptions } from '../types'
-import { runInRepo } from '../utils'
+import type { RunOptions } from '../types.d.ts'
+import { runInRepo } from '../utils.ts'
 
 export async function test(options: RunOptions) {
 	await runInRepo({

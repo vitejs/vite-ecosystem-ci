@@ -1,5 +1,5 @@
 import fetch from 'node-fetch'
-import { getPermanentRef, setupEnvironment } from './utils'
+import { getPermanentRef, setupEnvironment } from './utils.ts'
 
 type RefType = 'branch' | 'tag' | 'commit' | 'release'
 type Status = 'success' | 'failure' | 'cancelled'
@@ -134,7 +134,7 @@ async function fetchJobs() {
 				? {
 						Authorization: `token ${process.env.GITHUB_TOKEN}`,
 						// eslint-disable-next-line no-mixed-spaces-and-tabs
-				  }
+					}
 				: undefined),
 		},
 	})
@@ -169,8 +169,9 @@ function createTargetText(
 ) {
 	const repoText = repo !== 'vitejs/vite' ? `${repo}:` : ''
 	if (refType === 'branch') {
+		const shortRef = permRef?.slice(0, 7)
 		const link = `https://github.com/${repo}/commits/${permRef || ref}`
-		return `[${repoText}${ref} (${permRef || 'unknown'})](${link})`
+		return `[${repoText}${ref} (${shortRef || 'unknown'})](${link})`
 	}
 
 	const refTypeText = refType === 'release' ? ' (release)' : ''

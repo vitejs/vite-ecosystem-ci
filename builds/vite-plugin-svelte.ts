@@ -1,18 +1,22 @@
-import { runInRepo } from '../utils'
-import { RunOptions } from '../types'
+import { runInRepo } from '../utils.ts'
+import type { RunOptions } from '../types.d.ts'
 
 export async function build(options: RunOptions) {
+	if (options.viteMajor < 4) {
+		return
+	}
 	return runInRepo({
 		...options,
 		repo: 'sveltejs/vite-plugin-svelte',
-		branch: options.viteMajor === 4 ? 'main' : 'v1',
+		branch: 'main',
 		overrides: {
 			svelte: 'latest',
 		},
-		build: 'build',
 	})
 }
 
 export const packages = {
 	'@sveltejs/vite-plugin-svelte': 'packages/vite-plugin-svelte',
+	'@sveltejs/vite-plugin-svelte-inspector':
+		'packages/vite-plugin-svelte-inspector',
 }

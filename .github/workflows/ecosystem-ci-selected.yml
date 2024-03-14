@@ -34,21 +34,26 @@ on:
         required: true
         type: choice
         options:
+          - analogjs
           - astro
           - histoire
+          - hydrogen
           - iles
           - ladle
           - laravel
           - marko
           - nuxt
+          - nx
           - previewjs
           - quasar
           - qwik
           - rakkas
-          #          - storybook  # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
+          - remix
+          - storybook
           - sveltekit
           - unocss
-          - vite-plugin-ssr
+          - vike
+          - vite-plugin-pwa
           - vite-plugin-react
           - vite-plugin-react-pages
           - vite-plugin-react-swc
@@ -62,10 +67,10 @@ jobs:
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
         id: setup-node
       - uses: denoland/setup-deno@v1
         with:

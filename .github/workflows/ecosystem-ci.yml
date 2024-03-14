@@ -40,21 +40,26 @@ jobs:
     strategy:
       matrix:
         suite:
+          - analogjs
           - astro
           - histoire
-          - iles
+          # - hydrogen # disabled until they complete they migration back to Vite
+          # - iles # disabled until its CI is fixed
           - ladle
           - laravel
           - marko
           - nuxt
+          # - nx # disabled temporarily
           - previewjs
           - quasar
           - qwik
           - rakkas
-          #          - storybook  # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
+          # - remix # disabled until they move to pnpm
+          # - storybook # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
           - sveltekit
           - unocss
-          - vite-plugin-ssr
+          - vike
+          - vite-plugin-pwa
           - vite-plugin-react
           - vite-plugin-react-pages
           - vite-plugin-react-swc
@@ -65,10 +70,10 @@ jobs:
           - vitest
       fail-fast: false
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
         id: setup-node
       - uses: denoland/setup-deno@v1
         with:
