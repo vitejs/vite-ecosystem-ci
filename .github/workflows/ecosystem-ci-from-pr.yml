@@ -140,7 +140,7 @@ jobs:
           - quasar
           - qwik
           - rakkas
-          # - remix # disabled until they move to pnpm
+          - remix
           # - storybook # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
           - sveltekit
           - unocss
