@@ -40,6 +40,7 @@ on:
           - nuxt
           - nx
           - previewjs
+          - quasar
           - qwik
           - rakkas
           - storybook
@@ -136,6 +137,7 @@ jobs:
           - nuxt
           # - nx # disabled temporarily
           - previewjs
+          - quasar
           - qwik
           - rakkas
           - remix

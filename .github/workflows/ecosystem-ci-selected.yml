@@ -45,6 +45,7 @@ on:
           - nuxt
           - nx
           - previewjs
+          - quasar
           - qwik
           - rakkas
           - remix

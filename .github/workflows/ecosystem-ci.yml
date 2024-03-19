@@ -51,6 +51,7 @@ jobs:
           - nuxt
           # - nx # disabled temporarily
           - previewjs
+          - quasar
           - qwik
           - rakkas
           - remix
