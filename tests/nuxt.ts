@@ -1,7 +1,7 @@
 import { runInRepo } from '../utils.ts'
 import type { RunOptions } from '../types.d.ts'
 
-export async function test(options: RunOptions) {
+export async function test (options: RunOptions) {
 	await runInRepo({
 		...options,
 		repo: 'nuxt/nuxt',
@@ -10,6 +10,6 @@ export async function test(options: RunOptions) {
 		},
 		build: 'build',
 		beforeTest: 'pnpm playwright-core install',
-		test: ['test:fixtures', 'test:types'],
+		test: ['test:fixtures', 'test:fixtures:dev', 'test:types'],
 	})
 }
