@@ -10,6 +10,6 @@ export async function test(options: RunOptions) {
 		},
 		build: 'build',
 		beforeTest: 'pnpm playwright-core install',
-		test: ['test:fixtures', 'test:types'],
+		test: ['test:fixtures', 'test:fixtures:dev', 'test:types'],
 	})
 }
