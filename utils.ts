@@ -205,6 +205,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		build,
 		test,
 		repo,
+		testSubdirectory,
 		branch,
 		tag,
 		commit,
@@ -221,9 +222,13 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	)
 
 	if (!skipGit) {
-		await setupRepo({ repo, dir, branch, tag, commit })
+		await setupRepo({ repo, dir, testSubdirectory, branch, tag, commit })
 	} else {
-		cd(dir)
+		if (testSubdirectory) {
+			cd(path.join(dir, testSubdirectory))
+		} else {
+			cd(dir)
+		}
 	}
 	if (options.agent == null) {
 		const detectedAgent = await detect({ cwd: dir, autoInstall: false })
@@ -246,7 +251,9 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	const buildCommand = toCommand(build, agent)
 	const testCommand = toCommand(test, agent)
 
-	const pkgFile = path.join(dir, 'package.json')
+	const pkgFile = testSubdirectory
+		? path.join(dir, testSubdirectory, 'package.json')
+		: path.join(dir, 'package.json')
 	const pkg = JSON.parse(await fs.promises.readFile(pkgFile, 'utf-8'))
 
 	await beforeInstallCommand?.(pkg.scripts)
@@ -291,7 +298,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			...localOverrides,
 		}
 	}
-	await applyPackageOverrides(dir, pkg, overrides)
+	await applyPackageOverrides(dir, pkg, overrides, testSubdirectory)
 	await beforeBuildCommand?.(pkg.scripts)
 	await buildCommand?.(pkg.scripts)
 	if (test) {
@@ -303,16 +310,20 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 
 export async function setupViteRepo(options: Partial<RepoOptions>) {
 	const repo = options.repo || 'vitejs/vite'
+	const { testSubdirectory } = options
 	await setupRepo({
 		repo,
 		dir: vitePath,
+		testSubdirectory,
 		branch: 'main',
 		shallow: true,
 		...options,
 	})
 
 	try {
-		const rootPackageJsonFile = path.join(vitePath, 'package.json')
+		const rootPackageJsonFile = testSubdirectory
+			? path.join(vitePath, testSubdirectory, 'package.json')
+			: path.join(vitePath, 'package.json')
 		const rootPackageJson = JSON.parse(
 			await fs.promises.readFile(rootPackageJsonFile, 'utf-8'),
 		)
@@ -467,6 +478,7 @@ export async function applyPackageOverrides(
 	dir: string,
 	pkg: any,
 	overrides: Overrides = {},
+	testSubdirectory?: string,
 ) {
 	const useFileProtocol = (v: string) =>
 		isLocalOverride(v) ? `file:${path.resolve(v)}` : v
@@ -478,6 +490,10 @@ export async function applyPackageOverrides(
 			.map(([key, value]) => [key, useFileProtocol(value as string)]),
 	)
 	await $`git clean -fdxq` // remove current install
+	if (testSubdirectory) {
+		dir = path.join(dir, testSubdirectory)
+		cd(dir)
+	}
 
 	const agent = await detect({ cwd: dir, autoInstall: false })
 	if (!agent) {

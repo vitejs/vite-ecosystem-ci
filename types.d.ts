@@ -40,6 +40,7 @@ export interface CommandOptions {
 export interface RepoOptions {
 	repo: string
 	dir?: string
+	testSubdirectory?: string
 	branch?: string
 	tag?: string
 	commit?: string
