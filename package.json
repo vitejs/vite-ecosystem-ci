@@ -48,18 +48,18 @@
   },
   "devDependencies": {
     "@antfu/ni": "^0.21.12",
-    "@types/node": "^20.11.28",
+    "@types/node": "^20.11.30",
     "@types/semver": "^7.5.8",
-    "@typescript-eslint/eslint-plugin": "^7.3.0",
-    "@typescript-eslint/parser": "^7.3.0",
+    "@typescript-eslint/eslint-plugin": "^7.4.0",
+    "@typescript-eslint/parser": "^7.4.0",
     "eslint": "^8.57.0",
     "eslint-define-config": "^2.1.0",
     "eslint-plugin-n": "^16.6.2",
     "lint-staged": "^15.2.2",
     "prettier": "^3.2.5",
     "semver": "^7.6.0",
-    "simple-git-hooks": "^2.11.0",
+    "simple-git-hooks": "^2.11.1",
     "tsx": "^4.7.1",
-    "typescript": "^5.4.2"
+    "typescript": "^5.4.3"
   }
 }
