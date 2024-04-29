@@ -25,7 +25,7 @@ on:
         description: "svelte ref to use"
         required: true
         type: string
-        default: "svelte-4"
+        default: "main"
       repo:
         description: "svelte repository to use"
         required: true
@@ -70,7 +70,7 @@ jobs:
       - run: pnpm i --frozen-lockfile
       - run: >-
           pnpm tsx ecosystem-ci.ts
-          --${{ inputs.refType || github.event.client_payload.refType || 'branch' }} ${{ inputs.ref || github.event.client_payload.ref || 'svelte-4' }}
+          --${{ inputs.refType || github.event.client_payload.refType || 'branch' }} ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
           --repo ${{ inputs.repo || github.event.client_payload.repo || 'sveltejs/svelte' }}
           ${{ matrix.suite }}
         id: ecosystem-ci-run
@@ -79,7 +79,7 @@ jobs:
         env:
           WORKFLOW_NAME: ci
           REF_TYPE: ${{ inputs.refType || github.event.client_payload.refType || 'branch' }}
-          REF: ${{ inputs.ref || github.event.client_payload.ref || 'svelte-4' }}
+          REF: ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
           REPO: ${{ inputs.repo || github.event.client_payload.repo || 'sveltejs/svelte' }}
           SUITE: ${{ matrix.suite }}
           STATUS: ${{ job.status }}

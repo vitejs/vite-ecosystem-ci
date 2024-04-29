@@ -291,7 +291,7 @@ export async function setupSvelteRepo(options: Partial<RepoOptions>) {
 	await setupRepo({
 		repo,
 		dir: sveltePath,
-		branch: 'svelte-4',
+		branch: 'main',
 		shallow: true,
 		...options,
 	})

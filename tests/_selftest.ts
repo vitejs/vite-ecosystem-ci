@@ -16,8 +16,11 @@ export async function test(options: RunOptions) {
 					`invalid checkout, expected package.json with "name":"svelte-ecosystem-ci" in ${dir}`,
 				)
 			}
-			pkg.scripts.selftestscript =
-				"[ -f ../../svelte/packages/svelte/compiler.cjs ] || (echo 'svelte build failed' && exit 1)"
+			const compilerOutputFile =
+				options.svelteMajor === 4
+					? ' ../../svelte/packages/svelte/compiler.cjs'
+					: '../../svelte/packages/svelte/compiler/index.js'
+			pkg.scripts.selftestscript = `[ -f ${compilerOutputFile} ] || (echo 'svelte build failed' && exit 1)`
 			await fs.promises.writeFile(
 				pkgFile,
 				JSON.stringify(pkg, null, 2),
