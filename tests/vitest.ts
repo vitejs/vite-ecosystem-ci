@@ -6,7 +6,7 @@ export async function test(options: RunOptions) {
 		...options,
 		repo: 'vitest-dev/vitest',
 		build: 'build',
-		test: ['test:ci', 'test:examples'],
+		test: ['test:ecosystem-ci', 'test:examples'],
 		beforeTest: 'pnpm playwright install chromium',
 	})
 }
