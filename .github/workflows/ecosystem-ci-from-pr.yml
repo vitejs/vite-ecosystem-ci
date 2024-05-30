@@ -141,7 +141,7 @@ jobs:
           - qwik
           - rakkas
           - remix
-          # - storybook # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
+          - storybook
           - sveltekit
           - unocss
           - vike
