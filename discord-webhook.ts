@@ -1,5 +1,5 @@
 import fetch from 'node-fetch'
-import { getPermanentRef, setupEnvironment } from './utils'
+import { getPermanentRef, setupEnvironment } from './utils.ts'
 
 type RefType = 'branch' | 'tag' | 'commit' | 'release'
 type Status = 'success' | 'failure' | 'cancelled'
@@ -37,6 +37,11 @@ async function run() {
 			"Skipped beacuse process.env.DISCORD_WEBHOOK_URL was empty or didn't exist",
 		)
 		return
+	}
+	if (!process.env.GITHUB_TOKEN) {
+		console.warn(
+			"Not using a token because process.env.GITHUB_TOKEN was empty or didn't exist",
+		)
 	}
 
 	const env = process.env as Env
@@ -94,6 +99,15 @@ function assertEnv<T>(
 
 async function createRunUrl(suite: string) {
 	const result = await fetchJobs()
+	if (!result) {
+		return undefined
+	}
+
+	if (result.total_count <= 0) {
+		console.warn('total_count was 0')
+		return undefined
+	}
+
 	const job = result.jobs.find((job) => job.name === process.env.GITHUB_JOB)
 	if (job) {
 		return job.html_url
@@ -116,17 +130,34 @@ async function fetchJobs() {
 	const res = await fetch(url, {
 		headers: {
 			Accept: 'application/vnd.github.v3+json',
+			...(process.env.GITHUB_TOKEN
+				? {
+						Authorization: `token ${process.env.GITHUB_TOKEN}`,
+						// eslint-disable-next-line no-mixed-spaces-and-tabs
+					}
+				: undefined),
 		},
 	})
+	if (!res.ok) {
+		console.warn(
+			`Failed to fetch jobs (${res.status} ${res.statusText}): ${res.text()}`,
+		)
+		return null
+	}
+
 	const result = await res.json()
-	return result as { jobs: GitHubActionsJob[] }
+	return result as {
+		total_count: number
+		jobs: GitHubActionsJob[]
+	}
 }
 
 async function createDescription(suite: string, targetText: string) {
 	const runUrl = await createRunUrl(suite)
+	const open = runUrl === undefined ? 'Null' : `[Open](${runUrl})`
 
 	return `
-:scroll:\u00a0\u00a0[Open](${runUrl})\u3000\u3000:zap:\u00a0\u00a0${targetText}
+:scroll:\u00a0\u00a0${open}\u3000\u3000:zap:\u00a0\u00a0${targetText}
 `.trim()
 }
 
@@ -138,8 +169,9 @@ function createTargetText(
 ) {
 	const repoText = repo !== 'vitejs/vite' ? `${repo}:` : ''
 	if (refType === 'branch') {
+		const shortRef = permRef?.slice(0, 7)
 		const link = `https://github.com/${repo}/commits/${permRef || ref}`
-		return `[${repoText}${ref} (${permRef || 'unknown'})](${link})`
+		return `[${repoText}${ref} (${shortRef || 'unknown'})](${link})`
 	}
 
 	const refTypeText = refType === 'release' ? ' (release)' : ''

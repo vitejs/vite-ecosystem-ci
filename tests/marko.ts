@@ -1,5 +1,5 @@
-import { runInRepo } from '../utils'
-import { RunOptions } from '../types'
+import { runInRepo } from '../utils.ts'
+import type { RunOptions } from '../types.d.ts'
 
 export async function test(options: RunOptions) {
 	await runInRepo({
@@ -7,6 +7,7 @@ export async function test(options: RunOptions) {
 		repo: 'marko-js/vite',
 		dir: 'marko', // default is last segment of repo, which would be vite and confusing
 		build: 'build',
+		beforeTest: 'pnpm playwright install chromium',
 		test: 'test',
 		overrides: {
 			esbuild: `${options.vitePath}/packages/vite/node_modules/esbuild`,

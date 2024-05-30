@@ -29,19 +29,25 @@ on:
         type: choice
         options:
           - "-"
+          - analogjs
           - astro
           - histoire
+          - hydrogen
           - iles
           - ladle
           - laravel
           - marko
-          - nuxt-framework
+          - nuxt
+          - nx
           - previewjs
+          - quasar
           - qwik
           - rakkas
-          #          - storybook  # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
+          - storybook
           - sveltekit
-          - vite-plugin-ssr
+          - unocss
+          - vike
+          - vite-plugin-pwa
           - vite-plugin-react
           - vite-plugin-react-pages
           - vite-plugin-react-swc
@@ -50,7 +56,6 @@ on:
           - vite-setup-catalogue
           - vitepress
           - vitest
-          - windicss
 jobs:
   init:
     runs-on: ubuntu-latest
@@ -58,13 +63,13 @@ jobs:
       comment-id: ${{ steps.create-comment.outputs.result }}
     steps:
       - id: generate-token
-        uses: tibdex/github-app-token@v1
+        uses: tibdex/github-app-token@v2
         with:
           app_id: ${{ secrets.PR_GITHUB_APP_ID }}
+          installation_retrieval_payload: "${{ github.repository_owner }}/vite"
           private_key: ${{ secrets.PR_GITHUB_APP_PRIVATE_KEY }}
-          repository: "${{ github.repository_owner }}/vite"
       - id: create-comment
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           result-encoding: string
@@ -85,11 +90,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: init
     if: "inputs.suite != '-'"
+    outputs:
+      ref: ${{ steps.get-ref.outputs.ref }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
@@ -102,28 +109,43 @@ jobs:
           --branch ${{ inputs.branchName }}
           --repo ${{ inputs.repo }}
           ${{ inputs.suite }}
+      - id: get-ref
+        if: always()
+        run: |
+          ref=$(git log -1 --pretty=format:%H)
+          echo "ref=$ref" >> $GITHUB_OUTPUT
+        working-directory: workspace/vite
 
   execute-all:
     timeout-minutes: 30
     runs-on: ubuntu-latest
     needs: init
     if: "inputs.suite == '-'"
+    outputs:
+      ref: ${{ steps.get-ref.outputs.ref }}
     strategy:
       matrix:
         suite:
+          - analogjs
           - astro
           - histoire
-          - iles
+          # - hydrogen # disabled until they complete they migration back to Vite
+          # - iles # disabled until its CI is fixed
           - ladle
           - laravel
           - marko
-          - nuxt-framework
+          - nuxt
+          # - nx # disabled temporarily
           - previewjs
+          - quasar
           - qwik
           - rakkas
-          #          - storybook  # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
+          - remix
+          # - storybook # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
           - sveltekit
-          - vite-plugin-ssr
+          - unocss
+          - vike
+          - vite-plugin-pwa
           - vite-plugin-react
           - vite-plugin-react-pages
           - vite-plugin-react-swc
@@ -132,13 +154,12 @@ jobs:
           - vite-setup-catalogue
           - vitepress
           - vitest
-          - windicss
       fail-fast: false
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
@@ -151,6 +172,12 @@ jobs:
           --branch ${{ inputs.branchName }}
           --repo ${{ inputs.repo }}
           ${{ matrix.suite }}
+      - id: get-ref
+        if: always()
+        run: |
+          ref=$(git log -1 --pretty=format:%H)
+          echo "ref=$ref" >> $GITHUB_OUTPUT
+        working-directory: workspace/vite
 
   update-comment:
     runs-on: ubuntu-latest
@@ -158,15 +185,19 @@ jobs:
     if: always()
     steps:
       - id: generate-token
-        uses: tibdex/github-app-token@v1
+        uses: tibdex/github-app-token@v2
         with:
           app_id: ${{ secrets.PR_GITHUB_APP_ID }}
+          installation_retrieval_payload: "${{ github.repository_owner }}/vite"
           private_key: ${{ secrets.PR_GITHUB_APP_PRIVATE_KEY }}
-          repository: "${{ github.repository_owner }}/vite"
-      - uses: actions/github-script@v6
+      - uses: actions/github-script@v7
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
+            const mainRepoName = 'vite'
+            const ref = "${{ needs.execute-all.outputs.ref }}" || "${{ needs.execute-selected-suite.outputs.ref }}"
+            const refLink = `[\`${ref.slice(0, 7)}\`](${context.serverUrl}/${context.repo.owner}/${mainRepoName}/pull/${context.payload.inputs.prNumber}/commits/${ref})`
+
             const { data: { jobs } } = await github.rest.actions.listJobsForWorkflowRun({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -175,12 +206,12 @@ jobs:
             });
 
             const selectedSuite = context.payload.inputs.suite
-            let result
+            let results
             if (selectedSuite !== "-") {
               const { conclusion, html_url } = jobs.find(job => job.name === "execute-selected-suite")
-              result = [{ suite: selectedSuite, conclusion, link: html_url }]
+              results = [{ suite: selectedSuite, conclusion, link: html_url }]
             } else {
-              result = jobs
+              results = jobs
                 .filter(job => job.name.startsWith('execute-all '))
                 .map(job => {
                   const suite = job.name.replace(/^execute-all \(([^)]+)\)$/, "$1")
@@ -188,7 +219,7 @@ jobs:
                 })
             }
 
-            const url = `${context.serverUrl}//${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            const url = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
             const urlLink = `[Open](${url})`
 
             const conclusionEmoji = {
@@ -197,17 +228,74 @@ jobs:
               cancelled: ":stop_button:"
             }
 
-            const body = `
-            📝 Ran ecosystem CI: ${urlLink}
+            // check for previous ecosystem-ci runs against the main branch
 
-            | suite | result |
-            |-------|--------|
-            ${result.map(r => `| [${r.suite}](${r.link}) | ${conclusionEmoji[r.conclusion]} ${r.conclusion} |`).join("\n")}
-            `
-
-            await github.rest.issues.updateComment({
+            // first, list workflow runs for ecosystem-ci.yml
+            const { data: { workflow_runs } } = await github.rest.actions.listWorkflowRuns({
               owner: context.repo.owner,
-              repo: 'vite',
-              comment_id: ${{ needs.init.outputs.comment-id }},
+              repo: context.repo.repo,
+              workflow_id: 'ecosystem-ci.yml'
+            });
+
+            // for simplity, we only take the latest completed scheduled run
+            // otherwise we would have to check the inputs for every maunally triggerred runs, which is an overkill
+            const latestScheduledRun = workflow_runs.find(run => run.event === "schedule" && run.status === "completed")
+
+            // get the jobs for the latest scheduled run
+            const { data: { jobs: scheduledJobs } } = await github.rest.actions.listJobsForWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: latestScheduledRun.id
+            });
+            const scheduledResults = scheduledJobs
+              .filter(job => job.name.startsWith('test-ecosystem '))
+              .map(job => {
+                const suite = job.name.replace(/^test-ecosystem \(([^)]+)\)$/, "$1")
+                return { suite, conclusion: job.conclusion, link: job.html_url }
+              })
+
+            const rows = []
+            const successfulSuitesWithoutChanges = []
+            results.forEach(current => {
+              const latest = scheduledResults.find(s => s.suite === current.suite) || {} // in case a new suite is added after latest scheduled
+
+              if (current.conclusion === "success" && latest.conclusion === "success") {
+                successfulSuitesWithoutChanges.push(`[${current.suite}](${current.link})`)
+              }
+              else {
+                const firstColumn = current.suite
+                const secondColumn = `${conclusionEmoji[current.conclusion]} [${current.conclusion}](${current.link})`
+                const thirdColumn = `${conclusionEmoji[latest.conclusion]} [${latest.conclusion}](${latest.link})`
+
+                rows.push(`| ${firstColumn} | ${secondColumn} | ${thirdColumn} |`)
+              }
+            })
+
+            let body = `
+            📝 Ran ecosystem CI on ${refLink}: ${urlLink}
+
+            `
+            if (rows.length > 0) {
+              body += `| suite | result | [latest scheduled](${latestScheduledRun.html_url}) |
+            |-------|--------|----------------|
+            ${rows.join("\n")}
+
+            ${conclusionEmoji.success} ${successfulSuitesWithoutChanges.join(", ")}
+            `
+            } else {
+              body += `${conclusionEmoji.success} ${successfulSuitesWithoutChanges.join(", ")}
+            `
+            }
+
+            await github.rest.issues.createComment({
+              issue_number: context.payload.inputs.prNumber,
+              owner: context.repo.owner,
+              repo: mainRepoName,
               body
+            })
+
+            await github.rest.issues.deleteComment({
+              owner: context.repo.owner,
+              repo: mainRepoName,
+              comment_id: ${{ needs.init.outputs.comment-id }}
             })

@@ -1,16 +1,15 @@
-import { runInRepo } from '../utils'
-import { RunOptions } from '../types'
+import { runInRepo } from '../utils.ts'
+import type { RunOptions } from '../types.d.ts'
 
 export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
 		repo: 'sveltejs/vite-plugin-svelte',
-		branch: options.viteMajor === 4 ? 'main' : 'v1',
+		branch: 'v3',
 		overrides: {
 			svelte: 'latest',
 		},
-		build: 'build',
 		beforeTest: 'pnpm playwright install chromium',
-		test: ['lint', 'test'],
+		test: ['check:lint', 'check:types', 'test'],
 	})
 }

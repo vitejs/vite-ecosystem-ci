@@ -1,11 +1,13 @@
 {
   "name": "vite-ecosystem-ci",
+  "private": true,
   "version": "0.0.1",
   "description": "Vite Ecosystem CI",
   "scripts": {
     "prepare": "pnpm exec simple-git-hooks",
     "lint": "eslint --ignore-path .gitignore '**/*.ts'",
     "lint:fix": "pnpm lint --fix",
+    "typecheck": "tsc",
     "format": "prettier --ignore-path .gitignore --check .",
     "format:fix": "pnpm format --write",
     "test:self": "tsx ecosystem-ci.ts _selftest",
@@ -19,15 +21,15 @@
     "*": [
       "prettier --write --ignore-unknown"
     ],
-    "**/*.js": [
-      "eslint"
+    "*.ts": [
+      "eslint --fix"
     ]
   },
-  "packageManager": "pnpm@7.20.0",
+  "packageManager": "pnpm@8.15.5",
   "type": "module",
   "engines": {
     "node": ">=18",
-    "pnpm": "^7.18.1"
+    "pnpm": "^8.0.0"
   },
   "repository": {
     "type": "git",
@@ -39,23 +41,25 @@
   },
   "homepage": "https://github.com/vitejs/vite-ecosystem-ci#readme",
   "dependencies": {
-    "@actions/core": "^1.10.0",
+    "@actions/core": "^1.10.1",
     "cac": "^6.7.14",
-    "execa": "^6.1.0",
-    "node-fetch": "^3.3.0"
+    "execa": "^8.0.1",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
-    "@antfu/ni": "^0.18.8",
-    "@types/node": "^18.11.17",
-    "@typescript-eslint/eslint-plugin": "^5.47.0",
-    "@typescript-eslint/parser": "^5.47.0",
-    "eslint": "^8.30.0",
-    "eslint-define-config": "^1.12.0",
-    "eslint-plugin-n": "^15.6.0",
-    "lint-staged": "^13.1.0",
-    "prettier": "^2.8.1",
-    "simple-git-hooks": "^2.8.1",
-    "tsx": "^3.12.1",
-    "typescript": "^4.9.4"
+    "@antfu/ni": "^0.21.12",
+    "@types/node": "^20.11.30",
+    "@types/semver": "^7.5.8",
+    "@typescript-eslint/eslint-plugin": "^7.4.0",
+    "@typescript-eslint/parser": "^7.4.0",
+    "eslint": "^8.57.0",
+    "eslint-define-config": "^2.1.0",
+    "eslint-plugin-n": "^16.6.2",
+    "lint-staged": "^15.2.2",
+    "prettier": "^3.2.5",
+    "semver": "^7.6.0",
+    "simple-git-hooks": "^2.11.1",
+    "tsx": "^4.7.1",
+    "typescript": "^5.4.3"
   }
 }

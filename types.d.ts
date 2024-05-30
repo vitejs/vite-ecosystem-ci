@@ -1,3 +1,5 @@
+// eslint-disable-next-line n/no-unpublished-import
+import type { Agent } from '@antfu/ni'
 export interface EnvironmentData {
 	root: string
 	workspace: string
@@ -14,6 +16,7 @@ export interface RunOptions {
 	verify?: boolean
 	skipGit?: boolean
 	release?: string
+	agent?: Agent
 	build?: Task | Task[]
 	test?: Task | Task[]
 	beforeInstall?: Task | Task[]
@@ -21,7 +24,7 @@ export interface RunOptions {
 	beforeTest?: Task | Task[]
 }
 
-type Task = string | (() => Promise<any>)
+type Task = string | { script: string; args?: string[] } | (() => Promise<any>)
 
 export interface CommandOptions {
 	suites?: string[]
@@ -51,4 +54,20 @@ export interface Overrides {
 
 export interface ProcessEnv {
 	[key: string]: string | undefined
+}
+
+interface DependencyInfo {
+	from: string
+	version: string
+	resolved: string
+	path: string
+}
+interface PackageInfo {
+	name: string
+	version: string
+	path: string
+	private: boolean
+	dependencies: Record<string, DependencyInfo>
+	devDependencies: Record<string, DependencyInfo>
+	optionalDependencies: Record<string, DependencyInfo>
 }

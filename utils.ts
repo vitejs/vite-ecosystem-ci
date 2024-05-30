@@ -2,17 +2,20 @@ import path from 'path'
 import fs from 'fs'
 import { fileURLToPath, pathToFileURL } from 'url'
 import { execaCommand } from 'execa'
-import {
+import type {
+	PackageInfo,
 	EnvironmentData,
 	Overrides,
 	ProcessEnv,
 	RepoOptions,
 	RunOptions,
 	Task,
-} from './types'
+} from './types.d.ts'
 //eslint-disable-next-line n/no-unpublished-import
-import { detect } from '@antfu/ni'
+import { detect, AGENTS, Agent, getCommand } from '@antfu/ni'
 import actionsCore from '@actions/core'
+// eslint-disable-next-line n/no-unpublished-import
+import * as semver from 'semver'
 
 const isGitHubActions = !!process.env.GITHUB_ACTIONS
 
@@ -55,7 +58,6 @@ export async function $(literals: TemplateStringsArray, ...values: any[]) {
 }
 
 export async function setupEnvironment(): Promise<EnvironmentData> {
-	// @ts-expect-error import.meta
 	const root = dirnameFrom(import.meta.url)
 	const workspace = path.resolve(root, 'workspace')
 	vitePath = path.resolve(workspace, 'vite')
@@ -66,8 +68,29 @@ export async function setupEnvironment(): Promise<EnvironmentData> {
 		TURBO_FORCE: 'true', // disable turbo caching, ecosystem-ci modifies things and we don't want replays
 		YARN_ENABLE_IMMUTABLE_INSTALLS: 'false', // to avoid errors with mutated lockfile due to overrides
 		NODE_OPTIONS: '--max-old-space-size=6144', // GITHUB CI has 7GB max, stay below
+		ECOSYSTEM_CI: 'true', // flag for tests, can be used to conditionally skip irrelevant tests.
+		NO_COLOR: '1',
 	}
+	initWorkspace(workspace)
 	return { root, workspace, vitePath, cwd, env }
+}
+
+function initWorkspace(workspace: string) {
+	if (!fs.existsSync(workspace)) {
+		fs.mkdirSync(workspace, { recursive: true })
+	}
+	const eslintrc = path.join(workspace, '.eslintrc.json')
+	if (!fs.existsSync(eslintrc)) {
+		fs.writeFileSync(eslintrc, '{"root":true}\n', 'utf-8')
+	}
+	const editorconfig = path.join(workspace, '.editorconfig')
+	if (!fs.existsSync(editorconfig)) {
+		fs.writeFileSync(editorconfig, 'root = true\n', 'utf-8')
+	}
+	const tsconfig = path.join(workspace, 'tsconfig.json')
+	if (!fs.existsSync(tsconfig)) {
+		fs.writeFileSync(tsconfig, '{}\n', 'utf-8')
+	}
 }
 
 export async function setupRepo(options: RepoOptions) {
@@ -130,6 +153,7 @@ export async function setupRepo(options: RepoOptions) {
 
 function toCommand(
 	task: Task | Task[] | void,
+	agent: Agent,
 ): ((scripts: any) => Promise<any>) | void {
 	return async (scripts: any) => {
 		const tasks = Array.isArray(task) ? task : [task]
@@ -137,10 +161,26 @@ function toCommand(
 			if (task == null || task === '') {
 				continue
 			} else if (typeof task === 'string') {
-				const scriptOrBin = task.trim().split(/\s+/)[0]
-				await (scripts?.[scriptOrBin] != null ? $`nr ${task}` : $`${task}`)
+				if (scripts[task] != null) {
+					const runTaskWithAgent = getCommand(agent, 'run', [task])
+					await $`${runTaskWithAgent}`
+				} else {
+					await $`${task}`
+				}
 			} else if (typeof task === 'function') {
 				await task()
+			} else if (task?.script) {
+				if (scripts[task.script] != null) {
+					const runTaskWithAgent = getCommand(agent, 'run', [
+						task.script,
+						...(task.args ?? []),
+					])
+					await $`${runTaskWithAgent}`
+				} else {
+					throw new Error(
+						`invalid task, script "${task.script}" does not exist in package.json`,
+					)
+				}
 			} else {
 				throw new Error(
 					`invalid task, expected string or function but got ${typeof task}: ${task}`,
@@ -160,6 +200,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	if (options.branch == null) {
 		options.branch = 'main'
 	}
+
 	const {
 		build,
 		test,
@@ -174,11 +215,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		beforeBuild,
 		beforeTest,
 	} = options
-	const beforeInstallCommand = toCommand(beforeInstall)
-	const beforeBuildCommand = toCommand(beforeBuild)
-	const beforeTestCommand = toCommand(beforeTest)
-	const buildCommand = toCommand(build)
-	const testCommand = toCommand(test)
+
 	const dir = path.resolve(
 		options.workspace,
 		options.dir || repo.substring(repo.lastIndexOf('/') + 1),
@@ -193,6 +230,26 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			cd(dir)
 		}
 	}
+	if (options.agent == null) {
+		const detectedAgent = await detect({ cwd: dir, autoInstall: false })
+		if (detectedAgent == null) {
+			throw new Error(`Failed to detect packagemanager in ${dir}`)
+		}
+		options.agent = detectedAgent
+	}
+	if (!AGENTS[options.agent]) {
+		throw new Error(
+			`Invalid agent ${options.agent}. Allowed values: ${Object.keys(
+				AGENTS,
+			).join(', ')}`,
+		)
+	}
+	const agent = options.agent
+	const beforeInstallCommand = toCommand(beforeInstall, agent)
+	const beforeBuildCommand = toCommand(beforeBuild, agent)
+	const beforeTestCommand = toCommand(beforeTest, agent)
+	const buildCommand = toCommand(build, agent)
+	const testCommand = toCommand(test, agent)
 
 	const pkgFile = testSubdirectory
 		? path.join(dir, testSubdirectory, 'package.json')
@@ -202,7 +259,8 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	await beforeInstallCommand?.(pkg.scripts)
 
 	if (verify && test) {
-		await $`ni --frozen`
+		const frozenInstall = getCommand(agent, 'frozen')
+		await $`${frozenInstall}`
 		await beforeBuildCommand?.(pkg.scripts)
 		await buildCommand?.(pkg.scripts)
 		await beforeTestCommand?.(pkg.scripts)
@@ -220,33 +278,24 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	} else {
 		overrides.vite ||= `${options.vitePath}/packages/vite`
 
-		overrides[
-			`@vitejs/plugin-legacy`
-		] ||= `${options.vitePath}/packages/plugin-legacy`
-		if (options.viteMajor < 4) {
-			overrides[
-				`@vitejs/plugin-vue`
-			] ||= `${options.vitePath}/packages/plugin-vue`
-			overrides[
-				`@vitejs/plugin-vue-jsx`
-			] ||= `${options.vitePath}/packages/plugin-vue-jsx`
-			overrides[
-				`@vitejs/plugin-react`
-			] ||= `${options.vitePath}/packages/plugin-react`
-			// vite-3 dependency setup could have caused problems if we don't synchronize node versions
-			// vite-4 uses an optional peerDependency instead so keep project types
-			const typesNodePath = fs.realpathSync(
-				`${options.vitePath}/node_modules/@types/node`,
-			)
-			overrides[`@types/node`] ||= `${typesNodePath}`
-		} else {
-			// starting with vite-4, we apply automatic overrides
-			const localOverrides = await buildOverrides(pkg, options, overrides)
-			cd(dir) // buildOverrides changed dir, change it back
-			overrides = {
-				...overrides,
-				...localOverrides,
-			}
+		overrides[`@vitejs/plugin-legacy`] ||=
+			`${options.vitePath}/packages/plugin-legacy`
+
+		const vitePackageInfo = await getVitePackageInfo(options.vitePath)
+		// skip if `overrides.rollup` is `false`
+		if (
+			vitePackageInfo.dependencies.rollup?.version &&
+			overrides.rollup !== false
+		) {
+			overrides.rollup = vitePackageInfo.dependencies.rollup.version
+		}
+
+		// build and apply local overrides
+		const localOverrides = await buildOverrides(pkg, options, overrides)
+		cd(dir) // buildOverrides changed dir, change it back
+		overrides = {
+			...overrides,
+			...localOverrides,
 		}
 	}
 	await applyPackageOverrides(dir, pkg, overrides, testSubdirectory)
@@ -285,15 +334,29 @@ export async function setupViteRepo(options: Partial<RepoOptions>) {
 				`expected  "name" field of ${repo}/package.json to indicate vite monorepo, but got ${name}.`,
 			)
 		}
+		const needsWrite = await overridePackageManagerVersion(
+			rootPackageJson,
+			'pnpm',
+		)
+		if (needsWrite) {
+			fs.writeFileSync(
+				rootPackageJsonFile,
+				JSON.stringify(rootPackageJson, null, 2),
+				'utf-8',
+			)
+			if (rootPackageJson.devDependencies?.pnpm) {
+				await $`pnpm install -Dw pnpm --lockfile-only`
+			}
+		}
 	} catch (e) {
-		throw new Error(`Non-vite repository was cloned by setupViteRepo. (${e})`)
+		throw new Error(`Failed to setup vite repo`, { cause: e })
 	}
 }
 
 export async function getPermanentRef() {
 	cd(vitePath)
 	try {
-		const ref = await $`git log -1 --pretty=format:%h`
+		const ref = await $`git log -1 --pretty=format:%H`
 		return ref
 	} catch (e) {
 		console.warn(`Failed to obtain perm ref. ${e}`)
@@ -303,10 +366,13 @@ export async function getPermanentRef() {
 
 export async function buildVite({ verify = false }) {
 	cd(vitePath)
-	await $`ni --frozen`
-	await $`nr build`
+	const frozenInstall = getCommand('pnpm', 'frozen')
+	const runBuild = getCommand('pnpm', 'run', ['build'])
+	const runTest = getCommand('pnpm', 'run', ['test'])
+	await $`${frozenInstall}`
+	await $`${runBuild}`
 	if (verify) {
-		await $`nr test`
+		await $`${runTest}`
 	}
 }
 
@@ -364,6 +430,50 @@ function isLocalOverride(v: string): boolean {
 		return false
 	}
 }
+
+/**
+ * utility to override packageManager version
+ *
+ * @param pkg parsed package.json
+ * @param pm package manager to override eg. `pnpm`
+ * @returns {boolean} true if pkg was updated, caller is responsible for writing it to disk
+ */
+async function overridePackageManagerVersion(
+	pkg: { [key: string]: any },
+	pm: string,
+): Promise<boolean> {
+	const versionInUse = pkg.packageManager?.startsWith(`${pm}@`)
+		? pkg.packageManager.substring(pm.length + 1)
+		: await $`${pm} --version`
+	let overrideWithVersion: string | null = null
+	if (pm === 'pnpm') {
+		if (semver.eq(versionInUse, '7.18.0')) {
+			// avoid bug with absolute overrides in pnpm 7.18.0
+			overrideWithVersion = '7.18.1'
+		}
+	}
+	if (overrideWithVersion) {
+		console.warn(
+			`detected ${pm}@${versionInUse} used in ${pkg.name}, changing pkg.packageManager and pkg.engines.${pm} to enforce use of ${pm}@${overrideWithVersion}`,
+		)
+		// corepack reads this and uses pnpm @ newVersion then
+		pkg.packageManager = `${pm}@${overrideWithVersion}`
+		if (!pkg.engines) {
+			pkg.engines = {}
+		}
+		pkg.engines[pm] = overrideWithVersion
+
+		if (pkg.devDependencies?.[pm]) {
+			// if for some reason the pm is in devDependencies, that would be a local version that'd be preferred over our forced global
+			// so ensure it here too.
+			pkg.devDependencies[pm] = overrideWithVersion
+		}
+
+		return true
+	}
+	return false
+}
+
 export async function applyPackageOverrides(
 	dir: string,
 	pkg: any,
@@ -386,26 +496,17 @@ export async function applyPackageOverrides(
 	}
 
 	const agent = await detect({ cwd: dir, autoInstall: false })
-
+	if (!agent) {
+		throw new Error(`failed to detect packageManager in ${dir}`)
+	}
 	// Remove version from agent string:
 	// yarn@berry => yarn
 	// pnpm@6, pnpm@7 => pnpm
 	const pm = agent?.split('@')[0]
 
+	await overridePackageManagerVersion(pkg, pm)
+
 	if (pm === 'pnpm') {
-		const version = await $`pnpm --version`
-		// avoid bug with absolute overrides in pnpm 7.18.0
-		if (version === '7.18.0') {
-			console.warn(
-				'detected pnpm@7.18.0, changing pkg.packageManager and pkg.engines.pnpm to enforce use of pnpm@7.18.1',
-			)
-			// corepack reads this and uses pnpm 7.18.1 then
-			pkg.packageManager = 'pnpm@7.18.1'
-			if (!pkg.engines) {
-				pkg.engines = {}
-			}
-			pkg.engines.pnpm = '7.18.1'
-		}
 		if (!pkg.devDependencies) {
 			pkg.devDependencies = {}
 		}
@@ -447,7 +548,7 @@ export async function applyPackageOverrides(
 
 	// use of `ni` command here could cause lockfile violation errors so fall back to native commands that avoid these
 	if (pm === 'pnpm') {
-		await $`pnpm install --prefer-frozen-lockfile --prefer-offline --strict-peer-dependencies false`
+		await $`pnpm install --prefer-frozen-lockfile --strict-peer-dependencies false`
 	} else if (pm === 'yarn') {
 		await $`yarn install`
 	} else if (pm === 'npm') {
@@ -518,4 +619,23 @@ async function buildOverrides(
 		}
 	}
 	return overrides
+}
+
+/**
+ * 	use pnpm ls to get information about installed dependency versions of vite
+ * @param vitePath - workspace vite root
+ */
+async function getVitePackageInfo(vitePath: string): Promise<PackageInfo> {
+	try {
+		// run in vite dir to avoid package manager mismatch error from corepack
+		const current = cwd
+		cd(`${vitePath}/packages/vite`)
+		const lsOutput = $`pnpm ls --json`
+		cd(current)
+		const lsParsed = JSON.parse(await lsOutput)
+		return lsParsed[0] as PackageInfo
+	} catch (e) {
+		console.error('failed to retrieve vite package infos', e)
+		throw e
+	}
 }

@@ -40,19 +40,26 @@ jobs:
     strategy:
       matrix:
         suite:
+          - analogjs
           - astro
           - histoire
-          - iles
+          # - hydrogen # disabled until they complete they migration back to Vite
+          # - iles # disabled until its CI is fixed
           - ladle
           - laravel
           - marko
-          - nuxt-framework
+          - nuxt
+          # - nx # disabled temporarily
           - previewjs
+          - quasar
           - qwik
           - rakkas
-          #          - storybook  # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
+          - remix
+          # - storybook # disabled until test is updated, see https://github.com/vitejs/vite-ecosystem-ci/issues/130
           - sveltekit
-          - vite-plugin-ssr
+          - unocss
+          - vike
+          - vite-plugin-pwa
           - vite-plugin-react
           - vite-plugin-react-pages
           - vite-plugin-react-swc
@@ -61,13 +68,12 @@ jobs:
           - vite-setup-catalogue
           - vitepress
           - vitest
-          - windicss
       fail-fast: false
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
         id: setup-node
       - uses: denoland/setup-deno@v1
         with:
@@ -93,3 +99,4 @@ jobs:
           SUITE: ${{ matrix.suite }}
           STATUS: ${{ job.status }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

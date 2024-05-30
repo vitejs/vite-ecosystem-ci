@@ -1,15 +1,15 @@
-import { runInRepo, $ } from '../utils.ts'
+import { runInRepo } from '../utils.ts'
 import type { RunOptions } from '../types.d.ts'
 
 export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
-		repo: 'ElMassimo/iles',
+		repo: 'nuxt/nuxt',
 		overrides: {
 			'@vitejs/plugin-vue': true,
 		},
-		beforeInstall: async () => $`git lfs install && git lfs pull`,
-		build: 'build:all',
-		test: 'test',
+		build: 'build',
+		beforeTest: 'pnpm playwright-core install',
+		test: ['test:fixtures', 'test:fixtures:dev', 'test:types'],
 	})
 }
