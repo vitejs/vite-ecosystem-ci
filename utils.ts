@@ -168,7 +168,7 @@ function toCommand(
 					await $`${task}`
 				}
 			} else if (typeof task === 'function') {
-				await task()
+				await task(agent)
 			} else if (task?.script) {
 				if (scripts[task.script] != null) {
 					const runTaskWithAgent = getCommand(agent, 'run', [

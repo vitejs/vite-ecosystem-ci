@@ -24,7 +24,10 @@ export interface RunOptions {
 	beforeTest?: Task | Task[]
 }
 
-type Task = string | { script: string; args?: string[] } | (() => Promise<any>)
+type Task =
+	| string
+	| { script: string; args?: string[] }
+	| ((agent: Agent) => Promise<any>)
 
 export interface CommandOptions {
 	suites?: string[]
