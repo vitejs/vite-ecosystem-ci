@@ -5,7 +5,7 @@ export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
 		repo: 'vikejs/vike',
-		branch: 'main',
+		branch: 'brillout/pnpm-8',
 		overrides: {
 			'@vitejs/plugin-react': true,
 			'@vitejs/plugin-vue': true,
