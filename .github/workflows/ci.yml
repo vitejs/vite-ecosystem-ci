@@ -1,5 +1,14 @@
 name: CI
 
+env:
+  # 7 GiB by default on GitHub, setting to 6 GiB
+  # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+  NODE_OPTIONS: --max-old-space-size=6144
+  # configure corepack to be strict but not download newer versions or change anything
+  COREPACK_DEFAULT_TO_LATEST: 0
+  COREPACK_ENABLE_AUTO_PIN: 0
+  COREPACK_ENABLE_STRICT: 1
+
 on:
   push:
     branches:
