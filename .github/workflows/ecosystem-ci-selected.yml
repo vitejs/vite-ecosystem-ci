@@ -66,6 +66,7 @@ on:
           - vite-setup-catalogue
           - vitepress
           - vitest
+          - vuepress
 jobs:
   execute-selected-suite:
     timeout-minutes: 30

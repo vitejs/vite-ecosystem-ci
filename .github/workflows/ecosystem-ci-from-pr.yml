@@ -60,6 +60,7 @@ on:
           - vite-setup-catalogue
           - vitepress
           - vitest
+          - vuepress
 jobs:
   init:
     runs-on: ubuntu-latest
