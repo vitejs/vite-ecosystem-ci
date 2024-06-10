@@ -54,7 +54,7 @@
     "@typescript-eslint/parser": "^7.13.0",
     "eslint": "^8.57.0",
     "eslint-define-config": "^2.1.0",
-    "eslint-plugin-n": "^16.6.2",
+    "eslint-plugin-n": "^17.8.1",
     "lint-staged": "^15.2.5",
     "prettier": "^3.3.1",
     "semver": "^7.6.2",
