@@ -25,7 +25,7 @@
       "eslint --fix"
     ]
   },
-  "packageManager": "pnpm@9.1.4+sha512.9df9cf27c91715646c7d675d1c9c8e41f6fce88246f1318c1aa6a1ed1aeb3c4f032fcdf4ba63cc69c4fe6d634279176b5358727d8f2cc1e65b65f43ce2f8bfb0",
+  "packageManager": "pnpm@9.3.0",
   "type": "module",
   "engines": {
     "node": ">=18",
@@ -48,18 +48,18 @@
   },
   "devDependencies": {
     "@antfu/ni": "^0.21.12",
-    "@types/node": "^20.11.30",
+    "@types/node": "^20.14.2",
     "@types/semver": "^7.5.8",
-    "@typescript-eslint/eslint-plugin": "^7.4.0",
-    "@typescript-eslint/parser": "^7.4.0",
+    "@typescript-eslint/eslint-plugin": "^7.13.0",
+    "@typescript-eslint/parser": "^7.13.0",
     "eslint": "^8.57.0",
     "eslint-define-config": "^2.1.0",
     "eslint-plugin-n": "^16.6.2",
-    "lint-staged": "^15.2.2",
-    "prettier": "^3.2.5",
-    "semver": "^7.6.0",
+    "lint-staged": "^15.2.5",
+    "prettier": "^3.3.1",
+    "semver": "^7.6.2",
     "simple-git-hooks": "^2.11.1",
-    "tsx": "^4.7.1",
-    "typescript": "^5.4.3"
+    "tsx": "^4.15.1",
+    "typescript": "^5.4.5"
   }
 }
