@@ -48,7 +48,18 @@ export async function $(literals: TemplateStringsArray, ...values: any[]) {
 	proc.stdin && process.stdin.pipe(proc.stdin)
 	proc.stdout && proc.stdout.pipe(process.stdout)
 	proc.stderr && proc.stderr.pipe(process.stderr)
-	const result = await proc
+
+	let result
+	try {
+		result = await proc
+	} catch (error) {
+		// Since we already piped the io to the parent process, we remove the duplicated
+		// messages here so it's easier to read the error message.
+		if (error.stdout) error.stdout = 'value removed by vite-ecosystem-ci'
+		if (error.stderr) error.stderr = 'value removed by vite-ecosystem-ci'
+		if (error.stdio) error.stdio = ['value removed by vite-ecosystem-ci']
+		throw error
+	}
 
 	if (isGitHubActions) {
 		actionsCore.endGroup()
