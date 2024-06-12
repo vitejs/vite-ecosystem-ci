@@ -61,5 +61,10 @@
     "simple-git-hooks": "^2.11.1",
     "tsx": "^4.15.1",
     "typescript": "^5.4.5"
+  },
+  "pnpm": {
+    "overrides": {
+      "braces@<3.0.3": ">=3.0.3"
+    }
   }
 }

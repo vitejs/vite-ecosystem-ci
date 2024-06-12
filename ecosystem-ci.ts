@@ -25,16 +25,19 @@ cli
 	.action(async (suites, options: CommandOptions) => {
 		const { root, vitePath, workspace } = await setupEnvironment()
 		const suitesToRun = getSuitesToRun(suites, root)
-		let viteMajor
+		let viteMajor = 5
 		if (!options.release) {
-			await setupViteRepo(options)
-			await buildVite({ verify: options.verify })
-			viteMajor = parseViteMajor(vitePath)
+			if (!options.commit) {
+				await setupViteRepo(options)
+				await buildVite({ verify: options.verify })
+				viteMajor = parseViteMajor(vitePath)
+			}
 		} else {
 			viteMajor = parseMajorVersion(options.release)
 		}
 		const runOptions: RunOptions = {
 			root,
+			viteCommit: options.commit,
 			vitePath,
 			viteMajor,
 			workspace,
