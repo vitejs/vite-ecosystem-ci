@@ -27,6 +27,9 @@ on:
         required: true
         type: string
         default: "vitejs/vite"
+      commit:
+        description: "vite commit sha to use"
+        type: string
       suite:
         description: "testsuite to run. runs all testsuits when `-`."
         required: false
@@ -115,6 +118,7 @@ jobs:
           pnpm tsx ecosystem-ci.ts
           --branch ${{ inputs.branchName }}
           --repo ${{ inputs.repo }}
+          --commit ${{ inputs.commit }}
           ${{ inputs.suite }}
       - id: get-ref
         if: always()
