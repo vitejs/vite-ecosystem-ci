@@ -5,9 +5,8 @@ export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
 		repo: 'sveltejs/eslint-plugin-svelte',
-		dir: 'packages/eslint-plugin-svelte',
 		branch: 'main',
-		build: 'build',
-		test: 'test',
+		build: 'pnpm --dir packages/eslint-plugin-svelte build',
+		test: 'pnpm --dir packages/eslint-plugin-svelte test',
 	})
 }
