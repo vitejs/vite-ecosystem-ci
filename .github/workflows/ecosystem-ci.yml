@@ -55,6 +55,7 @@ jobs:
           - nuxt
           # - nx # disabled temporarily
           - previewjs
+          - playwright-ct
           - quasar
           - qwik
           - rakkas
