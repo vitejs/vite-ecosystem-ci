@@ -72,6 +72,7 @@ jobs:
           - vite-setup-catalogue
           - vitepress
           - vitest
+          - vuepress
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
