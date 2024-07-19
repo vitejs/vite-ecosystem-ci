@@ -63,6 +63,7 @@ jobs:
           - sveltekit
           - unocss
           - vike
+          - vite-environment-examples
           - vite-plugin-pwa
           - vite-plugin-react
           - vite-plugin-react-pages
