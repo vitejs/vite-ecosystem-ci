@@ -61,6 +61,7 @@ on:
           - vitepress
           - vitest
           - vuepress
+          - vite-environment-examples
 jobs:
   init:
     runs-on: ubuntu-latest

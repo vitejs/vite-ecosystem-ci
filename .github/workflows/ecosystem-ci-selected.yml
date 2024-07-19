@@ -67,6 +67,7 @@ on:
           - vitepress
           - vitest
           - vuepress
+          - vite-environment-examples
 jobs:
   execute-selected-suite:
     timeout-minutes: 30

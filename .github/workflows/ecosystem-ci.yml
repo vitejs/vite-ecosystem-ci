@@ -73,6 +73,7 @@ jobs:
           - vitepress
           - vitest
           - vuepress
+          - vite-environment-examples
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
