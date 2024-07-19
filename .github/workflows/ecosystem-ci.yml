@@ -63,6 +63,7 @@ jobs:
           - sveltekit
           - unocss
           - vike
+          - vite-environment-examples
           - vite-plugin-pwa
           - vite-plugin-react
           - vite-plugin-react-pages
@@ -73,7 +74,6 @@ jobs:
           - vitepress
           - vitest
           - vuepress
-          - vite-environment-examples
       fail-fast: false
     steps:
       - uses: actions/checkout@v4

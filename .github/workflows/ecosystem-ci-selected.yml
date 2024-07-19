@@ -57,6 +57,7 @@ on:
           - sveltekit
           - unocss
           - vike
+          - vite-environment-examples
           - vite-plugin-pwa
           - vite-plugin-react
           - vite-plugin-react-pages
@@ -67,7 +68,6 @@ on:
           - vitepress
           - vitest
           - vuepress
-          - vite-environment-examples
 jobs:
   execute-selected-suite:
     timeout-minutes: 30
