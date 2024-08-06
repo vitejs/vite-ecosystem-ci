@@ -4,9 +4,10 @@ import type { RunOptions } from '../types.d.ts'
 export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
-		repo: 'storybookjs/builder-vite',
-		branch: 'main',
-		build: 'prepublish',
-		test: ['build-examples', 'test-ci'],
+		repo: 'storybookjs/storybook',
+		branch: 'next',
+		build: 'vite-ecosystem-ci:build',
+		beforeTest: 'vite-ecosystem-ci:before-test',
+		test: 'vite-ecosystem-ci:test',
 	})
 }
