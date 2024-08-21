@@ -8,7 +8,7 @@ export async function test(options: RunOptions) {
 		overrides: {
 			'@vitejs/plugin-vue': true,
 		},
-		build: 'build',
+		build: ['dev:prepare', 'build'],
 		beforeTest: 'pnpm playwright-core install',
 		test: ['test:fixtures', 'test:fixtures:dev', 'test:types'],
 	})
