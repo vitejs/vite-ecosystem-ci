@@ -25,6 +25,7 @@
       "eslint --fix"
     ]
   },
+  "packageManager": "pnpm@9.3.0",
   "type": "module",
   "engines": {
     "node": ">=18",
