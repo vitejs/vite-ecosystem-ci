@@ -47,6 +47,7 @@ on:
           - quasar
           - qwik
           - rakkas
+          - redwoodjs
           - storybook
           - sveltekit
           - unocss
