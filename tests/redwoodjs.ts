@@ -5,7 +5,7 @@ export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
 		repo: 'redwoodjs/redwood',
-		build: 'build',
-		test: 'test-ci',
+		build: { script: 'build', args: ['--skip-nx-cache'] },
+		test: { script: 'test-ci', args: ['--skip-nx-cache'] },
 	})
 }
