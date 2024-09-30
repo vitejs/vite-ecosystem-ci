@@ -10,6 +10,7 @@ export async function test(options: RunOptions) {
 		},
 		branch: 'main',
 		build: 'build',
+		beforeTest: 'pnpm --filter e2e exec playwright install chromium',
 		test: 'test',
 	})
 }
