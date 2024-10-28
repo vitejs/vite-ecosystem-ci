@@ -12,7 +12,7 @@ import type {
 	Task,
 } from './types.d.ts'
 //eslint-disable-next-line n/no-unpublished-import
-import { detect, AGENTS, getCommand } from '@antfu/ni'
+import { detect, AGENTS, getCommand, serializeCommand } from '@antfu/ni'
 import actionsCore from '@actions/core'
 // eslint-disable-next-line n/no-unpublished-import
 import * as semver from 'semver'
@@ -185,7 +185,7 @@ function toCommand(
 						task.script,
 						...(task.args ?? []),
 					])
-					await $`${runTaskWithAgent}`
+					await $`${serializeCommand(runTaskWithAgent)}`
 				} else {
 					throw new Error(
 						`invalid task, script "${task.script}" does not exist in package.json`,
@@ -263,7 +263,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 
 	if (verify && test) {
 		const frozenInstall = getCommand(agent, 'frozen')
-		await $`${frozenInstall}`
+		await $`${serializeCommand(frozenInstall)}`
 		await beforeBuildCommand?.(pkg.scripts)
 		await buildCommand?.(pkg.scripts)
 		await beforeTestCommand?.(pkg.scripts)
@@ -368,10 +368,10 @@ export async function buildVite({ verify = false }) {
 	const frozenInstall = getCommand('pnpm', 'frozen')
 	const runBuild = getCommand('pnpm', 'run', ['build'])
 	const runTest = getCommand('pnpm', 'run', ['test'])
-	await $`${frozenInstall}`
-	await $`${runBuild}`
+	await $`${serializeCommand(frozenInstall)}`
+	await $`${serializeCommand(runBuild)}`
 	if (verify) {
-		await $`${runTest}`
+		await $`${serializeCommand(runTest)}`
 	}
 }
 
