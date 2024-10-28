@@ -242,11 +242,9 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		}
 		options.agent = detectedAgent
 	}
-	if (!AGENTS[options.agent]) {
+	if (!AGENTS.includes(options.agent)) {
 		throw new Error(
-			`Invalid agent ${options.agent}. Allowed values: ${Object.keys(
-				AGENTS,
-			).join(', ')}`,
+			`Invalid agent ${options.agent}. Allowed values: ${AGENTS.join(', ')}`,
 		)
 	}
 	const agent = options.agent
