@@ -12,7 +12,7 @@ import type {
 	Task,
 } from './types.d.ts'
 //eslint-disable-next-line n/no-unpublished-import
-import { detect, AGENTS, Agent, getCommand } from '@antfu/ni'
+import { detect, AGENTS, getCommand } from '@antfu/ni'
 import actionsCore from '@actions/core'
 // eslint-disable-next-line n/no-unpublished-import
 import * as semver from 'semver'
@@ -163,7 +163,7 @@ export async function setupRepo(options: RepoOptions) {
 
 function toCommand(
 	task: Task | Task[] | void,
-	agent: Agent,
+	agent: (typeof AGENTS)[number],
 ): ((scripts: any) => Promise<any>) | void {
 	return async (scripts: any) => {
 		const tasks = Array.isArray(task) ? task : [task]
