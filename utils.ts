@@ -12,7 +12,7 @@ import type {
 	Task,
 } from './types.d.ts'
 //eslint-disable-next-line n/no-unpublished-import
-import { detect, AGENTS, Agent, getCommand } from '@antfu/ni'
+import { detect, AGENTS, getCommand, serializeCommand } from '@antfu/ni'
 import actionsCore from '@actions/core'
 // eslint-disable-next-line n/no-unpublished-import
 import * as semver from 'semver'
@@ -163,7 +163,7 @@ export async function setupRepo(options: RepoOptions) {
 
 function toCommand(
 	task: Task | Task[] | void,
-	agent: Agent,
+	agent: (typeof AGENTS)[number],
 ): ((scripts: any) => Promise<any>) | void {
 	return async (scripts: any) => {
 		const tasks = Array.isArray(task) ? task : [task]
@@ -185,7 +185,7 @@ function toCommand(
 						task.script,
 						...(task.args ?? []),
 					])
-					await $`${runTaskWithAgent}`
+					await $`${serializeCommand(runTaskWithAgent)}`
 				} else {
 					throw new Error(
 						`invalid task, script "${task.script}" does not exist in package.json`,
@@ -242,11 +242,9 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		}
 		options.agent = detectedAgent
 	}
-	if (!AGENTS[options.agent]) {
+	if (!AGENTS.includes(options.agent)) {
 		throw new Error(
-			`Invalid agent ${options.agent}. Allowed values: ${Object.keys(
-				AGENTS,
-			).join(', ')}`,
+			`Invalid agent ${options.agent}. Allowed values: ${AGENTS.join(', ')}`,
 		)
 	}
 	const agent = options.agent
@@ -263,7 +261,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 
 	if (verify && test) {
 		const frozenInstall = getCommand(agent, 'frozen')
-		await $`${frozenInstall}`
+		await $`${serializeCommand(frozenInstall)}`
 		await beforeBuildCommand?.(pkg.scripts)
 		await buildCommand?.(pkg.scripts)
 		await beforeTestCommand?.(pkg.scripts)
@@ -368,10 +366,10 @@ export async function buildVite({ verify = false }) {
 	const frozenInstall = getCommand('pnpm', 'frozen')
 	const runBuild = getCommand('pnpm', 'run', ['build'])
 	const runTest = getCommand('pnpm', 'run', ['test'])
-	await $`${frozenInstall}`
-	await $`${runBuild}`
+	await $`${serializeCommand(frozenInstall)}`
+	await $`${serializeCommand(runBuild)}`
 	if (verify) {
-		await $`${runTest}`
+		await $`${serializeCommand(runTest)}`
 	}
 }
 
