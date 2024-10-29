@@ -173,7 +173,7 @@ function toCommand(
 			} else if (typeof task === 'string') {
 				if (scripts[task] != null) {
 					const runTaskWithAgent = getCommand(agent, 'run', [task])
-					await $`${runTaskWithAgent}`
+					await $`${serializeCommand(runTaskWithAgent)}`
 				} else {
 					await $`${task}`
 				}
