@@ -17,7 +17,7 @@ export async function test(options: RunOptions) {
 				)
 			}
 			pkg.scripts.selftestscript =
-				"pnpm vite -v || (echo 'vite build failed' && exit 1)"
+				"[ -d ../../vite/packages/vite/dist ] || (echo 'vite build failed' && exit 1)"
 			await fs.promises.writeFile(
 				pkgFile,
 				JSON.stringify(pkg, null, 2),

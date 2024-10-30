@@ -217,7 +217,6 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		repo,
 		branch,
 		tag,
-		viteCommit,
 		commit,
 		skipGit,
 		verify,
@@ -269,15 +268,6 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		await testCommand?.(pkg.scripts)
 	}
 	let overrides = options.overrides || {}
-
-	if (viteCommit) {
-		overrides.vite ||= `https://pkg.pr.new/vitejs/vite/vite@${viteCommit}`
-
-		// TODO: continuous releases are not enabled for @vitejs/plugin-legacy is the vite monorepo
-		// overrides[`@vitejs/plugin-legacy`] ||=
-		// 	`https://pkg.pr.new/vitejs/vite/@vitejs/plugin-legacy@${viteCommit}`
-	}
-
 	if (options.release) {
 		if (overrides.vite && overrides.vite !== options.release) {
 			throw new Error(
@@ -289,26 +279,24 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	} else {
 		overrides.vite ||= `${options.vitePath}/packages/vite`
 
-		// overrides[`@vitejs/plugin-legacy`] ||=
-		// 	`${options.vitePath}/packages/plugin-legacy`
+		overrides[`@vitejs/plugin-legacy`] ||=
+			`${options.vitePath}/packages/plugin-legacy`
 
-		if (!viteCommit) {
-			const vitePackageInfo = await getVitePackageInfo(options.vitePath)
-			// skip if `overrides.rollup` is `false`
-			if (
-				vitePackageInfo.dependencies.rollup?.version &&
-				overrides.rollup !== false
-			) {
-				overrides.rollup = vitePackageInfo.dependencies.rollup.version
-			}
+		const vitePackageInfo = await getVitePackageInfo(options.vitePath)
+		// skip if `overrides.rollup` is `false`
+		if (
+			vitePackageInfo.dependencies.rollup?.version &&
+			overrides.rollup !== false
+		) {
+			overrides.rollup = vitePackageInfo.dependencies.rollup.version
+		}
 
-			// build and apply local overrides
-			const localOverrides = await buildOverrides(pkg, options, overrides)
-			cd(dir) // buildOverrides changed dir, change it back
-			overrides = {
-				...overrides,
-				...localOverrides,
-			}
+		// build and apply local overrides
+		const localOverrides = await buildOverrides(pkg, options, overrides)
+		cd(dir) // buildOverrides changed dir, change it back
+		overrides = {
+			...overrides,
+			...localOverrides,
 		}
 	}
 	await applyPackageOverrides(dir, pkg, overrides)

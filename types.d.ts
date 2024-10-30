@@ -11,7 +11,6 @@ export interface EnvironmentData {
 export interface RunOptions {
 	workspace: string
 	root: string
-	viteCommit?: string
 	vitePath: string
 	viteMajor: number
 	verify?: boolean
