@@ -1,3 +1,4 @@
+import fetch from 'node-fetch'
 import fs from 'fs'
 import path from 'path'
 import process from 'process'
@@ -23,6 +24,14 @@ cli
 	.option('--commit <commit>', 'vite commit sha to use')
 	.option('--release <version>', 'vite release to use from npm registry')
 	.action(async (suites, options: CommandOptions) => {
+		if (options.commit) {
+			const url = `https://pkg.pr.new/${options.repo}/vite@${options.commit}`
+			const { status } = await fetch(url)
+			if (status === 200) {
+				options.release = url
+				delete options.commit
+			}
+		}
 		const { root, vitePath, workspace } = await setupEnvironment()
 		const suitesToRun = getSuitesToRun(suites, root)
 		let viteMajor
