@@ -1,4 +1,3 @@
-// eslint-disable-next-line n/no-unpublished-import
 import type { AGENTS } from '@antfu/ni'
 export interface EnvironmentData {
 	root: string

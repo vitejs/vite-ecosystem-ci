@@ -11,10 +11,8 @@ import type {
 	RunOptions,
 	Task,
 } from './types.d.ts'
-//eslint-disable-next-line n/no-unpublished-import
 import { detect, AGENTS, getCommand, serializeCommand } from '@antfu/ni'
 import actionsCore from '@actions/core'
-// eslint-disable-next-line n/no-unpublished-import
 import * as semver from 'semver'
 
 const isGitHubActions = !!process.env.GITHUB_ACTIONS
@@ -45,9 +43,9 @@ export async function $(literals: TemplateStringsArray, ...values: any[]) {
 		stdio: 'pipe',
 		cwd,
 	})
-	proc.stdin && process.stdin.pipe(proc.stdin)
-	proc.stdout && proc.stdout.pipe(process.stdout)
-	proc.stderr && proc.stderr.pipe(process.stderr)
+	if (proc.stdin) process.stdin.pipe(proc.stdin)
+	if (proc.stdout) proc.stdout.pipe(process.stdout)
+	if (proc.stderr) proc.stderr.pipe(process.stderr)
 
 	let result
 	try {
