@@ -1,4 +1,3 @@
-import fetch from 'node-fetch'
 import fs from 'fs'
 import path from 'path'
 import process from 'process'
@@ -26,10 +25,13 @@ cli
 	.action(async (suites, options: CommandOptions) => {
 		if (options.commit) {
 			const url = `https://pkg.pr.new/${options.repo}/vite@${options.commit}`
+			//eslint-disable-next-line n/no-unsupported-features/node-builtins
 			const { status } = await fetch(url)
 			if (status === 200) {
 				options.release = url
 				delete options.commit
+
+				console.log(`continuous release available on ${url}`)
 			}
 		}
 		const { root, vitePath, workspace } = await setupEnvironment()
