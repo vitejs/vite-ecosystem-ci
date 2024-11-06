@@ -185,6 +185,7 @@ jobs:
           pnpm tsx ecosystem-ci.ts
           --branch ${{ inputs.branchName }}
           --repo ${{ inputs.repo }}
+          --commit ${{ inputs.commit }}
           ${{ matrix.suite }}
       - id: get-ref
         if: always()
