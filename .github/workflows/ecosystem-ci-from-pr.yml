@@ -63,6 +63,7 @@ on:
           - vitepress
           - vitest
           - vuepress
+          - waku
 jobs:
   init:
     runs-on: ubuntu-latest
