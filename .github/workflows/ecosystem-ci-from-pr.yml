@@ -63,6 +63,7 @@ on:
           - vitepress
           - vitest
           - vuepress
+          - waku
 jobs:
   init:
     runs-on: ubuntu-latest
@@ -164,6 +165,7 @@ jobs:
           - vitepress
           - vitest
           - vuepress
+          - waku
       fail-fast: false
     steps:
       - uses: actions/checkout@v4

@@ -75,6 +75,7 @@ jobs:
           - vitepress
           - vitest
           - vuepress
+          - waku
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
