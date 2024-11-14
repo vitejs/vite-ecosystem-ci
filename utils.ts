@@ -297,6 +297,10 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			...localOverrides,
 		}
 	}
+	// override Vitest so that it's compatible with Vite 6
+	if (options.viteMajor >= 6 && options.repo !== 'vitest-dev/vitest') {
+		overrides.vitest = '2.2.0-beta.1'
+	}
 	await applyPackageOverrides(dir, pkg, overrides)
 	await beforeBuildCommand?.(pkg.scripts)
 	await buildCommand?.(pkg.scripts)
