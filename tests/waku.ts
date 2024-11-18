@@ -8,6 +8,6 @@ export async function test(options: RunOptions) {
 		branch: 'main',
 		build: 'compile',
 		beforeTest: 'pnpm playwright install',
-		test: ['pnpm run --filter waku test', 'e2e'],
+		test: 'test-vite-ecosystem-ci',
 	})
 }
