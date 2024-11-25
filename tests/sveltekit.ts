@@ -7,11 +7,11 @@ export async function test(options: RunOptions) {
 		repo: 'sveltejs/kit',
 		branch: 'main',
 		overrides: {
-			// svelte: 'latest',
-			// '@sveltejs/vite-plugin-svelte': true,
-			// '@sveltejs/vite-plugin-svelte-inspector': true,
+			svelte: 'latest',
+			'@sveltejs/vite-plugin-svelte': true,
+			'@sveltejs/vite-plugin-svelte-inspector': true,
 		},
-		beforeTest: 'pnpm playwright install',
+		beforeTest: 'pnpm playwright install chromium',
 		test: ['lint', 'check', 'test:vite-ecosystem-ci'],
 	})
 }
