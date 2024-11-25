@@ -23,6 +23,17 @@ cli
 	.option('--commit <commit>', 'vite commit sha to use')
 	.option('--release <version>', 'vite release to use from npm registry')
 	.action(async (suites, options: CommandOptions) => {
+		if (options.commit) {
+			const url = `https://pkg.pr.new/${options.repo}/vite@${options.commit}`
+			//eslint-disable-next-line n/no-unsupported-features/node-builtins
+			const { status } = await fetch(url)
+			if (status === 200) {
+				options.release = url
+				delete options.commit
+
+				console.log(`continuous release available on ${url}`)
+			}
+		}
 		const { root, vitePath, workspace } = await setupEnvironment()
 		const suitesToRun = getSuitesToRun(suites, root)
 		let viteMajor
