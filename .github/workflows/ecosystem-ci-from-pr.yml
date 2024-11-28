@@ -119,7 +119,7 @@ jobs:
           pnpm tsx ecosystem-ci.ts
           --branch ${{ inputs.branchName }}
           --repo ${{ inputs.repo }}
-          --commit ${{ inputs.commit }}
+          ${{ inputs.commit && '--commit ' + inputs.commit }}
           ${{ inputs.suite }}
       - id: get-ref
         if: always()
@@ -187,7 +187,7 @@ jobs:
           pnpm tsx ecosystem-ci.ts
           --branch ${{ inputs.branchName }}
           --repo ${{ inputs.repo }}
-          --commit ${{ inputs.commit }}
+          ${{ inputs.commit && '--commit ' + inputs.commit }}
           ${{ matrix.suite }}
       - id: get-ref
         if: always()
