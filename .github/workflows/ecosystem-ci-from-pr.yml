@@ -124,7 +124,7 @@ jobs:
       - id: get-ref
         if: always()
         run: |
-          ref=$(git log -1 --pretty=format:%H)
+          ref=${{ inputs.commit || '$(git log -1 --pretty=format:%H)' }}
           echo "ref=$ref" >> $GITHUB_OUTPUT
         working-directory: workspace/vite
 
@@ -192,7 +192,7 @@ jobs:
       - id: get-ref
         if: always()
         run: |
-          ref=$(git log -1 --pretty=format:%H)
+          ref=${{ inputs.commit || '$(git log -1 --pretty=format:%H)' }}
           echo "ref=$ref" >> $GITHUB_OUTPUT
         working-directory: workspace/vite
 
