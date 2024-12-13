@@ -24,7 +24,7 @@ cli
 	.option('--release <version>', 'vite release to use from npm registry')
 	.action(async (suites, options: CommandOptions) => {
 		if (options.commit) {
-			const url = `https://pkg.pr.new/vite@${options.commit}` 
+			const url = `https://pkg.pr.new/vite@${options.commit}`
 			//eslint-disable-next-line n/no-unsupported-features/node-builtins
 			const { status } = await fetch(url)
 			if (status === 200) {
