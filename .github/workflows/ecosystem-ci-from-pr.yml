@@ -126,7 +126,7 @@ jobs:
         run: |
           ref=${{ inputs.commit || '$(git log -1 --pretty=format:%H)' }}
           echo "ref=$ref" >> $GITHUB_OUTPUT
-        working-directory: workspace/vite
+        working-directory: ${{ inputs.commit && '.' || 'workspace/vite' }}
 
   execute-all:
     timeout-minutes: 30
@@ -194,7 +194,7 @@ jobs:
         run: |
           ref=${{ inputs.commit || '$(git log -1 --pretty=format:%H)' }}
           echo "ref=$ref" >> $GITHUB_OUTPUT
-        working-directory: workspace/vite
+        working-directory: ${{ inputs.commit && '.' || 'workspace/vite' }}
 
   update-comment:
     runs-on: ubuntu-latest
