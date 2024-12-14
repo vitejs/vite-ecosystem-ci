@@ -9,8 +9,5 @@ export async function test(options: RunOptions) {
 		build: 'build',
 		beforeTest: 'pnpm playwright install chromium',
 		test: 'test',
-		overrides: {
-			esbuild: `${options.vitePath}/packages/vite/node_modules/esbuild`,
-		},
 	})
 }

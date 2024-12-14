@@ -18,6 +18,7 @@ import * as semver from 'semver'
 const isGitHubActions = !!process.env.GITHUB_ACTIONS
 
 let vitePath: string
+const root = dirnameFrom(import.meta.url)
 let cwd: string
 let env: ProcessEnv
 
@@ -67,7 +68,6 @@ export async function $(literals: TemplateStringsArray, ...values: any[]) {
 }
 
 export async function setupEnvironment(): Promise<EnvironmentData> {
-	const root = dirnameFrom(import.meta.url)
 	const workspace = path.resolve(root, 'workspace')
 	vitePath = path.resolve(workspace, 'vite')
 	cwd = process.cwd()
@@ -266,6 +266,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		await testCommand?.(pkg.scripts)
 	}
 	let overrides = options.overrides || {}
+	let vitePackageInfo: PackageInfo
 	if (options.release) {
 		if (overrides.vite && overrides.vite !== options.release) {
 			throw new Error(
@@ -274,20 +275,14 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		} else {
 			overrides.vite = options.release
 		}
+		vitePackageInfo = await getVitePackageInfoFromRelease(options.release)
 	} else {
 		overrides.vite ||= `${options.vitePath}/packages/vite`
 
 		overrides[`@vitejs/plugin-legacy`] ||=
 			`${options.vitePath}/packages/plugin-legacy`
 
-		const vitePackageInfo = await getVitePackageInfo(options.vitePath)
-		// skip if `overrides.rollup` is `false`
-		if (
-			vitePackageInfo.dependencies.rollup?.version &&
-			overrides.rollup !== false
-		) {
-			overrides.rollup = vitePackageInfo.dependencies.rollup.version
-		}
+		vitePackageInfo = await getVitePackageInfoFromWorkspace(options.vitePath)
 
 		// build and apply local overrides
 		const localOverrides = await buildOverrides(pkg, options, overrides)
@@ -296,6 +291,22 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			...overrides,
 			...localOverrides,
 		}
+	}
+
+	// skip if `overrides.rollup` is `false`
+	if (
+		vitePackageInfo.dependencies.rollup?.version &&
+		overrides.rollup !== false
+	) {
+		overrides.rollup = vitePackageInfo.dependencies.rollup.version
+	}
+
+	// skip if `overrides.esbuild` is `false`
+	if (
+		vitePackageInfo.dependencies.esbuild?.version &&
+		overrides.esbuild !== false
+	) {
+		overrides.esbuild = vitePackageInfo.dependencies.esbuild.version
 	}
 	await applyPackageOverrides(dir, pkg, overrides)
 	await beforeBuildCommand?.(pkg.scripts)
@@ -613,13 +624,17 @@ async function buildOverrides(
 
 /**
  * 	use pnpm ls to get information about installed dependency versions of vite
- * @param vitePath - workspace vite root
+ * @param vitePackagePath - workspace vite root
  */
-async function getVitePackageInfo(vitePath: string): Promise<PackageInfo> {
+async function getVitePackageInfo(
+	vitePackagePath: string,
+): Promise<PackageInfo> {
 	try {
 		// run in vite dir to avoid package manager mismatch error from corepack
 		const current = cwd
-		cd(`${vitePath}/packages/vite`)
+		cd(vitePackagePath)
+		// pnpm i would avoid empty outputs in dependency directories
+		await $`pnpm i`
 		const lsOutput = $`pnpm ls --json`
 		cd(current)
 		const lsParsed = JSON.parse(await lsOutput)
@@ -628,4 +643,30 @@ async function getVitePackageInfo(vitePath: string): Promise<PackageInfo> {
 		console.error('failed to retrieve vite package infos', e)
 		throw e
 	}
+}
+
+async function getVitePackageInfoFromWorkspace(
+	vitePath: string,
+): Promise<PackageInfo> {
+	return getVitePackageInfo(`${vitePath}/packages/vite`)
+}
+
+async function getVitePackageInfoFromRelease(
+	release: string,
+): Promise<PackageInfo> {
+	const current = cwd
+	cd(root)
+	await $`pnpm add ${release}`
+	const lsOutput = $`pnpm ls vite --json`
+	const [
+		{
+			dependencies: {
+				vite: { path: vitePackagePath },
+			},
+		},
+	] = JSON.parse(await lsOutput)
+	const info = await getVitePackageInfo(vitePackagePath)
+	await $`pnpm remove vite`
+	cd(current)
+	return info
 }
