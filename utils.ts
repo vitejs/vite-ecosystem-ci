@@ -14,6 +14,7 @@ import type {
 import { detect, AGENTS, getCommand, serializeCommand } from '@antfu/ni'
 import actionsCore from '@actions/core'
 import * as semver from 'semver'
+import pacote from 'pacote'
 
 const isGitHubActions = !!process.env.GITHUB_ACTIONS
 
@@ -274,17 +275,15 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		} else {
 			overrides.vite = options.release
 		}
-		const viteManifest = JSON.parse(
-			await $`pnpm dlx pacote manifest ${options.release} --json`,
-		)
+		const viteManifest = await pacote.manifest(options.release)
 
 		// skip if `overrides.rollup` is `false`
-		if (viteManifest.dependencies.rollup && overrides.rollup !== false) {
+		if (viteManifest.dependencies?.rollup && overrides.rollup !== false) {
 			overrides.rollup = viteManifest.dependencies.rollup
 		}
 
 		// skip if `overrides.esbuild` is `false`
-		if (viteManifest.dependencies.esbuild && overrides.esbuild !== false) {
+		if (viteManifest.dependencies?.esbuild && overrides.esbuild !== false) {
 			overrides.esbuild = viteManifest.dependencies.esbuild
 		}
 	} else {
