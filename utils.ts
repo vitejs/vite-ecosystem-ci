@@ -16,9 +16,9 @@ import actionsCore from '@actions/core'
 import * as semver from 'semver'
 
 const isGitHubActions = !!process.env.GITHUB_ACTIONS
+const root = dirnameFrom(import.meta.url)
 
 let vitePath: string
-const root = dirnameFrom(import.meta.url)
 let cwd: string
 let env: ProcessEnv
 
