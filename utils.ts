@@ -307,7 +307,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		// skip if `overrides.esbuild` is `false`
 		if (
 			vitePackageInfo.dependencies.esbuild?.version &&
-			overrides.esbuild !== false
+			overrides.esbuild === true
 		) {
 			overrides.esbuild = vitePackageInfo.dependencies.esbuild.version
 		}
