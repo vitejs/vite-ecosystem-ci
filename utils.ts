@@ -284,7 +284,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		}
 
 		// skip if `overrides.esbuild` is `false`
-		if (overrides.esbuild !== false) {
+		if (overrides.esbuild === true) {
 			const viteManifest = await pacote.manifest(options.release)
 
 			overrides.esbuild = viteManifest.dependencies!.esbuild
