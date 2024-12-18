@@ -276,18 +276,18 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			overrides.vite = options.release
 		}
 
-		// skip if `overrides.rollup` is `false`
-		if (overrides.rollup !== false) {
+		if (overrides.rollup !== false || overrides.esbuild === true) {
 			const viteManifest = await pacote.manifest(options.release)
 
-			overrides.rollup = viteManifest.dependencies!.rollup
-		}
+			// skip if `overrides.rollup` is `false`
+			if (overrides.rollup !== false) {
+				overrides.rollup = viteManifest.dependencies!.rollup
+			}
 
-		// skip if `overrides.esbuild` is `false`
-		if (overrides.esbuild === true) {
-			const viteManifest = await pacote.manifest(options.release)
-
-			overrides.esbuild = viteManifest.dependencies!.esbuild
+			// skip if `overrides.esbuild` is `true`
+			if (overrides.esbuild === true) {
+				overrides.esbuild = viteManifest.dependencies!.esbuild
+			}
 		}
 	} else {
 		overrides.vite ||= `${options.vitePath}/packages/vite`
