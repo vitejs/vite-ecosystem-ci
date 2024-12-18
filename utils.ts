@@ -284,7 +284,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 				overrides.rollup = viteManifest.dependencies!.rollup
 			}
 
-			// skip if `overrides.esbuild` is `true`
+			// apply if `overrides.esbuild` is `true`
 			if (overrides.esbuild === true) {
 				overrides.esbuild = viteManifest.dependencies!.esbuild
 			}
@@ -304,7 +304,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			overrides.rollup = vitePackageInfo.dependencies.rollup.version
 		}
 
-		// skip if `overrides.esbuild` is `false`
+		// apply if `overrides.esbuild` is `true`
 		if (
 			vitePackageInfo.dependencies.esbuild?.version &&
 			overrides.esbuild === true
