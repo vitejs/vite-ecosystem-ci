@@ -14,6 +14,7 @@ import type {
 import { detect, AGENTS, getCommand, serializeCommand } from '@antfu/ni'
 import actionsCore from '@actions/core'
 import * as semver from 'semver'
+import pacote from 'pacote'
 
 const isGitHubActions = !!process.env.GITHUB_ACTIONS
 
@@ -274,6 +275,20 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		} else {
 			overrides.vite = options.release
 		}
+
+		if (overrides.rollup !== false || overrides.esbuild === true) {
+			const viteManifest = await pacote.manifest(options.release)
+
+			// skip if `overrides.rollup` is `false`
+			if (overrides.rollup !== false) {
+				overrides.rollup = viteManifest.dependencies!.rollup
+			}
+
+			// apply if `overrides.esbuild` is `true`
+			if (overrides.esbuild === true) {
+				overrides.esbuild = viteManifest.dependencies!.esbuild
+			}
+		}
 	} else {
 		overrides.vite ||= `${options.vitePath}/packages/vite`
 
@@ -287,6 +302,14 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			overrides.rollup !== false
 		) {
 			overrides.rollup = vitePackageInfo.dependencies.rollup.version
+		}
+
+		// apply if `overrides.esbuild` is `true`
+		if (
+			vitePackageInfo.dependencies.esbuild?.version &&
+			overrides.esbuild === true
+		) {
+			overrides.esbuild = vitePackageInfo.dependencies.esbuild.version
 		}
 
 		// build and apply local overrides
