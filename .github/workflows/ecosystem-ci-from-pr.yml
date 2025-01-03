@@ -152,6 +152,7 @@ jobs:
           - quasar
           - qwik
           - rakkas
+          - react-router
           - redwoodjs
           - remix
           - storybook
