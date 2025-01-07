@@ -5,7 +5,7 @@ export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
 		repo: 'analogjs/analog',
-		branch: 'main',
+		branch: 'beta',
 		build: 'build:vite-ci',
 		test: 'test:vite-ci',
 	})
