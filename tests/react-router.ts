@@ -4,9 +4,10 @@ import type { RunOptions } from '../types.d.ts'
 export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
-		repo: 'analogjs/analog',
-		branch: 'beta',
-		build: 'build:vite-ci',
-		test: 'test:vite-ci',
+		repo: 'remix-run/react-router',
+		branch: 'dev',
+		build: 'vite-ecosystem-ci:build',
+		beforeTest: 'vite-ecosystem-ci:before-test',
+		test: 'vite-ecosystem-ci:test',
 	})
 }

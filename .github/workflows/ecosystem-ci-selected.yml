@@ -52,6 +52,7 @@ on:
           - quasar
           - qwik
           - rakkas
+          - react-router
           - redwoodjs
           - remix
           - storybook
