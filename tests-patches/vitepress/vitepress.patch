@@ -1,0 +1,122 @@
+From 74caa05ca1f8663466553a215a86a334b2a9416f Mon Sep 17 00:00:00 2001
+From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
+Date: Thu, 9 Jan 2025 17:29:47 +0900
+Subject: [PATCH] temporary commit
+
+---
+ package.json     |  2 +-
+ rollup.config.ts | 72 ++++++++++++++++++++++++------------------------
+ 2 files changed, 37 insertions(+), 37 deletions(-)
+
+diff --git a/package.json b/package.json
+index 671680e..2c52b68 100644
+--- a/package.json
++++ b/package.json
+@@ -63,7 +63,7 @@
+     "build": "pnpm build:prepare && pnpm build:client && pnpm build:node",
+     "build:prepare": "rimraf dist && node scripts/copyShared",
+     "build:client": "vue-tsc --noEmit -p src/client && tsc -p src/client && node scripts/copyClient",
+-    "build:node": "tsc -p src/node --noEmit && rollup --config rollup.config.ts --configPlugin esbuild",
++    "build:node": "rollup --config rollup.config.ts --configPlugin esbuild",
+     "test": "pnpm --aggregate-output --reporter=append-only '/^test:(unit|e2e|init)$/'",
+     "test:unit": "vitest run -r __tests__/unit",
+     "test:unit:watch": "vitest -r __tests__/unit",
+diff --git a/rollup.config.ts b/rollup.config.ts
+index 84ffbf3..83d4db3 100644
+--- a/rollup.config.ts
++++ b/rollup.config.ts
+@@ -14,7 +14,7 @@ const require = createRequire(import.meta.url)
+ const pkg = require('./package.json')
+ 
+ const DEV = !!process.env.DEV
+-const PROD = !DEV
++// const PROD = !DEV
+ 
+ const external = [
+   ...Object.keys(pkg.dependencies),
+@@ -58,12 +58,12 @@ const esmBuild: RollupOptions = {
+   }
+ }
+ 
+-const typesExternal = [
+-  ...external,
+-  /\/vitepress\/(?!(dist|node_modules)\/).*\.d\.ts$/,
+-  'source-map-js',
+-  'fast-glob'
+-]
++// const typesExternal = [
++//   ...external,
++//   /\/vitepress\/(?!(dist|node_modules)\/).*\.d\.ts$/,
++//   'source-map-js',
++//   'fast-glob'
++// ]
+ 
+ const dtsNode = dts({
+   respectExternal: true,
+@@ -78,34 +78,34 @@ dtsNode.resolveId = async function (source, importer) {
+   return res
+ }
+ 
+-const nodeTypes: RollupOptions = {
+-  input: 'src/node/index.ts',
+-  output: {
+-    format: 'esm',
+-    file: 'dist/node/index.d.ts'
+-  },
+-  external: typesExternal,
+-  plugins: [dtsNode]
+-}
++// const nodeTypes: RollupOptions = {
++//   input: 'src/node/index.ts',
++//   output: {
++//     format: 'esm',
++//     file: 'dist/node/index.d.ts'
++//   },
++//   external: typesExternal,
++//   plugins: [dtsNode]
++// }
+ 
+-const clientTypes: RollupOptions = {
+-  input: 'dist/client-types/index.d.ts',
+-  output: {
+-    format: 'esm',
+-    file: 'dist/client/index.d.ts'
+-  },
+-  external: typesExternal,
+-  plugins: [
+-    dts({ respectExternal: true }),
+-    {
+-      name: 'cleanup',
+-      async closeBundle() {
+-        if (PROD) {
+-          await fs.rm('dist/client-types', { recursive: true })
+-        }
+-      }
+-    }
+-  ]
+-}
++// const clientTypes: RollupOptions = {
++//   input: 'dist/client-types/index.d.ts',
++//   output: {
++//     format: 'esm',
++//     file: 'dist/client/index.d.ts'
++//   },
++//   external: typesExternal,
++//   plugins: [
++//     dts({ respectExternal: true }),
++//     {
++//       name: 'cleanup',
++//       async closeBundle() {
++//         if (PROD) {
++//           await fs.rm('dist/client-types', { recursive: true })
++//         }
++//       }
++//     }
++//   ]
++// }
+ 
+-export default defineConfig([esmBuild, nodeTypes, clientTypes])
++export default defineConfig([esmBuild /*, nodeTypes, clientTypes */])
+-- 
+2.47.0
+
