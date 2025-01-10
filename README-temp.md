@@ -28,37 +28,37 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 
 ## Summary
 
-| suite                                     | state | description                                                                                              |
-| ----------------------------------------- | ----: | :------------------------------------------------------------------------------------------------------- |
-| [analogjs](#analog)                       |    ❌ | rolldown crashes at `core/src/slice/sort/shared/smallsort.rs`                                            |
-| astro                                     |       |                                                                                                          |
-| histoire                                  |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
-| ladle                                     |    ✅ |                                                                                                          |
-| laravel                                   |    ✅ |                                                                                                          |
-| marko                                     |    ⚠️ | failing due to esbuild plugin usage                                                                      |
-| nuxt                                      |       |                                                                                                          |
-| previewjs                                 |       |                                                                                                          |
-| quasar                                    |    ✅ |                                                                                                          |
-| qwik                                      |       |                                                                                                          |
-| rakkas                                    |    ✅ | patched one plugin to return `moduleType: 'js'`                                                          |
-| react-router                              |       |                                                                                                          |
-| redwoodjs                                 |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
-| remix                                     |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
-| storybook                                 |       |                                                                                                          |
-| sveltekit                                 |       |                                                                                                          |
-| unocss                                    |       |                                                                                                          |
-| vike                                      |       |                                                                                                          |
-| vite-environment-examples                 |       |                                                                                                          |
-| vite-plugin-pwa                           |    ✅ | patched one place that was assigning to OutputBundle                                                     |
-| vite-plugin-react                         |    ✅ | I did not ran because it was tested separately. See https://github.com/rolldown/vite-plugin-react/pull/1 |
-| vite-plugin-react-swc                     |    ⏭️ | skipped for now. It should be fine as vite-plugin-react is tested.                                       |
-| [vite-plugin-svelte](#vite-plugin-svelte) |    ❌ | some tests fail                                                                                          |
-| [vite-plugin-vue](#vite-plugin-vue)       |    ⚠️ | 2 tests failing but not correctness failures                                                             |
-| vite-setup-catalogue                      |    ✅ |                                                                                                          |
-| [vitepress](#vitepress)                   |    ❌ | the test does not run                                                                                    |
-| vitest                                    |    ⏭️ | skipped for now. It is failing with original main branch.                                                |
-| vuepress                                  |    ✅ |                                                                                                          |
-| waku                                      |       |                                                                                                          |
+| suite                                                   | state | description                                                                                              |
+| ------------------------------------------------------- | ----: | :------------------------------------------------------------------------------------------------------- |
+| [analogjs](#analog)                                     |    ❌ | rolldown crashes at `core/src/slice/sort/shared/smallsort.rs`                                            |
+| astro                                                   |       |                                                                                                          |
+| histoire                                                |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
+| ladle                                                   |    ✅ |                                                                                                          |
+| laravel                                                 |    ✅ |                                                                                                          |
+| marko                                                   |    ⚠️ | failing due to esbuild plugin usage                                                                      |
+| nuxt                                                    |       |                                                                                                          |
+| [previewjs](#previewjs)                                 |   WIP |                                                                                                          |
+| quasar                                                  |    ✅ |                                                                                                          |
+| qwik                                                    |       |                                                                                                          |
+| rakkas                                                  |    ✅ | patched one plugin to return `moduleType: 'js'`                                                          |
+| react-router                                            |       |                                                                                                          |
+| redwoodjs                                               |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
+| remix                                                   |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
+| storybook                                               |       |                                                                                                          |
+| sveltekit                                               |       |                                                                                                          |
+| unocss                                                  |       |                                                                                                          |
+| vike                                                    |       |                                                                                                          |
+| [vite-environment-examples](#vite-environment-examples) |    ❌ | needs more investigation                                                                                 |
+| vite-plugin-pwa                                         |    ✅ | patched one place that was assigning to OutputBundle                                                     |
+| vite-plugin-react                                       |    ✅ | I did not ran because it was tested separately. See https://github.com/rolldown/vite-plugin-react/pull/1 |
+| vite-plugin-react-swc                                   |    ⏭️ | skipped for now. It should be fine as vite-plugin-react is tested.                                       |
+| [vite-plugin-svelte](#vite-plugin-svelte)               |    ❌ | some tests fail                                                                                          |
+| [vite-plugin-vue](#vite-plugin-vue)                     |    ⚠️ | 2 tests failing but not correctness failures                                                             |
+| vite-setup-catalogue                                    |    ✅ |                                                                                                          |
+| [vitepress](#vitepress)                                 |    ❌ | the test does not run                                                                                    |
+| vitest                                                  |    ⏭️ | skipped for now. It is failing with original main branch.                                                |
+| vuepress                                                |    ✅ |                                                                                                          |
+| waku                                                    |       |                                                                                                          |
 
 ## Details
 
@@ -79,12 +79,28 @@ Steps to reproduce:
 3. Run `pnpm tsx ecosystem-ci.ts analogjs --repo rolldown/vite --branch rolldown-v6`
 4. After that you can run `pnpm nx run blog-app:build:production` in `workspace/analogjs/analog` to only run that build
 
+### previewjs
+
+WIP
+
+Notes:
+
+- needs `// @ts-expect-error rolldown type incompat` in `workspace/previewjs/previewjs/core/src/vite/vite-manager.ts`
+- probaby need to check `pnpm e2e-test` in each directory of `workspace/previewjs/previewjs/framework-plugins`
+
 ### marko
 
 - ⚠️ Errors because it tries to update `input` option in `buildStart`
   - Added a patch to update `input` option in `options` hook
   - NOTE: rolldown calls `options` hook for the number of outputOptions + 1 (1 for `bundle.close()`) (which is probably not intuitive)
 - ⚠️ An error happens with the optimizer because it uses esbuild plugins: https://github.com/marko-js/vite/blob/ff8a2fe6fdac4848015d39bca4eef82d41743122/src/esbuild-plugin.ts#L15
+
+### vite-environment-examples
+
+- ⚠️ `pnpm -C examples/web-worker build` fails because rolldown does not support non-asset `this.emitFile`
+- ❌ `pnpm -C examples/react-server build` fails with `Error: Could not resolve "/dist/react-server/assets/_client-Qeq15YSF.css" in virtual:copy-server-css.js`
+  - It seems the css file is removed when the second `await builder.build(builder.environments["rsc"]!);` is called.
+  - TODO: need to investigate further
 
 ### vite-plugin-svelte
 
