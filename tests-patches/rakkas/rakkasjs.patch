@@ -1,0 +1,24 @@
+From d96aafe3682b0a58eac003409bdfe3d226a030bf Mon Sep 17 00:00:00 2001
+From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
+Date: Fri, 10 Jan 2025 15:25:01 +0900
+Subject: [PATCH] temporary commit
+
+---
+ packages/rakkasjs/src/vite-plugin/server-only-client-only.ts | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/packages/rakkasjs/src/vite-plugin/server-only-client-only.ts b/packages/rakkasjs/src/vite-plugin/server-only-client-only.ts
+index e8a8889..4f1d633 100644
+--- a/packages/rakkasjs/src/vite-plugin/server-only-client-only.ts
++++ b/packages/rakkasjs/src/vite-plugin/server-only-client-only.ts
+@@ -79,6 +79,7 @@ export function serverOnlyClientOnly(
+ 
+ 				return {
+ 					code: output,
++					moduleType: 'js',
+ 				};
+ 			}
+ 		},
+-- 
+2.47.0
+
