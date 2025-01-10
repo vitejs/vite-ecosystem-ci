@@ -146,6 +146,7 @@ export async function setupRepo(options: RepoOptions) {
 	}
 	cd(dir)
 	await $`git clean -fdxq`
+	await $`git reset --hard -q`
 	await $`git fetch ${shallow ? '--depth=1 --no-tags' : '--tags'} origin ${
 		tag ? `tag ${tag}` : `${commit || branch}`
 	}`
@@ -230,6 +231,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		options.workspace,
 		options.dir || repo.substring(repo.lastIndexOf('/') + 1),
 	)
+	const dirBase = `${path.basename(path.dirname(dir))}/${path.basename(dir)}`
 
 	if (!skipGit) {
 		await setupRepo({ repo, dir, branch, tag, commit })
@@ -288,7 +290,15 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 
 			// apply if `overrides.esbuild` is `true`
 			if (overrides.esbuild === true) {
-				overrides.esbuild = viteManifest.dependencies!.esbuild
+				overrides.esbuild =
+					viteManifest.dependencies!.esbuild ??
+					viteManifest.devDependencies!.esbuild
+			}
+
+			// apply if `overrides.typescript` is `true`
+			// rolldown uses `ArrayIterator` type which was introduced in TS5.6
+			if (overrides.typescript === true) {
+				overrides.typescript = '~5.6.2'
 			}
 		}
 	} else {
@@ -307,11 +317,16 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		}
 
 		// apply if `overrides.esbuild` is `true`
-		if (
-			vitePackageInfo.dependencies.esbuild?.version &&
-			overrides.esbuild === true
-		) {
-			overrides.esbuild = vitePackageInfo.dependencies.esbuild.version
+		if (overrides.esbuild === true) {
+			overrides.esbuild =
+				vitePackageInfo.dependencies.esbuild?.version ??
+				vitePackageInfo.devDependencies.esbuild.version
+		}
+
+		// apply if `overrides.typescript` is `true`
+		// rolldown uses `ArrayIterator` type which was introduced in TS5.6
+		if (overrides.typescript === true) {
+			overrides.typescript = '~5.6.2'
 		}
 
 		// build and apply local overrides
@@ -323,6 +338,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		}
 	}
 	await applyPackageOverrides(dir, pkg, overrides)
+	await applyPatches(dirBase, options)
 	await beforeBuildCommand?.(pkg.scripts)
 	await buildCommand?.(pkg.scripts)
 	if (test) {
@@ -571,6 +587,16 @@ export async function applyPackageOverrides(
 	}
 }
 
+async function applyPatches(dir: string, { root }: RunOptions & RepoOptions) {
+	const patchDir = path.join(root, 'tests-patches')
+	const patchFilePath = path.resolve(patchDir, `${dir}.patch`)
+	console.log('pp!', patchFilePath, cwd)
+	const stat = fs.statSync(patchFilePath, { throwIfNoEntry: false })
+	if (stat?.isFile()) {
+		await $`git apply --reject ${patchFilePath}`
+	}
+}
+
 export function dirnameFrom(url: string) {
 	return path.dirname(fileURLToPath(url))
 }
@@ -615,6 +641,7 @@ async function buildOverrides(
 	const buildsToRun = buildDefinitions.filter(({ packages }) =>
 		Object.keys(packages).some(needsOverride),
 	)
+	buildsToRun.length = 0 // ignore local build overrides
 	const overrides: Overrides = {}
 	for (const buildDef of buildsToRun) {
 		const { dir } = await buildDef.build({
