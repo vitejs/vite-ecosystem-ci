@@ -10,5 +10,8 @@ export async function test(options: RunOptions) {
 		branch: '1.x',
 		build: 'build',
 		test: 'test',
+		overrides: {
+			typescript: true,
+		},
 	})
 }

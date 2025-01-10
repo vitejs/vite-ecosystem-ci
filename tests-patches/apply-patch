@@ -1,0 +1,19 @@
+#!/bin/sh
+
+set -eu
+
+if [ $# -lt 1 ]; then
+  echo "Usage: $0 <repo-name>"
+  echo "Example: $0 vitepress/vitepress"
+  exit 1
+fi
+
+REPO_NAME=$1
+
+cd "$(dirname "$0")"
+cd ../workspace/"$REPO_NAME"
+
+git apply --reject ../../../tests-patches/"$REPO_NAME".patch
+
+cd - > /dev/null
+cd - > /dev/null
