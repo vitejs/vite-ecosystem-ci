@@ -10,7 +10,7 @@ export async function test(options: RunOptions) {
 		// This is needed to run puppeteer in Ubuntu 23+
 		// https://github.com/puppeteer/puppeteer/pull/13196
 		beforeTest: process.env.GITHUB_ACTIONS
-			? 'sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns'
+			? 'bash -c "echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns"'
 			: undefined,
 		test: 'vite-ecosystem-ci',
 	})
