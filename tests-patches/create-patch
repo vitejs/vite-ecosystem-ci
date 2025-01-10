@@ -1,0 +1,26 @@
+#!/bin/sh
+
+set -eu
+
+if [ $# -lt 1 ]; then
+  echo "Usage: $0 <repo-name>"
+  echo "Example: $0 vitepress/vitepress"
+  exit 1
+fi
+
+REPO_NAME=$1
+
+cd "$(dirname "$0")"
+cd ../workspace/"$REPO_NAME"
+
+git add .
+git commit -m "temporary commit" --no-verify -q
+git format-patch HEAD~ -q
+
+mkdir -p ../../../tests-patches/"$(basename "$REPO_NAME")"
+mv 0001-temporary-commit.patch ../../../tests-patches/"$REPO_NAME".patch
+
+git reset --hard HEAD~ -q
+
+cd - > /dev/null
+cd - > /dev/null

@@ -1,0 +1,40 @@
+From 27564d708e4f4a3a0a1774d2fbf6ace845ea057c Mon Sep 17 00:00:00 2001
+From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
+Date: Thu, 9 Jan 2025 18:12:37 +0900
+Subject: [PATCH] temporary commit
+
+---
+ packages/plugin-vue/src/index.ts | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/packages/plugin-vue/src/index.ts b/packages/plugin-vue/src/index.ts
+index dffe011..abcb9d2 100644
+--- a/packages/plugin-vue/src/index.ts
++++ b/packages/plugin-vue/src/index.ts
+@@ -361,6 +361,7 @@ export default function vuePlugin(rawOptions: Options = {}): Plugin<Api> {
+           code,
+           filename,
+           options.value,
++          // @ts-expect-error rolldown type incompat
+           this,
+           ssr,
+           customElementFilter.value(filename),
+@@ -377,6 +378,7 @@ export default function vuePlugin(rawOptions: Options = {}): Plugin<Api> {
+             code,
+             descriptor,
+             options.value,
++            // @ts-expect-error rolldown type incompat
+             this,
+             ssr,
+             customElementFilter.value(filename),
+@@ -387,6 +389,7 @@ export default function vuePlugin(rawOptions: Options = {}): Plugin<Api> {
+             descriptor,
+             Number(query.index || 0),
+             options.value,
++            // @ts-expect-error rolldown type incompat
+             this,
+             filename,
+           )
+-- 
+2.47.0
+

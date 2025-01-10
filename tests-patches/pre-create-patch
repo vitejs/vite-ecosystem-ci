@@ -1,0 +1,22 @@
+#!/bin/sh
+
+set -eu
+
+if [ $# -lt 1 ]; then
+  echo "Usage: $0 <repo-name>"
+  echo "Example: $0 vitepress/vitepress"
+  exit 1
+fi
+
+REPO_NAME=$1
+
+cd "$(dirname "$0")"
+cd ../workspace/"$REPO_NAME"
+
+git clean -fdxq
+git reset --hard -q
+echo Cleaned up changes
+echo Edit files and run \`tests-patches/create-patch "$REPO_NAME"\`
+
+cd - > /dev/null
+cd - > /dev/null

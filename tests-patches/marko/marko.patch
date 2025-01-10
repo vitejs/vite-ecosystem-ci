@@ -1,0 +1,60 @@
+From c90879fa009fb67f4519f930e8c8cd3071e02fd8 Mon Sep 17 00:00:00 2001
+From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
+Date: Thu, 9 Jan 2025 19:34:38 +0900
+Subject: [PATCH] temporary commit
+
+---
+ src/index.ts | 22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
+
+diff --git a/src/index.ts b/src/index.ts
+index 8a40d24..ecb9a77 100644
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -461,22 +461,17 @@ export default function markoPlugin(opts: Options = {}): vite.Plugin[] {
+         }
+       },
+ 
+-      async buildStart(inputOptions) {
++      async options(inputOptions) {
+         if (isBuild && linked && !isSSRBuild) {
+           try {
+-            serverManifest = await store.read();
++            //NOTE: rolldown calls options hook for the number of outputOptions + 1 (1 for `bundle.close()`)
++            serverManifest ??= await store.read();
+             inputOptions.input = toHTMLEntries(root, serverManifest.entries);
+             for (const entry in serverManifest.entrySources) {
+               const id = normalizePath(path.resolve(root, entry));
+               entryIds.add(id);
+               cachedSources.set(id, serverManifest.entrySources[entry]);
+             }
+-            for (const assetId of serverManifest.ssrAssetIds) {
+-              this.load({
+-                id: normalizePath(path.resolve(root, assetId)),
+-                resolveDependencies: false,
+-              }).catch(noop);
+-            }
+           } catch (err) {
+             this.error(
+               `You must run the "ssr" build before the "browser" build.`,
+@@ -488,6 +483,17 @@ export default function markoPlugin(opts: Options = {}): vite.Plugin[] {
+           }
+         }
+       },
++
++      async buildStart() {
++        if (isBuild && linked && !isSSRBuild) {
++          for (const assetId of serverManifest!.ssrAssetIds) {
++            this.load({
++              id: normalizePath(path.resolve(root, assetId)),
++              resolveDependencies: false,
++            }).catch(noop);
++          }
++        }
++      },
+       async resolveId(importee, importer, importOpts, ssr = importOpts.ssr) {
+         if (virtualFiles.has(importee)) {
+           return importee;
+-- 
+2.47.0
+
