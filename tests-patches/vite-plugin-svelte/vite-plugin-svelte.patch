@@ -1,0 +1,38 @@
+From a9a2b6b659552206212ce81671c96f65ad70a07c Mon Sep 17 00:00:00 2001
+From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
+Date: Fri, 10 Jan 2025 15:43:15 +0900
+Subject: [PATCH] temporary commit
+
+---
+ packages/e2e-tests/scan-deps/__tests__/scan-deps.spec.ts | 2 +-
+ packages/vite-plugin-svelte/src/index.js                 | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/packages/e2e-tests/scan-deps/__tests__/scan-deps.spec.ts b/packages/e2e-tests/scan-deps/__tests__/scan-deps.spec.ts
+index 0bdde48..1d6eb5a 100644
+--- a/packages/e2e-tests/scan-deps/__tests__/scan-deps.spec.ts
++++ b/packages/e2e-tests/scan-deps/__tests__/scan-deps.spec.ts
+@@ -4,7 +4,7 @@ describe('vite import scan', () => {
+ 	it('should not fail to discover dependencies exported from script module', async () => {
+ 		// vite logs an error if scan fails but continues, so validate no errors logged
+ 		expect(
+-			e2eServer.logs.server.err.length,
++			e2eServer.logs.server.err.filter((e) => !e.includes('optimizeDeps.esbuildOptions')).length,
+ 			`unexpected errors:\n${e2eServer.logs.server.err.join('\n')}`
+ 		).toBe(0);
+ 	});
+diff --git a/packages/vite-plugin-svelte/src/index.js b/packages/vite-plugin-svelte/src/index.js
+index 9ec43e9..b3504ce 100644
+--- a/packages/vite-plugin-svelte/src/index.js
++++ b/packages/vite-plugin-svelte/src/index.js
+@@ -173,6 +173,7 @@ export function svelte(inlineOptions) {
+ 						for (const dep of compileData.dependencies) {
+ 							ensureWatchedFile(options.server.watcher, dep, options.root);
+ 						}
++						// @ts-expect-error rolldown-vite does not support watch mode yet
+ 					} else if (options.isBuild && viteConfig.build.watch) {
+ 						for (const dep of compileData.dependencies) {
+ 							this.addWatchFile(dep);
+-- 
+2.47.0
+

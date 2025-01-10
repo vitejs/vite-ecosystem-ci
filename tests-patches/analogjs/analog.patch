@@ -1,0 +1,28 @@
+From 9841b510416505d210e61f99859396e637d72511 Mon Sep 17 00:00:00 2001
+From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
+Date: Fri, 10 Jan 2025 13:46:25 +0900
+Subject: [PATCH] temporary commit
+
+---
+ packages/vite-plugin-nitro/src/lib/vite-plugin-nitro.ts | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/packages/vite-plugin-nitro/src/lib/vite-plugin-nitro.ts b/packages/vite-plugin-nitro/src/lib/vite-plugin-nitro.ts
+index 471ef7d..e65d451 100644
+--- a/packages/vite-plugin-nitro/src/lib/vite-plugin-nitro.ts
++++ b/packages/vite-plugin-nitro/src/lib/vite-plugin-nitro.ts
+@@ -81,6 +81,11 @@ export function nitro(options?: Options, nitroOptions?: NitroConfig): Plugin[] {
+ 
+         nitroConfig = {
+           rootDir,
++          imports: {
++            // FIXME: not sure why but unimport seems to inject `import { isError } from 'h3'`
++            // even when the file has `const isError = something`.
++            autoImport: false,
++          },
+           preset: buildPreset,
+           compatibilityDate: '2024-11-19',
+           logLevel: nitroOptions?.logLevel || 0,
+-- 
+2.47.0
+
