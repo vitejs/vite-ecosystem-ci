@@ -7,6 +7,11 @@ export async function test(options: RunOptions) {
 		repo: 'rakkasjs/rakkasjs',
 		branch: 'main',
 		build: 'build',
+		// This is needed to run puppeteer in Ubuntu 23+
+		// https://github.com/puppeteer/puppeteer/pull/13196
+		beforeTest: process.env.GITHUB_ACTIONS
+			? 'echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns'
+			: undefined,
 		test: 'vite-ecosystem-ci',
 	})
 }
