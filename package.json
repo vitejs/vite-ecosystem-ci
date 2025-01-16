@@ -47,7 +47,7 @@
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
-    "@antfu/ni": "^0.23.2",
+    "@antfu/ni": "^23.2.0",
     "@eslint/js": "^9.17.0",
     "@types/node": "^20.17.12",
     "@types/pacote": "^11.1.8",
