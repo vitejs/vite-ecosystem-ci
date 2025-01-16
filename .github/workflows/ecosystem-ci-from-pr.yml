@@ -154,7 +154,6 @@ jobs:
           - rakkas
           - react-router
           - redwoodjs
-          - remix
           - storybook
           - sveltekit
           - unocss
