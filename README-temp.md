@@ -33,17 +33,16 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | [analogjs](#analog)                                     |    ❌ | rolldown crashes at `core/src/slice/sort/shared/smallsort.rs`                                            |
 | astro                                                   |       |                                                                                                          |
 | histoire                                                |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
-| ladle                                                   |    ✅ |                                                                                                          |
-| laravel                                                 |    ✅ |                                                                                                          |
+| [ladle](#ladle)                                         |    ⚠️ | failing due to incorrect minification                                                                    |
+| laravel                                                 |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
 | marko                                                   |    ⚠️ | failing due to esbuild plugin usage                                                                      |
 | nuxt                                                    |       |                                                                                                          |
-| [previewjs](#previewjs)                                 |   WIP |                                                                                                          |
-| quasar                                                  |    ✅ |                                                                                                          |
+| [previewjs](#previewjs)                                 | - WIP |                                                                                                          |
+| quasar                                                  |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
 | qwik                                                    |       |                                                                                                          |
-| rakkas                                                  |    ✅ | patched one plugin to return `moduleType: 'js'`                                                          |
+| [rakkas](#rakkas)                                       |    ⚠️ | failing due to incorrect minification. patched one plugin to return `moduleType: 'js'`                   |
 | react-router                                            |       |                                                                                                          |
 | redwoodjs                                               |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
-| remix                                                   |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
 | storybook                                               |       |                                                                                                          |
 | sveltekit                                               |       |                                                                                                          |
 | unocss                                                  |       |                                                                                                          |
@@ -55,9 +54,9 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | [vite-plugin-svelte](#vite-plugin-svelte)               |    ❌ | some tests fail                                                                                          |
 | [vite-plugin-vue](#vite-plugin-vue)                     |    ⚠️ | 2 tests failing but not correctness failures                                                             |
 | vite-setup-catalogue                                    |    ✅ |                                                                                                          |
-| [vitepress](#vitepress)                                 |    ❌ | the test does not run                                                                                    |
+| [vitepress](#vitepress)                                 |    ❌ | the e2e test does not run                                                                                |
 | vitest                                                  |    ⏭️ | skipped for now. It is failing with original main branch.                                                |
-| vuepress                                                |    ✅ |                                                                                                          |
+| vuepress                                                |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
 | waku                                                    |       |                                                                                                          |
 
 ## Details
@@ -79,14 +78,23 @@ Steps to reproduce:
 3. Run `pnpm tsx ecosystem-ci.ts analogjs --repo rolldown/vite --branch rolldown-v6`
 4. After that you can run `pnpm nx run blog-app:build:production` in `workspace/analogjs/analog` to only run that build
 
+### ladle
+
+- ⚠ `tests/posts.spec.ts` fails
+  - it's happening because of incorrect minification, if I set `build.minify: false` it works. Maybe it's fixed in OXC 0.46.0.
+
 ### previewjs
 
 WIP
 
 Notes:
 
-- needs `// @ts-expect-error rolldown type incompat` in `workspace/previewjs/previewjs/core/src/vite/vite-manager.ts`
 - probaby need to check `pnpm e2e-test` in each directory of `workspace/previewjs/previewjs/framework-plugins`
+
+### rakkas
+
+- ⚠ `ci.test.ts > http://localhost:3000 > renders API route in page (client-side nav)` fails
+  - it's happening because of incorrect minification, if I set `build.minify: false` it works. If I manually minify the file, it still works. Maybe it's fixed in OXC 0.46.0.
 
 ### marko
 
@@ -97,6 +105,8 @@ Notes:
 
 ### vite-environment-examples
 
+needs `VITE_USE_LEGACY_PARSE_AST=1`
+
 - ⚠️ `pnpm -C examples/web-worker build` fails because rolldown does not support non-asset `this.emitFile`
 - ❌ `pnpm -C examples/react-server build` fails with `Error: Could not resolve "/dist/react-server/assets/_client-Qeq15YSF.css" in virtual:copy-server-css.js`
   - It seems the css file is removed when the second `await builder.build(builder.environments["rsc"]!);` is called.
@@ -105,8 +115,6 @@ Notes:
 ### vite-plugin-svelte
 
 - `pnpm test:build`
-  - `packages/e2e-tests/ts-type-import/__tests__/ts-type-import.spec.ts`
-    - probably needs https://github.com/oxc-project/oxc/commit/2e7207f11ca986584d334c36632481786b82645a to be released in rolldown.
   - `packages/e2e-tests/kit-node/__tests__/kit.spec.ts > kit-node > index route > should not include dynamic import from onmount in ssr output`
     - TODO: need to investigate
 - `pnpm test:serve`
@@ -123,13 +131,7 @@ The failing tests are
 
 ### vitepress
 
-Failed with
-
-> RollupError: Parse failure: Expected ',', got 'Ref'
-> 2 | import { onMounted, onUnmounted, onUpdated, type Ref } from "vue"
-> | ^
-
-probably needs https://github.com/oxc-project/oxc/commit/2e7207f11ca986584d334c36632481786b82645a to be released in rolldown.
+`test:unit` and `test:init` runs fine, but `test:e2e` does not start running :thinking:
 
 # Note to self
 
