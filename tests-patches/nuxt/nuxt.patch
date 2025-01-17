@@ -1,0 +1,58 @@
+From 262fd86f2a58c2ecc3fbe88166d2c1bd4a491958 Mon Sep 17 00:00:00 2001
+From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
+Date: Fri, 17 Jan 2025 20:25:51 +0900
+Subject: [PATCH] temporary commit
+
+---
+ packages/vite/src/vite.ts | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/packages/vite/src/vite.ts b/packages/vite/src/vite.ts
+index 7471dbd..670b88d 100644
+--- a/packages/vite/src/vite.ts
++++ b/packages/vite/src/vite.ts
+@@ -81,11 +81,14 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
+               sourcemapIgnoreList: (relativeSourcePath) => {
+                 return relativeSourcePath.includes('node_modules') || relativeSourcePath.includes(ctx.nuxt.options.buildDir)
+               },
++              // @ts-expect-error rolldown does not support `sanitizeFileName` yet
+               sanitizeFileName: sanitizeFilePath,
++              // NOTE: rolldown does not support function `assetFileNames` yet
++              assetFileNames: nuxt.options.dev ? undefined : withoutLeadingSlash(join(nuxt.options.app.buildAssetsDir, `[name].[hash].[ext]`)),
+               // https://github.com/vitejs/vite/tree/main/packages/vite/src/node/build.ts#L464-L478
+-              assetFileNames: nuxt.options.dev
+-                ? undefined
+-                : chunk => withoutLeadingSlash(join(nuxt.options.app.buildAssetsDir, `${sanitizeFilePath(filename(chunk.name!))}.[hash].[ext]`)),
++              // assetFileNames: nuxt.options.dev
++              //   ? undefined
++              //   : chunk => withoutLeadingSlash(join(nuxt.options.app.buildAssetsDir, `${sanitizeFilePath(filename(chunk.name!))}.[hash].[ext]`)),
+             },
+           },
+           watch: {
+@@ -100,6 +103,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
+             sourcemap: !!nuxt.options.sourcemap.server,
+             baseURL: nuxt.options.app.baseURL,
+           }),
++          // @ts-expect-error rolldown type incompat
+           replace({ preventAssignment: true, ...globalThisReplacements }),
+         ],
+         server: {
+@@ -117,6 +121,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
+   // to detect whether to inject production or development code (such as HMR code)
+   if (!nuxt.options.dev) {
+     ctx.config.server!.watch = undefined
++    // @ts-expect-error rolldown-vite does not support `build.watch` yet
+     ctx.config.build!.watch = undefined
+   }
+ 
+@@ -175,6 +180,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
+       }
+     }
+ 
++    // @ts-expect-error rolldown type incompat
+     config.plugins!.push(replace(replaceOptions))
+   })
+ 
+-- 
+2.47.1
+
