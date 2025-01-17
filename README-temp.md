@@ -36,8 +36,8 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | [ladle](#ladle)                                         |    ⚠️ | failing due to incorrect minification                                                                    |
 | laravel                                                 |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
 | marko                                                   |    ⚠️ | failing due to esbuild plugin usage                                                                      |
-| nuxt                                                    |       |                                                                                                          |
-| [previewjs](#previewjs)                                 | - WIP |                                                                                                          |
+| [nuxt](#nuxt)                                           |    ❌ | rolldown crashes at `crates/rolldown_common/src/types/symbol_ref_db.rs`                                  |
+| previewjs                                               |    ⚠️ | fails locally but when running tests manually in playwright ui, it works. probably fine                  |
 | quasar                                                  |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
 | qwik                                                    |       |                                                                                                          |
 | [rakkas](#rakkas)                                       |    ⚠️ | failing due to incorrect minification. patched one plugin to return `moduleType: 'js'`                   |
@@ -83,13 +83,26 @@ Steps to reproduce:
 - ⚠ `tests/posts.spec.ts` fails
   - it's happening because of incorrect minification, if I set `build.minify: false` it works. Maybe it's fixed in OXC 0.46.0.
 
-### previewjs
+### nuxt
 
-WIP
+- uses missing features
+  - uses `sanitizeFileName` option
+  - uses function `assetFileNames` option: https://github.com/rolldown/rolldown/issues/3253
 
-Notes:
+`pnpm test:fixtures` crashes with
 
-- probaby need to check `pnpm e2e-test` in each directory of `workspace/previewjs/previewjs/framework-plugins`
+```
+thread '<unnamed>' panicked at crates/rolldown_common/src/types/symbol_ref_db.rs:143:7:
+canonical name not found for SymbolRef { owner: 33, symbol: SymbolId(4) }, original_name: "CapoPlugin"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+Steps to reproduce:
+
+1. clone this branch
+2. Run `pnpm install`
+3. Run `pnpm tsx ecosystem-ci.ts nuxt --repo rolldown/vite --branch rolldown-v6`
+4. After that you can run `pnpm build` in `workspace/nuxt/nuxt/test/fixtures/minimal` to only run that build
 
 ### rakkas
 
