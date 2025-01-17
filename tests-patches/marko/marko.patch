@@ -1,17 +1,17 @@
-From c90879fa009fb67f4519f930e8c8cd3071e02fd8 Mon Sep 17 00:00:00 2001
+From 0e1ac6a3a01e937a0b317d7cf7beb9d06724a741 Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Thu, 9 Jan 2025 19:34:38 +0900
+Date: Fri, 17 Jan 2025 18:25:09 +0900
 Subject: [PATCH] temporary commit
 
 ---
- src/index.ts | 22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+ src/index.ts | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
 diff --git a/src/index.ts b/src/index.ts
-index 8a40d24..ecb9a77 100644
+index 64acab1..72c37c4 100644
 --- a/src/index.ts
 +++ b/src/index.ts
-@@ -461,22 +461,17 @@ export default function markoPlugin(opts: Options = {}): vite.Plugin[] {
+@@ -488,7 +488,7 @@ export default function markoPlugin(opts: Options = {}): vite.Plugin[] {
          }
        },
  
@@ -19,12 +19,8 @@ index 8a40d24..ecb9a77 100644
 +      async options(inputOptions) {
          if (isBuild && linked && !isSSRBuild) {
            try {
--            serverManifest = await store.read();
-+            //NOTE: rolldown calls options hook for the number of outputOptions + 1 (1 for `bundle.close()`)
-+            serverManifest ??= await store.read();
-             inputOptions.input = toHTMLEntries(root, serverManifest.entries);
-             for (const entry in serverManifest.entrySources) {
-               const id = normalizePath(path.resolve(root, entry));
+             serverManifest = await store.read();
+@@ -498,12 +498,6 @@ export default function markoPlugin(opts: Options = {}): vite.Plugin[] {
                entryIds.add(id);
                cachedSources.set(id, serverManifest.entrySources[entry]);
              }
@@ -37,7 +33,7 @@ index 8a40d24..ecb9a77 100644
            } catch (err) {
              this.error(
                `You must run the "ssr" build before the "browser" build.`,
-@@ -488,6 +483,17 @@ export default function markoPlugin(opts: Options = {}): vite.Plugin[] {
+@@ -515,6 +509,17 @@ export default function markoPlugin(opts: Options = {}): vite.Plugin[] {
            }
          }
        },
@@ -56,5 +52,5 @@ index 8a40d24..ecb9a77 100644
          if (virtualFiles.has(importee)) {
            return importee;
 -- 
-2.47.0
+2.47.1
 

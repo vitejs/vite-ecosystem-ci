@@ -8,6 +8,7 @@ export async function test(options: RunOptions) {
 		...options,
 		repo: 'laravel/vite-plugin',
 		branch: '1.x',
+		beforeBuild: 'pnpm i -D rollup',
 		build: 'build',
 		test: 'test',
 		overrides: {

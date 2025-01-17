@@ -1,12 +1,43 @@
-From 01216963b2b37d2323788595e654c418bfc9912d Mon Sep 17 00:00:00 2001
+From 5017bff7da9c484d3c351c0a9200855bed2a28e5 Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Fri, 10 Jan 2025 16:57:24 +0900
+Date: Fri, 17 Jan 2025 16:51:27 +0900
 Subject: [PATCH] temporary commit
 
 ---
- misc/vite-ecosystem-ci.sh | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ examples/react-server/vite.config.ts |  5 ++---
+ misc/vite-ecosystem-ci.sh            | 10 ++++++----
+ 2 files changed, 8 insertions(+), 7 deletions(-)
 
+diff --git a/examples/react-server/vite.config.ts b/examples/react-server/vite.config.ts
+index 8b9ac1e..eea0987 100644
+--- a/examples/react-server/vite.config.ts
++++ b/examples/react-server/vite.config.ts
+@@ -14,7 +14,6 @@ import {
+   type ResolvedConfig,
+   createServerModuleRunner,
+   defineConfig,
+-  parseAstAsync,
+ } from "vite";
+ import {
+   ENTRY_BROWSER_BOOTSTRAP,
+@@ -217,7 +216,7 @@ function vitePluginUseClient(): PluginOption {
+       manager.clientReferenceMap.delete(id);
+       if (code.includes("use client")) {
+         const runtimeId = await normalizeReferenceId(id, "client");
+-        const ast = await parseAstAsync(code);
++        const ast = this.parse(code);
+         let output = await transformDirectiveProxyExport(ast, {
+           directive: "use client",
+           id: runtimeId,
+@@ -291,7 +290,7 @@ function vitePluginServerAction(): PluginOption {
+       if (!code.includes("use server") || id.includes("/.vite/deps/")) {
+         return;
+       }
+-      const ast = await parseAstAsync(code);
++      const ast = this.parse(code);
+       tinyassert(this.environment);
+       const runtimeId = await normalizeReferenceId(id, "rsc");
+       if (this.environment.name === "rsc") {
 diff --git a/misc/vite-ecosystem-ci.sh b/misc/vite-ecosystem-ci.sh
 index 7c8333f..8c3348e 100644
 --- a/misc/vite-ecosystem-ci.sh
@@ -32,5 +63,5 @@ index 7c8333f..8c3348e 100644
 +# pnpm -C examples/react-server build
 +# pnpm -C examples/react-server test-e2e-preview
 -- 
-2.47.0
+2.47.1
 
