@@ -36,7 +36,7 @@ cli
 		}
 		if (options.commit) {
 			const url = `https://pkg.pr.new/vite@${options.commit}`
-
+			 
 			const { status } = await fetch(url)
 			if (status === 200) {
 				options.release = url
