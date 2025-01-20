@@ -35,7 +35,7 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | histoire                                                |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
 | [ladle](#ladle)                                         |    ⚠️ | failing due to incorrect minification                                                                    |
 | laravel                                                 |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
-| marko                                                   |    ⚠️ | failing due to esbuild plugin usage                                                                      |
+| [marko](#marko)                                         |    ⚠️ | failing due to esbuild plugin usage                                                                      |
 | [nuxt](#nuxt)                                           |    ❌ | rolldown crashes at `crates/rolldown_common/src/types/symbol_ref_db.rs`                                  |
 | previewjs                                               |    ⚠️ | fails locally but when running tests manually in playwright ui, it works. probably fine                  |
 | quasar                                                  |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
@@ -45,7 +45,7 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | redwoodjs                                               |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
 | storybook                                               |       |                                                                                                          |
 | sveltekit                                               |       |                                                                                                          |
-| unocss                                                  |       |                                                                                                          |
+| [unocss](#unocss)                                       |    ❌ | modifies `chunk.modules`. needs `VITE_USE_LEGACY_PARSE_AST=1`                                            |
 | vike                                                    |       |                                                                                                          |
 | [vite-environment-examples](#vite-environment-examples) |    ❌ | needs more investigation                                                                                 |
 | vite-plugin-pwa                                         |    ✅ | patched one place that was assigning to OutputBundle                                                     |
@@ -83,6 +83,13 @@ Steps to reproduce:
 - ⚠ `tests/posts.spec.ts` fails
   - it's happening because of incorrect minification, if I set `build.minify: false` it works. Maybe it's fixed in OXC 0.46.0.
 
+### marko
+
+- ⚠️ Errors because it tries to update `input` option in `buildStart`
+  - Added a patch to update `input` option in `options` hook
+  - NOTE: rolldown calls `options` hook for the number of outputOptions + 1 (1 for `bundle.close()`) (which is probably not intuitive)
+- ⚠️ An error happens with the optimizer because it uses esbuild plugins: https://github.com/marko-js/vite/blob/ff8a2fe6fdac4848015d39bca4eef82d41743122/src/esbuild-plugin.ts#L15
+
 ### nuxt
 
 - uses missing features
@@ -109,12 +116,10 @@ Steps to reproduce:
 - ⚠ `ci.test.ts > http://localhost:3000 > renders API route in page (client-side nav)` fails
   - it's happening because of incorrect minification, if I set `build.minify: false` it works. If I manually minify the file, it still works. Maybe it's fixed in OXC 0.46.0.
 
-### marko
+### unocss
 
-- ⚠️ Errors because it tries to update `input` option in `buildStart`
-  - Added a patch to update `input` option in `options` hook
-  - NOTE: rolldown calls `options` hook for the number of outputOptions + 1 (1 for `bundle.close()`) (which is probably not intuitive)
-- ⚠️ An error happens with the optimizer because it uses esbuild plugins: https://github.com/marko-js/vite/blob/ff8a2fe6fdac4848015d39bca4eef82d41743122/src/esbuild-plugin.ts#L15
+- ❌ `test/fixtures.test.ts > fixtures > vite client`/`test/fixtures.test.ts > fixtures > vite lib`/`test/fixtures.test.ts > fixtures > vite lib rollupOptions` fails
+  - UnoCSS modifies `chunk.modules` to fool the css plugin to generate the css in corresponding chunk
 
 ### vite-environment-examples
 
