@@ -590,7 +590,6 @@ export async function applyPackageOverrides(
 async function applyPatches(dir: string, { root }: RunOptions & RepoOptions) {
 	const patchDir = path.join(root, 'tests-patches')
 	const patchFilePath = path.resolve(patchDir, `${dir}.patch`)
-	console.log('pp!', patchFilePath, cwd)
 	const stat = fs.statSync(patchFilePath, { throwIfNoEntry: false })
 	if (stat?.isFile()) {
 		await $`git apply --reject ${patchFilePath}`
