@@ -39,19 +39,19 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | [nuxt](#nuxt)                                           |    ❌ | rolldown crashes at `crates/rolldown_common/src/types/symbol_ref_db.rs`                                  |
 | previewjs                                               |    ⚠️ | fails locally but when running tests manually in playwright ui, it works. probably fine                  |
 | quasar                                                  |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
-| qwik                                                    |       |                                                                                                          |
+| [qwik](#qwik)                                           |    ❌ | uses `this.emitFile({ type: 'chunk' })`, `manualChunks`                                                  |
 | [rakkas](#rakkas)                                       |    ⚠️ | failing due to incorrect minification. patched one plugin to return `moduleType: 'js'`                   |
 | react-router                                            |       |                                                                                                          |
 | redwoodjs                                               |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
 | [storybook](#storybook)                                 |    ❌ | failing due to incorrect JSX transformation                                                              |
 | sveltekit                                               |       |                                                                                                          |
 | [unocss](#unocss)                                       |    ❌ | modifies `chunk.modules`. needs `VITE_USE_LEGACY_PARSE_AST=1`                                            |
-| vike                                                    |       |                                                                                                          |
+| [vike](#vike)                                           |    ❌ | uses `writeBundle.sequential`, function `assetFileNames`, advanced `manualChunks`                        |
 | [vite-environment-examples](#vite-environment-examples) |    ❌ | needs more investigation                                                                                 |
 | vite-plugin-pwa                                         |    ✅ | patched one place that was assigning to OutputBundle                                                     |
 | vite-plugin-react                                       |    ✅ | I did not ran because it was tested separately. See https://github.com/rolldown/vite-plugin-react/pull/1 |
 | vite-plugin-react-swc                                   |    ⏭️ | skipped for now. It should be fine as vite-plugin-react is tested.                                       |
-| [vite-plugin-svelte](#vite-plugin-svelte)               |    ❌ | some tests fail                                                                                          |
+| [vite-plugin-svelte](#vite-plugin-svelte)               |    ⚠️ | some tests fail                                                                                          |
 | [vite-plugin-vue](#vite-plugin-vue)                     |    ⚠️ | 2 tests failing but not correctness failures                                                             |
 | vite-setup-catalogue                                    |    ✅ |                                                                                                          |
 | vitepress                                               |    ✅ | patched one place that was assigning to OutputBundle                                                     |
@@ -111,6 +111,14 @@ Steps to reproduce:
 3. Run `pnpm tsx ecosystem-ci.ts nuxt --repo rolldown/vite --branch rolldown-v6`
 4. After that you can run `pnpm build` in `workspace/nuxt/nuxt/test/fixtures/minimal` to only run that build
 
+### qwik
+
+- uses missing features
+  - `this.emitFile({ type: 'chunk' })` (should be supported by https://github.com/rolldown/rolldown/pull/3351, try it later after upgraded rolldown)
+  - `manualChunks`
+  - `closeBundle.sequential` (https://github.com/rolldown/rolldown/issues/3337)
+  - `preserveSignature` option in `this.emitFile({ type: 'chunk' })`
+
 ### rakkas
 
 - ⚠ `ci.test.ts > http://localhost:3000 > renders API route in page (client-side nav)` fails
@@ -128,6 +136,21 @@ Steps to reproduce:
 - ❌ `test/fixtures.test.ts > fixtures > vite client`/`test/fixtures.test.ts > fixtures > vite lib`/`test/fixtures.test.ts > fixtures > vite lib rollupOptions` fails
   - UnoCSS modifies `chunk.modules` to fool the css plugin to generate the css in corresponding chunk
 
+### vike
+
+- uses missing features
+
+  - `writeBundle.sequential` (https://github.com/rolldown/rolldown/issues/3337)
+  - function `assetFileNames` (https://github.com/rolldown/rolldown/issues/3253)
+  - uses `manualChunks` that requires callbacks
+    - https://github.com/vikejs/vike/blob/ea3a84264222768b9869e5f87ce4429e0685f3ae/vike/node/plugin/plugins/distFileNames.ts#L45-L101
+
+- ❌ `|e2e| test/assertFileEnv/test-build.spec.ts` fails
+  - because of https://github.com/rolldown/rolldown/issues/3402
+  - added a patch
+- ❌ `|e2e| test/preload/prod.spec.ts` fails
+  - because function `assetFileNames` is not supported and `manualChunks` is not supported
+
 ### vite-environment-examples
 
 needs `VITE_USE_LEGACY_PARSE_AST=1`
@@ -139,11 +162,12 @@ needs `VITE_USE_LEGACY_PARSE_AST=1`
 
 ### vite-plugin-svelte
 
-- `pnpm test:build`
+- ⚠️ `pnpm test:build`
   - `packages/e2e-tests/kit-node/__tests__/kit.spec.ts > kit-node > index route > should not include dynamic import from onmount in ssr output`
-    - TODO: need to investigate
-- `pnpm test:serve`
+    - caused by https://github.com/rolldown/rolldown/issues/3403
+- ⚠️ `pnpm test:serve`
   - many tests fail because it uses esbuild plugins: https://github.com/sveltejs/vite-plugin-svelte/blob/f8ec65d452905db8c6c096e0671d230f4f2a0d97/packages/vite-plugin-svelte/src/utils/options.js#L387-L397
+    - by setting `prebundleSvelteLibraries: false`, this issue can be worked around
 
 ### vite-plugin-vue
 
@@ -157,3 +181,4 @@ The failing tests are
 # Note to self
 
 - [ ] There's many "OXC-esbuild incompatible options" warning output by Vite should be deduped
+- [ ] Add a friendly error message when `@babel/runtime` is not installed (`Could not resolve "@babel/runtime/helpers/classPrivateFieldSet2" in entrypoint` at https://github.com/rolldown/vite/blob/5cdceeb16fc7d660efa5024307b33f458532d204/packages/vite/src/node/plugins/oxc.ts#L514-L538)
