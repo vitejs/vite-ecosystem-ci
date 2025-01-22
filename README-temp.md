@@ -43,7 +43,7 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | [rakkas](#rakkas)                                       |    ⚠️ | failing due to incorrect minification. patched one plugin to return `moduleType: 'js'`                   |
 | react-router                                            |       |                                                                                                          |
 | redwoodjs                                               |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
-| storybook                                               |       |                                                                                                          |
+| [storybook](#storybook)                                 |    ❌ | failing due to incorrect JSX transformation                                                              |
 | sveltekit                                               |       |                                                                                                          |
 | [unocss](#unocss)                                       |    ❌ | modifies `chunk.modules`. needs `VITE_USE_LEGACY_PARSE_AST=1`                                            |
 | vike                                                    |       |                                                                                                          |
@@ -54,10 +54,10 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | [vite-plugin-svelte](#vite-plugin-svelte)               |    ❌ | some tests fail                                                                                          |
 | [vite-plugin-vue](#vite-plugin-vue)                     |    ⚠️ | 2 tests failing but not correctness failures                                                             |
 | vite-setup-catalogue                                    |    ✅ |                                                                                                          |
-| [vitepress](#vitepress)                                 |    ❌ | the e2e test does not run                                                                                |
+| vitepress                                               |    ✅ | patched one place that was assigning to OutputBundle                                                     |
 | vitest                                                  |    ⏭️ | skipped for now. It is failing with original main branch.                                                |
 | vuepress                                                |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
-| waku                                                    |       |                                                                                                          |
+| waku                                                    |    ⏭️ | skipped for now. It is failing with the main branch.                                                     |
 
 ## Details
 
@@ -116,6 +116,13 @@ Steps to reproduce:
 - ⚠ `ci.test.ts > http://localhost:3000 > renders API route in page (client-side nav)` fails
   - it's happening because of incorrect minification, if I set `build.minify: false` it works. If I manually minify the file, it still works. Maybe it's fixed in OXC 0.46.0.
 
+### storybook
+
+`yarn task --task test-runner --template react-vite/default-ts --start-from=build` passes.
+
+- ❌ `yarn task --task test-runner-dev --template react-vite/default-ts --start-from=dev` fails
+  - OXC tranforms JSX in development mode incorrectly (https://github.com/oxc-project/oxc/issues/8650)
+
 ### unocss
 
 - ❌ `test/fixtures.test.ts > fixtures > vite client`/`test/fixtures.test.ts > fixtures > vite lib`/`test/fixtures.test.ts > fixtures > vite lib rollupOptions` fails
@@ -146,10 +153,6 @@ The failing tests are
   - This is happening because OXC minifier does not drop non-used variables
 - ✅ `playground/vue-legacy/__tests__/vue-legacy.spec.ts`
   - This is expected as rolldown-vite currently does not support the legacy plugin
-
-### vitepress
-
-`test:unit` and `test:init` runs fine, but `test:e2e` does not start running :thinking:
 
 # Note to self
 
