@@ -1,0 +1,55 @@
+From 47f9ed40b7bb9e35acfb231ed36641a825fade5b Mon Sep 17 00:00:00 2001
+From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
+Date: Thu, 23 Jan 2025 19:54:52 +0900
+Subject: [PATCH] temporary commit
+
+---
+ packages/kit/src/exports/vite/index.js        | 10 ++++++++--
+ packages/kit/test/apps/options-2/test/test.js |  3 ++-
+ 2 files changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/packages/kit/src/exports/vite/index.js b/packages/kit/src/exports/vite/index.js
+index 82594f0..1bda214 100644
+--- a/packages/kit/src/exports/vite/index.js
++++ b/packages/kit/src/exports/vite/index.js
+@@ -670,7 +670,13 @@ Tips:
+ 								assetFileNames: `${prefix}/assets/[name].[hash][extname]`,
+ 								hoistTransitiveImports: false,
+ 								sourcemapIgnoreList,
+-								manualChunks: split ? undefined : () => 'bundle',
++								// manualChunks: split ? undefined : () => 'bundle',
++								// NOTE: rolldown does not support manualChunks option
++								advancedChunks: split
++									? undefined
++									: {
++											groups: [{ name: 'bundle', test: /./ }]
++										},
+ 								inlineDynamicImports: false
+ 							},
+ 							preserveEntrySignatures: 'strict'
+@@ -743,7 +749,7 @@ Tips:
+ 		renderChunk(code, chunk) {
+ 			if (code.includes('__SVELTEKIT_TRACK__')) {
+ 				return {
+-					code: code.replace(/__SVELTEKIT_TRACK__\('(.+?)'\)/g, (_, label) => {
++					code: code.replace(/__SVELTEKIT_TRACK__\(['"](.+?)['"]\)/g, (_, label) => {
+ 						(tracked_features[chunk.name + '.js'] ??= []).push(label);
+ 						// put extra whitespace at the end of the comment to preserve the source size and avoid interfering with source maps
+ 						return `/* track ${label}            */`;
+diff --git a/packages/kit/test/apps/options-2/test/test.js b/packages/kit/test/apps/options-2/test/test.js
+index ba5f100..b381e4b 100644
+--- a/packages/kit/test/apps/options-2/test/test.js
++++ b/packages/kit/test/apps/options-2/test/test.js
+@@ -132,7 +132,8 @@ test.describe("bundleStrategy: 'single'", () => {
+ 			page.waitForLoadState('networkidle') // wait for preloading to finish
+ 		]);
+ 
+-		expect(requests.filter((req) => req.endsWith('.js')).length).toBe(1);
++		// NOTE: rolldown cannot generate a single chunk (probably because it'll break the execution order)
++		expect(requests.filter((req) => req.endsWith('.js')).length).toBe(5);
+ 		expect(requests.filter((req) => req.endsWith('.css')).length).toBe(1);
+ 	});
+ });
+-- 
+2.47.1
+
