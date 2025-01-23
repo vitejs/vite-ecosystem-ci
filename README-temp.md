@@ -33,31 +33,31 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | [analogjs](#analog)                                     |    ❌ | rolldown crashes at `core/src/slice/sort/shared/smallsort.rs`                                            |
 | astro                                                   |       |                                                                                                          |
 | histoire                                                |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
-| [ladle](#ladle)                                         |    ⚠️ | failing due to incorrect minification                                                                    |
+| ladle                                                   |    ✅ |                                                                                                          |
 | laravel                                                 |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
 | [marko](#marko)                                         |    ⚠️ | failing due to esbuild plugin usage                                                                      |
 | [nuxt](#nuxt)                                           |    ❌ | rolldown crashes at `crates/rolldown_common/src/types/symbol_ref_db.rs`                                  |
 | previewjs                                               |    ⚠️ | fails locally but when running tests manually in playwright ui, it works. probably fine                  |
 | quasar                                                  |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
 | [qwik](#qwik)                                           |    ❌ | uses `this.emitFile({ type: 'chunk' })`, `manualChunks`                                                  |
-| [rakkas](#rakkas)                                       |    ⚠️ | failing due to incorrect minification. patched one plugin to return `moduleType: 'js'`                   |
+| rakkas                                                  |    ✅ | patched one plugin to return `moduleType: 'js'`                                                          |
 | react-router                                            |       |                                                                                                          |
 | redwoodjs                                               |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
 | [storybook](#storybook)                                 |    ❌ | failing due to incorrect JSX transformation                                                              |
-| sveltekit                                               |       |                                                                                                          |
+| [sveltekit](#sveltekit)                                 |    ⚠️ | mostly works, only minor issues                                                                          |
 | [unocss](#unocss)                                       |    ❌ | modifies `chunk.modules`. needs `VITE_USE_LEGACY_PARSE_AST=1`                                            |
 | [vike](#vike)                                           |    ❌ | uses `writeBundle.sequential`, function `assetFileNames`, advanced `manualChunks`                        |
 | [vite-environment-examples](#vite-environment-examples) |    ❌ | needs more investigation                                                                                 |
 | vite-plugin-pwa                                         |    ✅ | patched one place that was assigning to OutputBundle                                                     |
 | vite-plugin-react                                       |    ✅ | I did not ran because it was tested separately. See https://github.com/rolldown/vite-plugin-react/pull/1 |
 | vite-plugin-react-swc                                   |    ⏭️ | skipped for now. It should be fine as vite-plugin-react is tested.                                       |
-| [vite-plugin-svelte](#vite-plugin-svelte)               |    ⚠️ | some tests fail                                                                                          |
+| [vite-plugin-svelte](#vite-plugin-svelte)               |    ⚠️ | some tests fail but not correctness failures                                                             |
 | [vite-plugin-vue](#vite-plugin-vue)                     |    ⚠️ | 2 tests failing but not correctness failures                                                             |
 | vite-setup-catalogue                                    |    ✅ |                                                                                                          |
 | vitepress                                               |    ✅ | patched one place that was assigning to OutputBundle                                                     |
 | vitest                                                  |    ⏭️ | skipped for now. It is failing with original main branch.                                                |
 | vuepress                                                |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
-| waku                                                    |    ⏭️ | skipped for now. It is failing with the main branch.                                                     |
+| waku                                                    |       |                                                                                                          |
 
 ## Details
 
@@ -78,16 +78,10 @@ Steps to reproduce:
 3. Run `pnpm tsx ecosystem-ci.ts analogjs --repo rolldown/vite --branch rolldown-v6`
 4. After that you can run `pnpm nx run blog-app:build:production` in `workspace/analogjs/analog` to only run that build
 
-### ladle
-
-- ⚠ `tests/posts.spec.ts` fails
-  - it's happening because of incorrect minification, if I set `build.minify: false` it works. Maybe it's fixed in OXC 0.46.0.
-
 ### marko
 
 - ⚠️ Errors because it tries to update `input` option in `buildStart`
   - Added a patch to update `input` option in `options` hook
-  - NOTE: rolldown calls `options` hook for the number of outputOptions + 1 (1 for `bundle.close()`) (which is probably not intuitive)
 - ⚠️ An error happens with the optimizer because it uses esbuild plugins: https://github.com/marko-js/vite/blob/ff8a2fe6fdac4848015d39bca4eef82d41743122/src/esbuild-plugin.ts#L15
 
 ### nuxt
@@ -119,17 +113,22 @@ Steps to reproduce:
   - `closeBundle.sequential` (https://github.com/rolldown/rolldown/issues/3337)
   - `preserveSignature` option in `this.emitFile({ type: 'chunk' })`
 
-### rakkas
-
-- ⚠ `ci.test.ts > http://localhost:3000 > renders API route in page (client-side nav)` fails
-  - it's happening because of incorrect minification, if I set `build.minify: false` it works. If I manually minify the file, it still works. Maybe it's fixed in OXC 0.46.0.
-
 ### storybook
 
 `yarn task --task test-runner --template react-vite/default-ts --start-from=build` passes.
 
 - ❌ `yarn task --task test-runner-dev --template react-vite/default-ts --start-from=dev` fails
   - OXC tranforms JSX in development mode incorrectly (https://github.com/oxc-project/oxc/issues/8650)
+
+### sveltekit
+
+better to run with `CI=1` as some tests are flaky and setting that will retry them
+
+- uses `manualChunks` but can be replaced with `advancedChunks`
+  - Note that the test expects a single chunk to be output, but rolldown outputs 5 chunks (probably because it'll break the execution order), I guess this is fine
+  - Also found some issue with `experimental.strictExecutionOrder`: https://github.com/rolldown/rolldown/issues/3410
+- tests in `apps/dev-only` fails (`test.js:119:2 › Vite › optimizes +page.svelte dependencies`, `test.js:129:2 › Vite › optimizes +page.js dependencies`, `test.js:139:2 › Vite › skips optimizing +page.server.js dependencies`)
+  - probably because esbuild plugins are used
 
 ### unocss
 
