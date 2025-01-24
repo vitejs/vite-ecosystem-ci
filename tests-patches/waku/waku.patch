@@ -1,0 +1,82 @@
+From 98a954d2690b55384380c0b7660820f942263758 Mon Sep 17 00:00:00 2001
+From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
+Date: Fri, 24 Jan 2025 17:33:44 +0900
+Subject: [PATCH] temporary commit
+
+---
+ packages/waku/src/lib/builder/build.ts                   | 3 ++-
+ packages/waku/src/lib/plugins/vite-plugin-rsc-entries.ts | 4 +++-
+ packages/waku/src/lib/plugins/vite-plugin-rsc-rsdw.ts    | 5 +++--
+ tsconfig.json                                            | 4 +++-
+ 4 files changed, 11 insertions(+), 5 deletions(-)
+
+diff --git a/packages/waku/src/lib/builder/build.ts b/packages/waku/src/lib/builder/build.ts
+index 7cdbdb1..294e246 100644
+--- a/packages/waku/src/lib/builder/build.ts
++++ b/packages/waku/src/lib/builder/build.ts
+@@ -423,7 +423,8 @@ const buildClientBundle = async (
+             onwarn,
+             // rollup will ouput the style files related to clientEntryFiles, but since it does not find any link to them in the index.html file, it will not inject them. They are only mentioned by the standalone `clientEntryFiles`
+             input: clientEntryFiles,
+-            preserveEntrySignatures: 'exports-only',
++            // NOTE: rolldown does not support `preserveEntrySignatures`
++            // preserveEntrySignatures: 'exports-only',
+             output: {
+               entryFileNames: (chunkInfo: { name: string }) => {
+                 if (clientEntryFiles[chunkInfo.name]) {
+diff --git a/packages/waku/src/lib/plugins/vite-plugin-rsc-entries.ts b/packages/waku/src/lib/plugins/vite-plugin-rsc-entries.ts
+index d55072e..595b6c8 100644
+--- a/packages/waku/src/lib/plugins/vite-plugin-rsc-entries.ts
++++ b/packages/waku/src/lib/plugins/vite-plugin-rsc-entries.ts
+@@ -26,7 +26,9 @@ globalThis.AsyncLocalStorage = require('node:async_hooks').AsyncLocalStorage;
+ export function loadModule(id) {
+   switch (id) {
+     ${Object.entries(opts.moduleMap)
+-      .map(([k, v]) => `case '${k}': return import('' + '${v}');`)
++      // NOTE: rolldown tries to resolve `import('' + 'static')`
++      //       so replaced with `import(String('static'))`
++      .map(([k, v]) => `case '${k}': return import(String('${v}'));`)
+       .join('\n')}
+     default: throw new Error('Cannot find module: ' + id);
+   }
+diff --git a/packages/waku/src/lib/plugins/vite-plugin-rsc-rsdw.ts b/packages/waku/src/lib/plugins/vite-plugin-rsc-rsdw.ts
+index 69e9c3e..68ccc3a 100644
+--- a/packages/waku/src/lib/plugins/vite-plugin-rsc-rsdw.ts
++++ b/packages/waku/src/lib/plugins/vite-plugin-rsc-rsdw.ts
+@@ -11,7 +11,8 @@ const patchRsdw = (code: string, type: 'SERVER' | 'CLIENT') => {
+   }
+ 
+   return code.replaceAll(
+-    'function requireAsyncModule(id)',
++    // NOTE: rolldown renames `requireAsyncModule` to `requireAsyncModule$1` in some places
++    /function requireAsyncModule(\$\d)?\(id\)/g,
+     `
+ globalThis.__WAKU_${type}_MODULE_LOADING__ ||= new Map();
+ globalThis.__WAKU_${type}_MODULE_CACHE__ ||= new Map();
+@@ -27,7 +28,7 @@ globalThis.__WAKU_${type}_CHUNK_LOAD__ ||= (id) => {
+   return globalThis.__WAKU_${type}_MODULE_LOADING__.get(id);
+ };
+ globalThis.__WAKU_${type}_REQUIRE__ ||= (id) => globalThis.__WAKU_${type}_MODULE_CACHE__.get(id);
+-function requireAsyncModule(id)
++function requireAsyncModule$1(id)
+ `,
+   );
+ };
+diff --git a/tsconfig.json b/tsconfig.json
+index f5c21e1..5530abc 100644
+--- a/tsconfig.json
++++ b/tsconfig.json
+@@ -4,7 +4,9 @@
+     "target": "esnext",
+     "downlevelIteration": true,
+     "esModuleInterop": true,
+-    "module": "nodenext",
++    // NOTE: workaround for https://github.com/rolldown/rolldown/issues/3407
++    "module": "preserve",
++    "moduleResolution": "bundler",
+     "skipLibCheck": true,
+     "verbatimModuleSyntax": true,
+     "noUnusedLocals": true,
+-- 
+2.47.1
+
