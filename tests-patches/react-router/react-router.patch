@@ -1,0 +1,205 @@
+From 278bec795982e1efae26c37538f6f5d5157ca9cf Mon Sep 17 00:00:00 2001
+From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
+Date: Fri, 24 Jan 2025 20:31:42 +0900
+Subject: [PATCH] temporary commit
+
+---
+ integration/fog-of-war-test.ts                     |  3 ++-
+ integration/helpers/vite-5-template/vite.config.ts |  9 +++++++++
+ integration/helpers/vite.ts                        | 11 +++++++++++
+ integration/prefetch-test.ts                       | 12 ++++++------
+ integration/vite-build-test.ts                     |  7 +++++++
+ integration/vite-css-test.ts                       |  9 +++++++++
+ integration/vite-presets-test.ts                   | 11 +++++++++--
+ 7 files changed, 53 insertions(+), 9 deletions(-)
+
+diff --git a/integration/fog-of-war-test.ts b/integration/fog-of-war-test.ts
+index f422e42..8dbfb12 100644
+--- a/integration/fog-of-war-test.ts
++++ b/integration/fog-of-war-test.ts
+@@ -1153,6 +1153,7 @@ test.describe("Fog of War", () => {
+     let fixture = await createFixture({
+       files: {
+         ...getFiles(),
++        // NOTE: see https://github.com/oxc-project/oxc/issues/8690
+         "app/routes/_index.tsx": js`
+           import { Link } from "react-router";
+           export default function Index() {
+@@ -1160,7 +1161,7 @@ test.describe("Fog of War", () => {
+               <>
+                 <h1 id="index">Index</h1>
+                 {/* 400 links * ~19 chars per link > our 7198 char URL limit */}
+-                {...new Array(400).fill(null).map((el, i) => (
++                {new Array(400).fill(null).map((el, i) => (
+                   <Link to={"/dummy-link-" + i}>{i}</Link>
+                 ))}
+               </>
+diff --git a/integration/helpers/vite-5-template/vite.config.ts b/integration/helpers/vite-5-template/vite.config.ts
+index fac933f..f80ea08 100644
+--- a/integration/helpers/vite-5-template/vite.config.ts
++++ b/integration/helpers/vite-5-template/vite.config.ts
+@@ -8,4 +8,13 @@ export default defineConfig({
+     reactRouter(),
+     tsconfigPaths(),
+   ],
++  build: {
++    rollupOptions: {
++      // NOTE: ignore built-in minify under development warning
++      onwarn(warning, warn) {
++        if (warning.code === 'MINIFY_WARNING') return
++        warn(warning)
++      }
++    }
++  }
+ });
+diff --git a/integration/helpers/vite.ts b/integration/helpers/vite.ts
+index cb21da7..9a58127 100644
+--- a/integration/helpers/vite.ts
++++ b/integration/helpers/vite.ts
+@@ -75,6 +75,17 @@ export const viteConfig = {
+           envOnlyMacros(),
+           tsconfigPaths()
+         ],
++        build: {
++          rollupOptions: {
++            // NOTE: ignore missing export errors
++            shimMissingExports: true,
++            // NOTE: ignore built-in minify under development warning
++            onwarn(warning, warn) {
++              if (warning.code === 'MINIFY_WARNING') return
++              warn(warning)
++            }
++          }
++        }
+       };
+     `;
+   },
+diff --git a/integration/prefetch-test.ts b/integration/prefetch-test.ts
+index 211030f..ac4d6a2 100644
+--- a/integration/prefetch-test.ts
++++ b/integration/prefetch-test.ts
+@@ -156,7 +156,7 @@ test.describe("prefetch=render", () => {
+       { state: "attached" }
+     );
+     await page.waitForSelector(
+-      "#nav link[rel='modulepreload'][href^='/assets/chunk-']",
++      "#nav link[rel='modulepreload'][href^='/assets/jsx-runtime-']",
+       { state: "attached" }
+     );
+ 
+@@ -208,7 +208,7 @@ test.describe("prefetch=intent (hover)", () => {
+       { state: "attached" }
+     );
+     await page.waitForSelector(
+-      "#nav link[rel='modulepreload'][href^='/assets/chunk-']",
++      "#nav link[rel='modulepreload'][href^='/assets/jsx-runtime-']",
+       { state: "attached" }
+     );
+     expect(await page.locator("#nav link").count()).toBe(4);
+@@ -223,7 +223,7 @@ test.describe("prefetch=intent (hover)", () => {
+       { state: "attached" }
+     );
+     await page.waitForSelector(
+-      "#nav link[rel='modulepreload'][href^='/assets/chunk-']",
++      "#nav link[rel='modulepreload'][href^='/assets/jsx-runtime-']",
+       { state: "attached" }
+     );
+     expect(await page.locator("#nav link").count()).toBe(3);
+@@ -297,7 +297,7 @@ test.describe("prefetch=intent (focus)", () => {
+       { state: "attached" }
+     );
+     await page.waitForSelector(
+-      "#nav link[rel='modulepreload'][href^='/assets/chunk-']",
++      "#nav link[rel='modulepreload'][href^='/assets/jsx-runtime-']",
+       { state: "attached" }
+     );
+     expect(await page.locator("#nav link").count()).toBe(4);
+@@ -312,7 +312,7 @@ test.describe("prefetch=intent (focus)", () => {
+       { state: "attached" }
+     );
+     await page.waitForSelector(
+-      "#nav link[rel='modulepreload'][href^='/assets/chunk-']",
++      "#nav link[rel='modulepreload'][href^='/assets/jsx-runtime-']",
+       { state: "attached" }
+     );
+     expect(await page.locator("#nav link").count()).toBe(3);
+@@ -470,7 +470,7 @@ test.describe("other scenarios", () => {
+     // We should not send a second request for this root stylesheet that's
+     // already been rendered in the DOM
+     let stylesheets = requests.filter(
+-      (r) => r.type === "stylesheet" && /\/global-[a-z0-9]+\.css/i.test(r.url)
++      (r) => r.type === "stylesheet" && /\/global-[a-z0-9-]+\.css/i.test(r.url)
+     );
+     expect(stylesheets.length).toBe(1);
+   });
+diff --git a/integration/vite-build-test.ts b/integration/vite-build-test.ts
+index 27d7ab5..3cfbda5 100644
+--- a/integration/vite-build-test.ts
++++ b/integration/vite-build-test.ts
+@@ -33,6 +33,13 @@ test.beforeAll(async () => {
+         build: {
+           // force emitting asset files instead of inlined as data-url
+           assetsInlineLimit: 0,
++          // NOTE: ignore built-in minify under development warning
++          rollupOptions: {
++            onwarn(warning, warn) {
++              if (warning.code === 'MINIFY_WARNING') return
++              warn(warning)
++            }
++          }
+         },
+         plugins: [
+           mdx(),
+diff --git a/integration/vite-css-test.ts b/integration/vite-css-test.ts
+index 296c0bd..bf4f843 100644
+--- a/integration/vite-css-test.ts
++++ b/integration/vite-css-test.ts
+@@ -163,6 +163,15 @@ const VITE_CONFIG = async (port: number) => dedent`
+         emitCssInSsr: true,
+       }),
+     ],
++    build: {
++      rollupOptions: {
++        // NOTE: ignore built-in minify under development warning
++        onwarn(warning, warn) {
++          if (warning.code === 'MINIFY_WARNING') return
++          warn(warning)
++        }
++      }
++    }
+   }
+ `;
+ 
+diff --git a/integration/vite-presets-test.ts b/integration/vite-presets-test.ts
+index 12ea017..e43b4c3 100644
+--- a/integration/vite-presets-test.ts
++++ b/integration/vite-presets-test.ts
+@@ -23,7 +23,7 @@ const files = {
+     export default {
+       // Ensure user config takes precedence over preset config
+       appDirectory: "app",
+-      
++
+       presets: [
+         // Ensure user config is passed to reactRouterConfig hook
+         {
+@@ -137,8 +137,15 @@ const files = {
+     export default {
+       build: {
+         assetsDir: "custom-assets-dir",
++        rollupOptions: {
++          // NOTE: ignore built-in minify under development warning
++          onwarn(warning: any, warn: any) {
++            if (warning.code === 'MINIFY_WARNING') return
++            warn(warning)
++          }
++        }
+       },
+-      plugins: [reactRouter()],
++      plugins: [reactRouter()]
+     }
+   `),
+ };
+-- 
+2.47.1
+
