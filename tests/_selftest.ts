@@ -16,8 +16,13 @@ export async function test(options: RunOptions) {
 					`invalid checkout, expected package.json with "name":"vite-ecosystem-ci" in ${dir}`,
 				)
 			}
-			pkg.scripts.selftestscript =
-				"[ -d ../../vite/packages/vite/dist ] || (echo 'vite build failed' && exit 1)"
+			if (options.release?.startsWith('https://pkg.pr.new/vite@')) {
+				pkg.scripts.selftestscript =
+					"[ -d ./node_modules/vite ] || (echo 'vite build failed' && exit 1)"
+			} else {
+				pkg.scripts.selftestscript =
+					"[ -d ../../vite/packages/vite/dist ] || (echo 'vite build failed' && exit 1)"
+			}
 			await fs.promises.writeFile(
 				pkgFile,
 				JSON.stringify(pkg, null, 2),
