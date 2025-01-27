@@ -92,6 +92,13 @@ Steps to reproduce:
   note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
   ```
 
+Steps to reproduce:
+
+1. clone this branch
+2. Run `pnpm install`
+3. Run `pnpm tsx ecosystem-ci.ts astro --repo rolldown/vite --branch rolldown-v6`
+4. After that you can run `node ./test/actions.test.js` in `workspace/astro/astro/packages/astro` to only run that build
+
 ### marko
 
 - ⚠️ Errors because it tries to update `input` option in `buildStart`
