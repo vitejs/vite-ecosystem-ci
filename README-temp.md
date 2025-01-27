@@ -30,13 +30,13 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 
 | suite                                                   | state | description                                                                                              |
 | ------------------------------------------------------- | ----: | :------------------------------------------------------------------------------------------------------- |
-| [analogjs](#analog)                                     |    ❌ | rolldown crashes at `core/src/slice/sort/shared/smallsort.rs`                                            |
+| [analogjs](#analog)                                     |    ❌ | failing due to incorrect chunk generation                                                                |
 | [astro](#astro)                                         |    ❌ | rolldown crashes at `core/src/slice/sort/shared/smallsort.rs`                                            |
 | histoire                                                |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
 | ladle                                                   |    ✅ |                                                                                                          |
 | laravel                                                 |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
 | [marko](#marko)                                         |    ✅ | passed by esbuild-rollup plugin conversion                                                               |
-| [nuxt](#nuxt)                                           |    ❌ | rolldown crashes at `crates/rolldown_common/src/types/symbol_ref_db.rs`                                  |
+| [nuxt](#nuxt)                                           |    ❌ | fails due to chunk name conflict and incorrect minification                                              |
 | previewjs                                               |    ⚠️ | fails locally but when running tests manually in playwright ui, it works. probably fine                  |
 | quasar                                                  |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
 | [qwik](#qwik)                                           |    ❌ | uses `this.emitFile({ type: 'chunk' })`, `manualChunks`                                                  |
@@ -63,20 +63,8 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 
 ### analog
 
-❌ `nx run blog-app:build:production` crashes with
-
-```
-thread 'tokio-runtime-worker' panicked at core/src/slice/sort/shared/smallsort.rs:865:5:
-user-provided comparison function does not correctly implement a total order
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
-```
-
-Steps to reproduce:
-
-1. clone this branch
-2. Run `pnpm install`
-3. Run `pnpm tsx ecosystem-ci.ts analogjs --repo rolldown/vite --branch rolldown-v6`
-4. After that you can run `pnpm nx run blog-app:build:production` in `workspace/analogjs/analog` to only run that build
+- ❌ `nx run blog-app:build:production` errors
+  - It's because rolldown is generating an invalid chunk: [rolldown/rolldown#3438](https://github.com/rolldown/rolldown/issues/3438)
 
 ### astro
 
@@ -107,24 +95,19 @@ Steps to reproduce:
 
 ### nuxt
 
-- ❌ uses missing features
-  - uses `sanitizeFileName` option
-  - function `assetFileNames` option (+ `this.emitFile` in Vite) blocked by https://github.com/rolldown/rolldown/issues/3414
+`pnpm test:fixtures:dev` and `pnpm test:types` passes.
 
-`pnpm test:fixtures` crashes with
-
-```
-thread '<unnamed>' panicked at crates/rolldown_common/src/types/symbol_ref_db.rs:143:7:
-canonical name not found for SymbolRef { owner: 33, symbol: SymbolId(4) }, original_name: "CapoPlugin"
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
-```
-
-Steps to reproduce:
-
-1. clone this branch
-2. Run `pnpm install`
-3. Run `pnpm tsx ecosystem-ci.ts nuxt --repo rolldown/vite --branch rolldown-v6`
-4. After that you can run `pnpm build` in `workspace/nuxt/nuxt/test/fixtures/minimal` to only run that build
+- ❌ `ECOSYSTEM_CI=1 pnpm test:fixtures` fails
+  - ❌ caused by chunk name conflict
+    - See [rolldown/rolldown#3443](https://github.com/rolldown/rolldown/issues/3443) for more details.
+    - Added a patch
+  - ❌ caused by assigning to `bundle[chunkName].isEntry` in `generateBundle` hook
+    - https://github.com/nuxt/nuxt/blob/f90ed0ff67c8ec3e284baed44c8e27e4171941ed/packages/nuxt/src/components/plugins/islands-transform.ts#L222-L223
+    - I guess it's to change the behavior of the manifest plugin in Vite core
+    - Sent a PR: [rolldown/rolldown#3446](https://github.com/rolldown/rolldown/pull/3446)
+  - ❌ incorrect minification: [oxc-project/oxc#8759](https://github.com/oxc-project/oxc/pull/8759)
+  - ⚠️ uses function type `outputOptions.assetFileNames` in `generateBundle` hook
+    - it can be workaround by using `this.environment.config.build.rollupOptions.output.assetFileNames` (applied this workaround)
 
 ### qwik
 
@@ -164,7 +147,7 @@ better to run with `CI=1` as some tests are flaky and setting that will retry th
 ### unocss
 
 - ❌ `test/fixtures.test.ts > fixtures > vite client`/`test/fixtures.test.ts > fixtures > vite lib`/`test/fixtures.test.ts > fixtures > vite lib rollupOptions` fails
-  - UnoCSS modifies `chunk.modules` to fool the css plugin to generate the css in corresponding chunk
+  - UnoCSS modifies `chunk.modules` to fool the css plugin to generate the css in corresponding chunk ([unocss/unocss#4403](https://github.com/unocss/unocss/issues/4403))
 
 ### vike
 
