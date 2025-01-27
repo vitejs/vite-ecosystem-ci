@@ -277,7 +277,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		}
 
 		if (overrides.rollup !== false || overrides.esbuild === true) {
-			const viteManifest = await pacote.manifest(options.release)
+			const viteManifest = await pacote.manifest(`vite@${options.release}`)
 
 			// skip if `overrides.rollup` is `false`
 			if (overrides.rollup !== false) {
