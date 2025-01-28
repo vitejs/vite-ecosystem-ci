@@ -7,7 +7,7 @@ export async function test(options: RunOptions) {
 		repo: 'dai-shi/waku',
 		branch: 'main',
 		build: 'compile',
-		beforeTest: 'pnpm playwright install',
+		beforeTest: 'pnpm playwright install chromium',
 		test: 'test-vite-ecosystem-ci',
 	})
 }
