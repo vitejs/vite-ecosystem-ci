@@ -106,6 +106,7 @@ Steps to reproduce:
     - I guess it's to change the behavior of the manifest plugin in Vite core
     - Sent a PR: [rolldown/rolldown#3446](https://github.com/rolldown/rolldown/pull/3446)
   - ❌ incorrect minification: [oxc-project/oxc#8759](https://github.com/oxc-project/oxc/pull/8759)
+    - Added a patch
   - ⚠️ uses function type `outputOptions.assetFileNames` in `generateBundle` hook
     - it can be workaround by using `this.environment.config.build.rollupOptions.output.assetFileNames` (applied this workaround)
 
