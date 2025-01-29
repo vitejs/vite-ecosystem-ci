@@ -6,7 +6,10 @@ export async function test(options: RunOptions) {
 		...options,
 		repo: 'BuilderIO/qwik',
 		build: 'build.vite',
-		beforeTest: 'pnpm playwright install chromium',
+		beforeTest: [
+			'pnpm playwright install chromium',
+			'pnpm i -D @babel/runtime',
+		],
 		test: 'test.vite',
 	})
 }

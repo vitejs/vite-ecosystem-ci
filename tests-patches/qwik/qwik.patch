@@ -1,16 +1,16 @@
-From d3ad7c10de7f5b03c38c2b206a307b7b9b139144 Mon Sep 17 00:00:00 2001
+From 141a77f4a05b704fc37846428ab9b4492f9b3193 Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Wed, 22 Jan 2025 20:17:09 +0900
+Date: Wed, 29 Jan 2025 14:49:27 +0900
 Subject: [PATCH] temporary commit
 
 ---
  .../src/adapters/shared/vite/index.ts         |  2 +-
  .../qwik-city/src/buildtime/vite/plugin.ts    |  2 +-
- .../qwik/src/optimizer/src/plugins/plugin.ts  | 17 ++++++------
+ .../qwik/src/optimizer/src/plugins/plugin.ts  | 22 ++++++++--------
  .../qwik/src/optimizer/src/plugins/rollup.ts  | 26 ++++++++++---------
  .../qwik/src/optimizer/src/plugins/vite.ts    | 18 ++++++++-----
  starters/features/storybook/tsconfig.json     |  3 +++
- 6 files changed, 39 insertions(+), 29 deletions(-)
+ 6 files changed, 41 insertions(+), 32 deletions(-)
  create mode 100644 starters/features/storybook/tsconfig.json
 
 diff --git a/packages/qwik-city/src/adapters/shared/vite/index.ts b/packages/qwik-city/src/adapters/shared/vite/index.ts
@@ -40,7 +40,7 @@ index b7ac8db..1952ccd 100644
          if (ctx?.target === 'ssr' && !ctx?.isDevServer) {
            // ssr build
 diff --git a/packages/qwik/src/optimizer/src/plugins/plugin.ts b/packages/qwik/src/optimizer/src/plugins/plugin.ts
-index 02e9acd..cd328fe 100644
+index 02e9acd..7193a5f 100644
 --- a/packages/qwik/src/optimizer/src/plugins/plugin.ts
 +++ b/packages/qwik/src/optimizer/src/plugins/plugin.ts
 @@ -605,7 +605,7 @@ export function createPlugin(optimizerOptions: OptimizerOptions = {}) {
@@ -62,7 +62,19 @@ index 02e9acd..cd328fe 100644
                });
              }
            }
-@@ -873,11 +874,11 @@ export const manifest = ${JSON.stringify(manifest)};\n`;
+@@ -732,9 +733,8 @@ export function createPlugin(optimizerOptions: OptimizerOptions = {}) {
+       // unchanged imports are not missing in our internal transform cache
+       // This can happen in the repl when the plugin is re-initialized
+       // and possibly in other places
+-      for (const id of deps.values()) {
+-        await ctx.load({ id });
+-      }
++      // NOTE: this should be Promise.all rather than a for-loop to avoid deadlocks
++      await Promise.all([...deps.values()].map(id => ctx.load({ id })))
+ 
+       ctx.addWatchFile(id);
+ 
+@@ -873,11 +873,11 @@ export const manifest = ${JSON.stringify(manifest)};\n`;
    // This groups all QRL segments into their respective entry points
    // optimization opportunity: group small segments that don't import anything into smallish chunks
    // order by discovery time, so that related segments are more likely to group together
@@ -79,7 +91,7 @@ index 02e9acd..cd328fe 100644
  
    return {
      buildStart,
-@@ -901,7 +902,7 @@ export const manifest = ${JSON.stringify(manifest)};\n`;
+@@ -901,7 +901,7 @@ export const manifest = ${JSON.stringify(manifest)};\n`;
      setSourceMapSupport,
      configureServer,
      handleHotUpdate,
