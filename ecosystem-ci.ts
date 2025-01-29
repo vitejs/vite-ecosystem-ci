@@ -10,6 +10,7 @@ import {
 	bisectVite,
 	parseViteMajor,
 	parseMajorVersion,
+	getPermanentRef,
 } from './utils.ts'
 import type { CommandOptions, RunOptions } from './types.d.ts'
 
@@ -23,9 +24,18 @@ cli
 	.option('--commit <commit>', 'vite commit sha to use')
 	.option('--release <version>', 'vite release to use from npm registry')
 	.action(async (suites, options: CommandOptions) => {
+		if (
+			options.branch === 'main' &&
+			options.repo === 'vitejs/vite' &&
+			!options.commit
+		) {
+			const sha = await getPermanentRef(options.repo, options.branch)
+			if (sha) {
+				options.commit = sha
+			}
+		}
 		if (options.commit) {
 			const url = `https://pkg.pr.new/vite@${options.commit}`
-			//eslint-disable-next-line n/no-unsupported-features/node-builtins
 			const { status } = await fetch(url)
 			if (status === 200) {
 				options.release = url
