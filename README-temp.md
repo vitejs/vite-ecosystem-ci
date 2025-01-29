@@ -39,7 +39,7 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | [nuxt](#nuxt)                                           |    ❌ | fails due to chunk name conflict and incorrect minification                                              |
 | previewjs                                               |    ⚠️ | fails locally but when running tests manually in playwright ui, it works. probably fine                  |
 | quasar                                                  |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
-| [qwik](#qwik)                                           |    ❌ | uses `this.emitFile({ type: 'chunk' })`, `manualChunks`                                                  |
+| [qwik](#qwik)                                           |    ⚠️ | passes, but uses some missing features                                                                   |
 | rakkas                                                  |    ✅ | patched one plugin to return `moduleType: 'js'`                                                          |
 | [react-router](#react-router)                           |    ❌ | one test failing due to incorrect JSX transformation                                                     |
 | redwoodjs                                               |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
@@ -112,11 +112,12 @@ Steps to reproduce:
 
 ### qwik
 
-- ❌ uses missing features
-  - `this.emitFile({ type: 'chunk' })` (should be supported by https://github.com/rolldown/rolldown/pull/3351, try it later after upgraded rolldown)
+- ⚠️ uses missing features
   - `manualChunks`
   - `closeBundle.sequential` (https://github.com/rolldown/rolldown/issues/3337)
   - `preserveSignature` option in `this.emitFile({ type: 'chunk' })`
+- ✅ `pnpm tsx --require ./scripts/runBefore.ts starters/dev-server.ts 3301` hanged
+  - added a fix, probably because there was a dead-lock
 
 ### react-router
 
