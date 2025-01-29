@@ -18,7 +18,7 @@ export async function test(options: RunOptions) {
 			}
 			if (options.release?.startsWith('https://pkg.pr.new/vite@')) {
 				pkg.scripts.selftestscript =
-					"[ -d ./node_modules/vite ] || (echo 'vite build failed' && exit 1)"
+					"[ -d ./node_modules/vite/dist ] || (echo 'vite build failed' && exit 1)"
 			} else {
 				pkg.scripts.selftestscript =
 					"[ -d ../../vite/packages/vite/dist ] || (echo 'vite build failed' && exit 1)"
