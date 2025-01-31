@@ -114,6 +114,7 @@ Steps to reproduce:
 
 - ⚠️ uses missing features
   - `manualChunks`
+    - wants to group chunks by entry ([code](https://github.com/QwikDev/qwik/blob/0a752dc6dd4c7b0000aa6a1d17f3ccfcee89fc7f/packages/qwik/src/optimizer/src/plugins/plugin.ts#L873-L880), introduced in [QwikDev/qwik#6670](https://github.com/QwikDev/qwik/pull/6670), related issue [rollup/rollup#5574](https://github.com/rollup/rollup/issues/5574))
   - `closeBundle.sequential` (https://github.com/rolldown/rolldown/issues/3337)
   - `preserveSignature` option in `this.emitFile({ type: 'chunk' })`
 - ✅ `pnpm tsx --require ./scripts/runBefore.ts starters/dev-server.ts 3301` hanged
@@ -158,6 +159,8 @@ better to run with `CI=1` as some tests are flaky and setting that will retry th
   - ❌ uses function `assetFileNames` option (+ `this.emitFile` in Vite) blocked by https://github.com/rolldown/rolldown/issues/3414
   - ❌ uses `manualChunks` that requires callbacks
     - https://github.com/vikejs/vike/blob/ea3a84264222768b9869e5f87ce4429e0685f3ae/vike/node/plugin/plugins/distFileNames.ts#L45-L101
+    - introduced to workaround [vikejs/vike#1815](https://github.com/vikejs/vike/issues/1815)
+    - maybe this can be workaround by adding `?url` to all CSS imports
 - ❌ `|e2e| test/assertFileEnv/test-build.spec.ts` fails
   - because of https://github.com/rolldown/rolldown/issues/3402
   - added a patch
