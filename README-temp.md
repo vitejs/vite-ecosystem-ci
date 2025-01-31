@@ -204,8 +204,3 @@ needs `VITE_USE_LEGACY_PARSE_AST=1`
   note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
   ```
 - ⚠️ uses `preserveEntrySignatures: 'exports-only'`
-
-# Note to self
-
-- [ ] There's many "OXC-esbuild incompatible options" warning output by Vite should be deduped
-- [ ] Add a friendly error message when `@babel/runtime` is not installed (`Could not resolve "@babel/runtime/helpers/classPrivateFieldSet2" in entrypoint` at https://github.com/rolldown/vite/blob/5cdceeb16fc7d660efa5024307b33f458532d204/packages/vite/src/node/plugins/oxc.ts#L514-L538)
