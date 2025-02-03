@@ -104,6 +104,7 @@ jobs:
           REF_TYPE: ${{ inputs.refType || github.event.client_payload.refType || 'branch' }}
           REF: ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
           REPO: ${{ inputs.repo || github.event.client_payload.repo || 'vitejs/vite' }}
+          COMMIT: ${{ steps.ecosystem-ci-run.outputs.commit }}
           SUITE: ${{ matrix.suite }}
           STATUS: ${{ job.status }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}

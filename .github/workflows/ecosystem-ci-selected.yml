@@ -101,6 +101,7 @@ jobs:
           REF_TYPE: ${{ inputs.refType }}
           REF: ${{ inputs.ref }}
           REPO: ${{ inputs.repo }}
+          COMMIT: ${{ steps.ecosystem-ci-run.outputs.commit }}
           SUITE: ${{ inputs.suite }}
           STATUS: ${{ job.status }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}

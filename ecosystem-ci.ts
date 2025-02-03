@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import process from 'process'
 import { cac } from 'cac'
+import actionsCore from '@actions/core'
 
 import {
 	setupEnvironment,
@@ -32,6 +33,7 @@ cli
 			const sha = await getPermanentRef(options.repo, options.branch)
 			if (sha) {
 				options.commit = sha
+				actionsCore.setOutput('commit', sha)
 			}
 		}
 		if (options.commit) {
