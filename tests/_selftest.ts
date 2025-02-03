@@ -16,7 +16,7 @@ export async function test(options: RunOptions) {
 					`invalid checkout, expected package.json with "name":"vite-ecosystem-ci" in ${dir}`,
 				)
 			}
-			if (options.release?.startsWith('https://pkg.pr.new/vite@')) {
+			if (options.release) {
 				pkg.scripts.selftestscript =
 					"[ -d ./node_modules/vite/dist ] || (echo 'vite build failed' && exit 1)"
 			} else {
