@@ -1,17 +1,16 @@
-From abc279628b4ab5b65eebf996a4787f00ae06d80f Mon Sep 17 00:00:00 2001
+From 13eefda21b3b3699f39c171f01fa18870401416a Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Tue, 28 Jan 2025 20:22:22 +0900
+Date: Wed, 5 Feb 2025 14:54:47 +0900
 Subject: [PATCH] temporary commit
 
 ---
  packages/vite/src/plugins/ssr-styles.ts       | 27 ++++++++++++-------
- packages/vite/src/vite.ts                     |  7 +++--
- test/basic.test.ts                            |  8 ++++--
- test/fixtures/basic/nuxt.config.ts            |  9 +++++++
+ packages/vite/src/vite.ts                     |  4 +++
+ test/basic.test.ts                            |  2 ++
  test/fixtures/basic/pages/assets.vue          | 10 +++----
- test/fixtures/runtime-compiler/nuxt.config.ts |  6 +++++
- test/fixtures/suspense/nuxt.config.ts         |  6 +++++
- 7 files changed, 53 insertions(+), 20 deletions(-)
+ test/fixtures/runtime-compiler/nuxt.config.ts |  2 +-
+ test/fixtures/suspense/nuxt.config.ts         |  2 +-
+ 6 files changed, 29 insertions(+), 18 deletions(-)
 
 diff --git a/packages/vite/src/plugins/ssr-styles.ts b/packages/vite/src/plugins/ssr-styles.ts
 index bfe227c..2a32de0 100644
@@ -67,25 +66,18 @@ index bfe227c..2a32de0 100644
          const baseDir = dirname(base)
  
 diff --git a/packages/vite/src/vite.ts b/packages/vite/src/vite.ts
-index 85290f7..bdbff3a 100644
+index ed63c8c..7321c83 100644
 --- a/packages/vite/src/vite.ts
 +++ b/packages/vite/src/vite.ts
-@@ -82,12 +82,12 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
-                 return relativeSourcePath.includes('node_modules') || relativeSourcePath.includes(ctx.nuxt.options.buildDir)
-               },
-               sanitizeFileName: sanitizeFilePath,
--              // https://github.com/vitejs/vite/tree/main/packages/vite/src/node/build.ts#L464-L478
-               assetFileNames: nuxt.options.dev
-                 ? undefined
--                : chunk => withoutLeadingSlash(join(nuxt.options.app.buildAssetsDir, `${sanitizeFilePath(filename(chunk.name!))}.[hash].[ext]`)),
-+                : chunk => withoutLeadingSlash(join(nuxt.options.app.buildAssetsDir, `${sanitizeFilePath(filename(chunk.names[0]!))}.[hash].[ext]`)),
+@@ -88,6 +88,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
+                 : chunk => withoutLeadingSlash(join(nuxt.options.app.buildAssetsDir, `${sanitizeFilePath(filename(chunk.names[0]!))}.[hash].[ext]`)),
              },
            },
 +          // @ts-expect-error rolldown-vite does not support `watch` yet
            watch: {
              chokidar: { ...nuxt.options.watchers.chokidar, ignored: [isIgnored, /[\\/]node_modules[\\/]/] },
              exclude: nuxt.options.ignore,
-@@ -100,6 +100,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
+@@ -100,6 +101,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
              sourcemap: !!nuxt.options.sourcemap.server,
              baseURL: nuxt.options.app.baseURL,
            }),
@@ -93,7 +85,7 @@ index 85290f7..bdbff3a 100644
            replace({ preventAssignment: true, ...globalThisReplacements }),
          ],
          server: {
-@@ -117,6 +118,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
+@@ -117,6 +119,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
    // to detect whether to inject production or development code (such as HMR code)
    if (!nuxt.options.dev) {
      ctx.config.server!.watch = undefined
@@ -101,7 +93,7 @@ index 85290f7..bdbff3a 100644
      ctx.config.build!.watch = undefined
    }
  
-@@ -175,6 +177,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
+@@ -175,6 +178,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
        }
      }
  
@@ -110,7 +102,7 @@ index 85290f7..bdbff3a 100644
    })
  
 diff --git a/test/basic.test.ts b/test/basic.test.ts
-index 1253413..1f90fad 100644
+index 312bc91..b0b3d45 100644
 --- a/test/basic.test.ts
 +++ b/test/basic.test.ts
 @@ -1879,6 +1879,8 @@ describe.skipIf(isDev() || isWebpack)('inlining component styles', () => {
@@ -122,46 +114,6 @@ index 1253413..1f90fad 100644
        expect.soft(css).not.toContain(style)
      }
  
-@@ -1989,7 +1991,8 @@ describe('server components/islands', () => {
-     await page.close()
-   })
- 
--  it('should not preload ComponentWithRef', async () => {
-+  // NOTE: this test fails just because `chunkFileNames` is set
-+  it.skip('should not preload ComponentWithRef', async () => {
-     // should not add <ComponentWithRef> to the modulepreload list since it is used only server side
-     const { page } = await renderPage('/islands')
-     const links = await page.locator('link').all()
-@@ -2076,7 +2079,8 @@ describe.skipIf(isDev() || isWindows || !isRenderingJson)('prefetching', () => {
-     await page.close()
-   })
- 
--  it('should not prefetch certain dynamic imports by default', async () => {
-+  // NOTE: this test fails just because `chunkFileNames` is set
-+  it.skip('should not prefetch certain dynamic imports by default', async () => {
-     const html = await $fetch<string>('/auth')
-     // should not prefetch global components
-     expect(html).not.toMatch(/<link [^>]*\/_nuxt\/TestGlobal[^>]*\.js"/)
-diff --git a/test/fixtures/basic/nuxt.config.ts b/test/fixtures/basic/nuxt.config.ts
-index e4cf482..6334420 100644
---- a/test/fixtures/basic/nuxt.config.ts
-+++ b/test/fixtures/basic/nuxt.config.ts
-@@ -209,6 +209,15 @@ export default defineNuxtConfig({
-     logLevel: 'silent',
-     build: {
-       assetsInlineLimit: 100, // keep SVG as assets URL
-+      // NOTE: workaround for https://github.com/oxc-project/oxc/pull/8759
-+      minify: false,
-+      // NOTE: workaround for https://github.com/rolldown/rolldown/issues/3443
-+      rollupOptions: {
-+        output: {
-+          entryFileNames: '_nuxt/[name]-[hash].js',
-+          chunkFileNames: '_nuxt/[name]-[hash].js',
-+        }
-+      }
-     },
-   },
-   telemetry: false, // for testing telemetry types - it is auto-disabled in tests
 diff --git a/test/fixtures/basic/pages/assets.vue b/test/fixtures/basic/pages/assets.vue
 index 4b200f8..06fb95c 100644
 --- a/test/fixtures/basic/pages/assets.vue
@@ -188,33 +140,25 @@ index 4b200f8..06fb95c 100644
  }
  </style>
 diff --git a/test/fixtures/runtime-compiler/nuxt.config.ts b/test/fixtures/runtime-compiler/nuxt.config.ts
-index b5a3318..cbe00ab 100644
+index b5a3318..f6c2c81 100644
 --- a/test/fixtures/runtime-compiler/nuxt.config.ts
 +++ b/test/fixtures/runtime-compiler/nuxt.config.ts
-@@ -8,4 +8,10 @@ export default defineNuxtConfig({
+@@ -7,5 +7,5 @@ export default defineNuxtConfig({
+   experimental: {
      externalVue: false,
    },
-   compatibilityDate: '2024-06-28',
-+  vite: {
-+    build: {
-+      // NOTE: workaround for https://github.com/oxc-project/oxc/pull/8759
-+      minify: false,
-+    }
-+  }
+-  compatibilityDate: '2024-06-28',
++  compatibilityDate: '2024-06-28'
  })
 diff --git a/test/fixtures/suspense/nuxt.config.ts b/test/fixtures/suspense/nuxt.config.ts
-index b485e67..0366ff9 100644
+index b485e67..b36fe5a 100644
 --- a/test/fixtures/suspense/nuxt.config.ts
 +++ b/test/fixtures/suspense/nuxt.config.ts
-@@ -12,4 +12,10 @@ export default defineNuxtConfig({
+@@ -11,5 +11,5 @@ export default defineNuxtConfig({
+   compatibilityDate: '2024-06-28',
    nitro: {
      output: { dir: fileURLToPath(new URL(testWithInlineVue ? './.output-inline' : './.output', import.meta.url)) },
-   },
-+  vite: {
-+    build: {
-+      // NOTE: workaround for https://github.com/oxc-project/oxc/pull/8759
-+      minify: false,
-+    }
+-  },
 +  }
  })
 -- 

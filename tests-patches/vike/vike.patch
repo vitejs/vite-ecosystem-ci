@@ -1,78 +1,18 @@
-From 2b030ab32a3d80499197bbf94a31695f238892fa Mon Sep 17 00:00:00 2001
+From 892fa703b8167138a9d60ae6ab1a22a61d97f57f Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Wed, 22 Jan 2025 19:40:54 +0900
+Date: Wed, 5 Feb 2025 19:08:14 +0900
 Subject: [PATCH] temporary commit
 
 ---
- vike/node/api/build.ts                    |   2 +-
- vike/node/plugin/plugins/autoFullBuild.ts |   2 +-
- vike/node/plugin/plugins/buildConfig.ts   |   2 +-
- vike/node/plugin/plugins/distFileNames.ts | 168 +++++++++++-----------
- vike/node/plugin/plugins/fileEnv.ts       |   5 +-
- 5 files changed, 90 insertions(+), 89 deletions(-)
+ vike/node/plugin/plugins/distFileNames.ts | 115 +++++++++++-----------
+ vike/tsconfig.json                        |   4 +-
+ 2 files changed, 60 insertions(+), 59 deletions(-)
 
-diff --git a/vike/node/api/build.ts b/vike/node/api/build.ts
-index 1152cfb..9e4618c 100644
---- a/vike/node/api/build.ts
-+++ b/vike/node/api/build.ts
-@@ -5,7 +5,7 @@ import { build as buildVite, type Rollup, type InlineConfig } from 'vite'
- import { isPrerenderEnabled } from '../prerender/isPrerenderEnabled.js'
- import type { APIOptions } from './types.js'
- 
--type RollupOutput = Rollup.RollupOutput | Rollup.RollupOutput[] | Rollup.RollupWatcher
-+type RollupOutput = Rollup.RolldownOutput | Rollup.RolldownOutput[] | Rollup.RolldownWatcher
- 
- /**
-  * Programmatically trigger `$ vike build`
-diff --git a/vike/node/plugin/plugins/autoFullBuild.ts b/vike/node/plugin/plugins/autoFullBuild.ts
-index b646532..0aa2ee9 100644
---- a/vike/node/plugin/plugins/autoFullBuild.ts
-+++ b/vike/node/plugin/plugins/autoFullBuild.ts
-@@ -51,7 +51,7 @@ function autoFullBuild(): Plugin[] {
-       apply: 'build',
-       enforce: 'post',
-       closeBundle: {
--        sequential: true,
-+        // sequential: true,
-         order: 'post',
-         handler() {
-           if (forceExit) {
-diff --git a/vike/node/plugin/plugins/buildConfig.ts b/vike/node/plugin/plugins/buildConfig.ts
-index 60e55f9..adab6a8 100644
---- a/vike/node/plugin/plugins/buildConfig.ts
-+++ b/vike/node/plugin/plugins/buildConfig.ts
-@@ -109,7 +109,7 @@ function buildConfig(): Plugin[] {
-       enforce: 'pre',
-       writeBundle: {
-         order: 'pre',
--        sequential: true,
-+        // sequential: true,
-         async handler(options, bundle) {
-           if (isSsrBuild) {
-             // Ideally we'd move dist/_temp_manifest.json to dist/server/client-assets.json instead of dist/assets.json
 diff --git a/vike/node/plugin/plugins/distFileNames.ts b/vike/node/plugin/plugins/distFileNames.ts
-index 4a0c586..1acd89c 100644
+index 4a0c586..4fddfa8 100644
 --- a/vike/node/plugin/plugins/distFileNames.ts
 +++ b/vike/node/plugin/plugins/distFileNames.ts
-@@ -11,7 +11,7 @@ import type { Plugin, ResolvedConfig, Rollup } from 'vite'
- import { getAssetsDir } from '../shared/getAssetsDir.js'
- import { assertModuleId, getModuleFilePathAbsolute } from '../shared/getFilePath.js'
- type PreRenderedChunk = Rollup.PreRenderedChunk
--type PreRenderedAsset = Rollup.PreRenderedAsset
-+// type PreRenderedAsset = Rollup.PreRenderedAsset
- 
- function distFileNames(): Plugin {
-   return {
-@@ -29,7 +29,7 @@ function distFileNames(): Plugin {
-           rollupOutput.chunkFileNames = (chunkInfo) => getChunkFileName(chunkInfo, config)
-         }
-         if (!('assetFileNames' in rollupOutput)) {
--          rollupOutput.assetFileNames = (chunkInfo) => getAssetFileName(chunkInfo, config)
-+          // rollupOutput.assetFileNames = (chunkInfo) => getAssetFileName(chunkInfo, config)
-         } else {
-           // If a user needs this:
-           //  - assertUsage() that the naming provided by the user ends with `.[hash][extname]`
-@@ -42,103 +42,103 @@ function distFileNames(): Plugin {
+@@ -42,77 +42,78 @@ function distFileNames(): Plugin {
            )
          }
          {
@@ -199,83 +139,35 @@ index 4a0c586..1acd89c 100644
 +//   return crypto.createHash('md5').update(id).digest('hex').slice(0, 8)
 +// }
  
--function getAssetFileName(assetInfo: PreRenderedAsset, config: ResolvedConfig): string {
--  const assetsDir = getAssetsDir(config)
--  const dir = assetsDir + '/static'
+ function getAssetFileName(assetInfo: PreRenderedAsset, config: ResolvedConfig): string {
+   const assetsDir = getAssetsDir(config)
+   const dir = assetsDir + '/static'
 -  let { name } = assetInfo
-+// function getAssetFileName(assetInfo: PreRenderedAsset, config: ResolvedConfig): string {
-+//   const assetsDir = getAssetsDir(config)
-+//   const dir = assetsDir + '/static'
-+//   let { name } = assetInfo
++  // let { name } = assetInfo
++  let name = assetInfo.names[0]
  
--  if (!name) {
--    return `${dir}/[name].[hash][extname]`
--  }
-+//   if (!name) {
-+//     return `${dir}/[name].[hash][extname]`
-+//   }
- 
--  // https://github.com/vikejs/vike/issues/794
--  assertPosixPath(name)
--  name = path.posix.basename(name)
-+//   // https://github.com/vikejs/vike/issues/794
-+//   assertPosixPath(name)
-+//   name = path.posix.basename(name)
- 
--  // dist/client/assets/index.page.server.jsx_extractAssets_lang.e4e33422.css
--  // => dist/client/assets/index.page.server.e4e33422.css
--  if (
--    // Vite 2
--    name?.endsWith('_extractAssets_lang.css') ||
--    // Vite 3
--    name?.endsWith('?extractAssets&lang.css')
--  ) {
--    name = name.split('.').slice(0, -2).join('.')
--    name = clean(name)
--    return `${dir}/${name}.[hash][extname]`
--  }
-+//   // dist/client/assets/index.page.server.jsx_extractAssets_lang.e4e33422.css
-+//   // => dist/client/assets/index.page.server.e4e33422.css
-+//   if (
-+//     // Vite 2
-+//     name?.endsWith('_extractAssets_lang.css') ||
-+//     // Vite 3
-+//     name?.endsWith('?extractAssets&lang.css')
-+//   ) {
-+//     name = name.split('.').slice(0, -2).join('.')
-+//     name = clean(name)
-+//     return `${dir}/${name}.[hash][extname]`
-+//   }
- 
--  name = name.split('.').slice(0, -1).join('.')
--  name = clean(name)
--  return `${dir}/${name}.[hash][extname]`
--}
-+//   name = name.split('.').slice(0, -1).join('.')
-+//   name = clean(name)
-+//   return `${dir}/${name}.[hash][extname]`
-+// }
- 
- function getChunkFileName(_chunkInfo: PreRenderedChunk, config: ResolvedConfig): string {
-   const isForClientSide = !config.build.ssr
-diff --git a/vike/node/plugin/plugins/fileEnv.ts b/vike/node/plugin/plugins/fileEnv.ts
-index 3baaf12..d4db080 100644
---- a/vike/node/plugin/plugins/fileEnv.ts
-+++ b/vike/node/plugin/plugins/fileEnv.ts
-@@ -54,10 +54,11 @@ function fileEnv(): Plugin {
-       const { exportNames } = await getExportNames(code)
-       return sourceMapRemove(
-         [
--          `throw new Error(${JSON.stringify(errMsg)});`,
-+          // NOTE: add "throw" later due to https://github.com/rolldown/rolldown/issues/3402
-           ...exportNames.map((name) =>
-             name === 'default' ? 'export default undefined;' : `export const ${name} = undefined;`
--          )
-+          ),
-+          `throw new Error(${JSON.stringify(errMsg)});`,
-         ].join('\n')
-       )
-     },
+   if (!name) {
+     return `${dir}/[name].[hash][extname]`
+diff --git a/vike/tsconfig.json b/vike/tsconfig.json
+index 8436f63..640af0d 100644
+--- a/vike/tsconfig.json
++++ b/vike/tsconfig.json
+@@ -2,13 +2,13 @@
+   "compilerOptions": {
+     // Output
+     "target": "ES2020",
+-    "module": "Node16",
++    "module": "Preserve", // https://github.com/rolldown/rolldown/issues/3407
+     "outDir": "./dist/esm/", // ./dist/cjs/ is generated by ./tsconfig.cjs.json
+     "rootDir": "./",
+     "declaration": true,
+     "noEmitOnError": false,
+     // Resolution
+-    "moduleResolution": "Node16",
++    "moduleResolution": "bundler", // https://github.com/rolldown/rolldown/issues/3407
+     "esModuleInterop": true,
+     // Libs
+     "lib": ["ES2021", "DOM", "DOM.Iterable"],
 -- 
 2.47.1
 
