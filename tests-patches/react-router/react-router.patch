@@ -1,39 +1,19 @@
-From 278bec795982e1efae26c37538f6f5d5157ca9cf Mon Sep 17 00:00:00 2001
+From 6cb4b354c6ed60a1711fa9d6c75b85b237f35c3a Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Fri, 24 Jan 2025 20:31:42 +0900
+Date: Wed, 5 Feb 2025 16:22:14 +0900
 Subject: [PATCH] temporary commit
 
 ---
- integration/fog-of-war-test.ts                     |  3 ++-
  integration/helpers/vite-5-template/vite.config.ts |  9 +++++++++
  integration/helpers/vite.ts                        | 11 +++++++++++
  integration/prefetch-test.ts                       | 12 ++++++------
  integration/vite-build-test.ts                     |  7 +++++++
  integration/vite-css-test.ts                       |  9 +++++++++
+ integration/vite-dot-server-test.ts                |  6 +++---
  integration/vite-presets-test.ts                   | 11 +++++++++--
- 7 files changed, 53 insertions(+), 9 deletions(-)
+ packages/react-router-dev/vite/plugin.ts           |  1 +
+ 8 files changed, 55 insertions(+), 11 deletions(-)
 
-diff --git a/integration/fog-of-war-test.ts b/integration/fog-of-war-test.ts
-index f422e42..8dbfb12 100644
---- a/integration/fog-of-war-test.ts
-+++ b/integration/fog-of-war-test.ts
-@@ -1153,6 +1153,7 @@ test.describe("Fog of War", () => {
-     let fixture = await createFixture({
-       files: {
-         ...getFiles(),
-+        // NOTE: see https://github.com/oxc-project/oxc/issues/8690
-         "app/routes/_index.tsx": js`
-           import { Link } from "react-router";
-           export default function Index() {
-@@ -1160,7 +1161,7 @@ test.describe("Fog of War", () => {
-               <>
-                 <h1 id="index">Index</h1>
-                 {/* 400 links * ~19 chars per link > our 7198 char URL limit */}
--                {...new Array(400).fill(null).map((el, i) => (
-+                {new Array(400).fill(null).map((el, i) => (
-                   <Link to={"/dummy-link-" + i}>{i}</Link>
-                 ))}
-               </>
 diff --git a/integration/helpers/vite-5-template/vite.config.ts b/integration/helpers/vite-5-template/vite.config.ts
 index fac933f..f80ea08 100644
 --- a/integration/helpers/vite-5-template/vite.config.ts
@@ -53,10 +33,10 @@ index fac933f..f80ea08 100644
 +  }
  });
 diff --git a/integration/helpers/vite.ts b/integration/helpers/vite.ts
-index cb21da7..9a58127 100644
+index 3c0d41b..43fb4ab 100644
 --- a/integration/helpers/vite.ts
 +++ b/integration/helpers/vite.ts
-@@ -75,6 +75,17 @@ export const viteConfig = {
+@@ -82,6 +82,17 @@ export const viteConfig = {
            envOnlyMacros(),
            tsconfigPaths()
          ],
@@ -170,6 +150,34 @@ index 296c0bd..bf4f843 100644
    }
  `;
  
+diff --git a/integration/vite-dot-server-test.ts b/integration/vite-dot-server-test.ts
+index a4d6847..89996bd 100644
+--- a/integration/vite-dot-server-test.ts
++++ b/integration/vite-dot-server-test.ts
+@@ -139,12 +139,12 @@ test.describe("Vite / route / server-only module referenced by client", () => {
+       [
+         "Server-only module referenced by client",
+ 
+-        `    '${specifier}' imported by route 'app/routes/_index.tsx'`,
++        /    '[^']+' imported by route 'app\/routes\/_index\.tsx'/, // NOTE: specifier may be raw or resolved
+ 
+         "  React Router automatically removes server-code from these exports:",
+         "    `loader`, `action`, `headers`",
+ 
+-        `  But other route exports in 'app/routes/_index.tsx' depend on '${specifier}'.`,
++        /  But other route exports in 'app\/routes\/_index\.tsx' depend on '[^']+'\./, // NOTE: specifier may be raw or resolved
+ 
+         "  See https://remix.run/docs/en/main/guides/vite#splitting-up-client-and-server-code",
+       ].forEach(expect(stderr).toMatch);
+@@ -204,7 +204,7 @@ test.describe("Vite / non-route / server-only module referenced by client", () =
+       [
+         `Server-only module referenced by client`,
+ 
+-        `    '${specifier}' imported by 'app/reexport-server-only.ts'`,
++        /    '[^']+' imported by 'app\/reexport-server-only\.ts'/, // NOTE: specifier may be raw or resolved
+ 
+         "  See https://remix.run/docs/en/main/guides/vite#splitting-up-client-and-server-code",
+       ].forEach(expect(stderr).toMatch);
 diff --git a/integration/vite-presets-test.ts b/integration/vite-presets-test.ts
 index 12ea017..e43b4c3 100644
 --- a/integration/vite-presets-test.ts
@@ -200,6 +208,18 @@ index 12ea017..e43b4c3 100644
      }
    `),
  };
+diff --git a/packages/react-router-dev/vite/plugin.ts b/packages/react-router-dev/vite/plugin.ts
+index 1ba82a9..8905659 100644
+--- a/packages/react-router-dev/vite/plugin.ts
++++ b/packages/react-router-dev/vite/plugin.ts
+@@ -2714,6 +2714,7 @@ export async function getEnvironmentOptionsResolvers(
+       cssMinify: viteUserConfig.build?.cssMinify ?? true,
+       manifest: true, // The manifest is enabled for all builds to detect SSR-only assets
+       rollupOptions: {
++        // @ts-expect-error rolldown does not support `preserveEntrySignatures` yet
+         preserveEntrySignatures: "exports-only",
+         // Silence Rollup "use client" warnings
+         // Adapted from https://github.com/vitejs/vite-plugin-react/pull/144
 -- 
 2.47.1
 
