@@ -1,20 +1,77 @@
-From 98a954d2690b55384380c0b7660820f942263758 Mon Sep 17 00:00:00 2001
+From 17d4971c4b80802944092be9d203575fa4c36c52 Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Fri, 24 Jan 2025 17:33:44 +0900
+Date: Wed, 5 Feb 2025 21:04:47 +0900
 Subject: [PATCH] temporary commit
 
 ---
- packages/waku/src/lib/builder/build.ts                   | 3 ++-
- packages/waku/src/lib/plugins/vite-plugin-rsc-entries.ts | 4 +++-
- packages/waku/src/lib/plugins/vite-plugin-rsc-rsdw.ts    | 5 +++--
- tsconfig.json                                            | 4 +++-
- 4 files changed, 11 insertions(+), 5 deletions(-)
+ e2e/utils.ts                                  | 28 +++++++++++++++----
+ packages/waku/src/lib/builder/build.ts        |  3 +-
+ .../lib/plugins/vite-plugin-rsc-entries.ts    |  4 ++-
+ .../src/lib/plugins/vite-plugin-rsc-rsdw.ts   |  5 ++--
+ tsconfig.json                                 |  4 ++-
+ 5 files changed, 34 insertions(+), 10 deletions(-)
 
+diff --git a/e2e/utils.ts b/e2e/utils.ts
+index 687d31a..6e58938 100644
+--- a/e2e/utils.ts
++++ b/e2e/utils.ts
+@@ -2,7 +2,13 @@ import net from 'node:net';
+ import { execSync, exec } from 'node:child_process';
+ import { createRequire } from 'node:module';
+ import { fileURLToPath } from 'node:url';
+-import { cpSync, rmSync, mkdtempSync } from 'node:fs';
++import {
++  cpSync,
++  rmSync,
++  mkdtempSync,
++  writeFileSync,
++  readFileSync,
++} from 'node:fs';
+ import { join } from 'node:path';
+ import { tmpdir } from 'node:os';
+ import type { ChildProcess } from 'node:child_process';
+@@ -148,6 +154,10 @@ const PACKAGE_INSTALL = {
+ } as const;
+ 
+ export const prepareStandaloneSetup = (fixtureName: string) => {
++  const rootDir = fileURLToPath(new URL('../', import.meta.url));
++  const { pnpm: { overrides: pnpmOverrides } = {} } = createRequire(
++    import.meta.url,
++  )(join(rootDir, 'package.json'));
+   const wakuDir = fileURLToPath(new URL('../packages/waku', import.meta.url));
+   const { version } = createRequire(import.meta.url)(
+     join(wakuDir, 'package.json'),
+@@ -176,13 +186,21 @@ export const prepareStandaloneSetup = (fixtureName: string) => {
+       execSync(`pnpm pack --pack-destination ${standaloneDir}`, {
+         cwd: wakuDir,
+       });
++      // workaround for https://github.com/dai-shi/waku/issues/1213
++      const pkg = JSON.parse(readFileSync(join(standaloneDir, 'package.json'), 'utf-8'));
++      pkg.overrides = {
++        vite: pnpmOverrides.vite,
++      };
++      pkg.devDependencies ??= {}
++      pkg.devDependencies.rollup = '^4.34.3';
++      writeFileSync(
++        join(standaloneDir, 'package.json'),
++        JSON.stringify(pkg, null, 2),
++        'utf-8',
++      );
+       const wakuPackageTgz = join(standaloneDir, `waku-${version}.tgz`);
+       const installScript = PACKAGE_INSTALL[packageManager](wakuPackageTgz);
+       execSync(installScript, { cwd: standaloneDir });
+-      execSync(
+-        `npm install --force ${join(standaloneDir, `waku-${version}.tgz`)}`,
+-        { cwd: standaloneDir },
+-      );
+     }
+     if (mode !== 'DEV' && !built) {
+       rmSync(`${join(standaloneDir, packageDir, 'dist')}`, {
 diff --git a/packages/waku/src/lib/builder/build.ts b/packages/waku/src/lib/builder/build.ts
-index 7cdbdb1..294e246 100644
+index cb5eadb..b7c3815 100644
 --- a/packages/waku/src/lib/builder/build.ts
 +++ b/packages/waku/src/lib/builder/build.ts
-@@ -423,7 +423,8 @@ const buildClientBundle = async (
+@@ -422,7 +422,8 @@ const buildClientBundle = async (
              onwarn,
              // rollup will ouput the style files related to clientEntryFiles, but since it does not find any link to them in the index.html file, it will not inject them. They are only mentioned by the standalone `clientEntryFiles`
              input: clientEntryFiles,

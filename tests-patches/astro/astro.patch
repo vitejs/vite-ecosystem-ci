@@ -1,12 +1,11 @@
-From 22bcde79d59bc59f195661181750d475a24aeff0 Mon Sep 17 00:00:00 2001
+From 614d6f6fdb76b90dbcede021bb4c87d0bc4bfc05 Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Fri, 24 Jan 2025 21:12:16 +0900
+Date: Wed, 5 Feb 2025 14:21:36 +0900
 Subject: [PATCH] temporary commit
 
 ---
  .../src/core/build/plugins/plugin-css.ts      | 31 ++++++++++---------
- .../vite-plugin-astro-server/response.test.js |  8 +++--
- 2 files changed, 21 insertions(+), 18 deletions(-)
+ 1 file changed, 16 insertions(+), 15 deletions(-)
 
 diff --git a/packages/astro/src/core/build/plugins/plugin-css.ts b/packages/astro/src/core/build/plugins/plugin-css.ts
 index c39d4da..b0ba795 100644
@@ -49,43 +48,6 @@ index c39d4da..b0ba795 100644
 +			// }
  		},
  	};
- 
-diff --git a/packages/astro/test/units/vite-plugin-astro-server/response.test.js b/packages/astro/test/units/vite-plugin-astro-server/response.test.js
-index 4543cee..83cccdb 100644
---- a/packages/astro/test/units/vite-plugin-astro-server/response.test.js
-+++ b/packages/astro/test/units/vite-plugin-astro-server/response.test.js
-@@ -22,12 +22,12 @@ const fileSystem = {
- 	}`,
- 	'/src/pages/streaming.js': `export const GET = ({ locals }) => {
- 		let sentChunks = 0;
--		
-+
- 		const readableStream = new ReadableStream({
- 			async pull(controller) {
- 				if (sentChunks === 3) return controller.close();
- 				else sentChunks++;
--	
-+
- 				await new Promise(resolve => setTimeout(resolve, 1000));
- 				controller.enqueue(new TextEncoder().encode('hello'));
- 			},
-@@ -35,7 +35,7 @@ const fileSystem = {
- 				locals.cancelledByTheServer = true;
- 			}
- 		});
--	
-+
- 		return new Response(readableStream, {
- 			headers: {
- 				"Content-Type": "text/event-stream"
-@@ -77,6 +77,8 @@ describe('endpoints', () => {
- 			'x-single': 'single',
- 			'x-triple': 'one, two, three',
- 			'set-cookie': ['hello', 'world'],
-+			// NOTE: this diff is needed for the main branch Vite as well
-+			vary: 'Origin'
- 		});
- 	});
  
 -- 
 2.47.1
