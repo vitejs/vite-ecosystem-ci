@@ -36,7 +36,7 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | ladle                                                   |    ✅ |                                                                                                          |
 | laravel                                                 |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
 | [marko](#marko)                                         |    ✅ | passed by esbuild-rollup plugin conversion                                                               |
-| [nuxt](#nuxt)                                           |    ⚠️ | uses function type `outputOptions.assetFileNames` in `generateBundle` hook but can be worked around      |
+| [nuxt](#nuxt)                                           |    ✅ | uses function type `outputOptions.assetFileNames` in `generateBundle` hook but can be worked around      |
 | previewjs                                               |    ⚠️ | fails locally but when running tests manually in playwright ui, it works. probably fine                  |
 | quasar                                                  |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
 | [qwik](#qwik)                                           |    ⚠️ | passes, but uses some missing features                                                                   |
@@ -95,8 +95,8 @@ needs `VITE_USE_LEGACY_PARSE_AST=1`
 - ⚠️ uses missing features
   - `manualChunks`
     - wants to group chunks by entry ([code](https://github.com/QwikDev/qwik/blob/0a752dc6dd4c7b0000aa6a1d17f3ccfcee89fc7f/packages/qwik/src/optimizer/src/plugins/plugin.ts#L873-L880), introduced in [QwikDev/qwik#6670](https://github.com/QwikDev/qwik/pull/6670), related issue [rollup/rollup#5574](https://github.com/rollup/rollup/issues/5574))
-  - `closeBundle.sequential` (https://github.com/rolldown/rolldown/issues/3337)
   - `preserveSignature` option in `this.emitFile({ type: 'chunk' })`
+    - [rolldown/rolldown#3500](https://github.com/rolldown/rolldown/issues/3500)
 - ✅ `pnpm tsx --require ./scripts/runBefore.ts starters/dev-server.ts 3301` hanged
   - added a fix, probably because there was a dead-lock
 
@@ -125,7 +125,6 @@ better to run with `CI=1` as some tests are flaky and setting that will retry th
 ### vike
 
 - uses missing features
-  - ⚠️ uses `writeBundle.sequential` (https://github.com/rolldown/rolldown/issues/3337)
   - ❌ uses `manualChunks` that requires callbacks
     - https://github.com/vikejs/vike/blob/ea3a84264222768b9869e5f87ce4429e0685f3ae/vike/node/plugin/plugins/distFileNames.ts#L45-L101
     - introduced to workaround [vikejs/vike#1815](https://github.com/vikejs/vike/issues/1815)
@@ -137,7 +136,8 @@ better to run with `CI=1` as some tests are flaky and setting that will retry th
 
 needs `VITE_USE_LEGACY_PARSE_AST=1`
 
-- ⚠️ `pnpm -C examples/web-worker build` fails because rolldown does not support non-asset `this.emitFile`
+- ❌ `pnpm -C examples/web-worker test-e2e-preview` > `basic.test.ts:21:1 › worker in worker` fails
+  - TODO: need to investigate further
 - ❌ `pnpm -C examples/react-server build` fails with `Error: Could not resolve "/dist/react-server/assets/_client-Qeq15YSF.css" in virtual:copy-server-css.js`
   - It seems the css file is removed when the second `await builder.build(builder.environments["rsc"]!);` is called.
   - TODO: need to investigate further
@@ -166,3 +166,4 @@ needs `VITE_USE_LEGACY_PARSE_AST=1`
 make sure to run with `BROWSER=chromium` if you have a different value set to `BROWSER`
 
 - ⚠️ uses `preserveEntrySignatures: 'exports-only'`
+  - [rolldown/rolldown#3500](https://github.com/rolldown/rolldown/issues/3500)
