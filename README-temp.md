@@ -138,9 +138,6 @@ needs `VITE_USE_LEGACY_PARSE_AST=1`
 
 - ❌ `pnpm -C examples/web-worker test-e2e-preview` > `basic.test.ts:21:1 › worker in worker` fails
   - TODO: need to investigate further
-- ❌ `pnpm -C examples/react-server build` fails with `Error: Could not resolve "/dist/react-server/assets/_client-Qeq15YSF.css" in virtual:copy-server-css.js`
-  - It seems the css file is removed when the second `await builder.build(builder.environments["rsc"]!);` is called.
-  - TODO: need to investigate further
 
 ### vite-plugin-svelte
 
