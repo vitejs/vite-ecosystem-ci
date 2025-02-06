@@ -47,7 +47,7 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | [sveltekit](#sveltekit)                                 |    ⚠️ | mostly works, only one minor issue                                                                       |
 | [unocss](#unocss)                                       |    ❌ | modifies `chunk.modules`. needs `VITE_USE_LEGACY_PARSE_AST=1`                                            |
 | [vike](#vike)                                           |    ❌ | uses advanced `manualChunks`                                                                             |
-| [vite-environment-examples](#vite-environment-examples) |    ❌ | needs more investigation                                                                                 |
+| [vite-environment-examples](#vite-environment-examples) |    ❌ | caused by lack of support for `import.meta.ROLLUP_FILE_URL_*` for `this.emitFile({ type: 'chunk' })`     |
 | vite-plugin-pwa                                         |    ✅ | patched one place that was assigning to OutputBundle                                                     |
 | vite-plugin-react                                       |    ✅ | I did not ran because it was tested separately. See https://github.com/rolldown/vite-plugin-react/pull/1 |
 | vite-plugin-react-swc                                   |    ⏭️ | skipped for now. It should be fine as vite-plugin-react is tested.                                       |
@@ -137,7 +137,7 @@ better to run with `CI=1` as some tests are flaky and setting that will retry th
 needs `VITE_USE_LEGACY_PARSE_AST=1`
 
 - ❌ `pnpm -C examples/web-worker test-e2e-preview` > `basic.test.ts:21:1 › worker in worker` fails
-  - TODO: need to investigate further
+  - caused by rolldown not supporting `import.meta.ROLLUP_FILE_URL_*` for `this.emitFile({ type: 'chunk' })`
 
 ### vite-plugin-svelte
 
