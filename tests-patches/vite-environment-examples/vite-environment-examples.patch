@@ -1,12 +1,12 @@
-From 5017bff7da9c484d3c351c0a9200855bed2a28e5 Mon Sep 17 00:00:00 2001
+From 536a2f0add7a478a8f54fbbea603ed026d65cf75 Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Fri, 17 Jan 2025 16:51:27 +0900
+Date: Thu, 6 Feb 2025 11:11:23 +0900
 Subject: [PATCH] temporary commit
 
 ---
- examples/react-server/vite.config.ts |  5 ++---
- misc/vite-ecosystem-ci.sh            | 10 ++++++----
- 2 files changed, 8 insertions(+), 7 deletions(-)
+ examples/react-server/vite.config.ts | 5 ++---
+ misc/vite-ecosystem-ci.sh            | 8 +++++---
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
 diff --git a/examples/react-server/vite.config.ts b/examples/react-server/vite.config.ts
 index 8b9ac1e..eea0987 100644
@@ -39,17 +39,15 @@ index 8b9ac1e..eea0987 100644
        const runtimeId = await normalizeReferenceId(id, "rsc");
        if (this.environment.name === "rsc") {
 diff --git a/misc/vite-ecosystem-ci.sh b/misc/vite-ecosystem-ci.sh
-index 7c8333f..8c3348e 100644
+index 7c8333f..b86267b 100644
 --- a/misc/vite-ecosystem-ci.sh
 +++ b/misc/vite-ecosystem-ci.sh
-@@ -3,13 +3,15 @@ set -eu -o pipefail
- 
+@@ -4,12 +4,14 @@ set -eu -o pipefail
  # web worker environment
  pnpm -C examples/web-worker test-e2e
--pnpm -C examples/web-worker build
+ pnpm -C examples/web-worker build
 -pnpm -C examples/web-worker test-e2e-preview
-+# FIXME: rolldown does not support non-asset `this.emitFile`
-+# pnpm -C examples/web-worker build
++# FIXME: needs to investigate
 +# pnpm -C examples/web-worker test-e2e-preview
  
  # workerd environment
