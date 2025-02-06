@@ -1,12 +1,11 @@
-From 536a2f0add7a478a8f54fbbea603ed026d65cf75 Mon Sep 17 00:00:00 2001
+From f323f050e8f715b4daae4d520c1e8f16ddf90422 Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Thu, 6 Feb 2025 11:11:23 +0900
+Date: Thu, 6 Feb 2025 14:15:14 +0900
 Subject: [PATCH] temporary commit
 
 ---
  examples/react-server/vite.config.ts | 5 ++---
- misc/vite-ecosystem-ci.sh            | 8 +++++---
- 2 files changed, 7 insertions(+), 6 deletions(-)
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
 diff --git a/examples/react-server/vite.config.ts b/examples/react-server/vite.config.ts
 index 8b9ac1e..eea0987 100644
@@ -38,28 +37,6 @@ index 8b9ac1e..eea0987 100644
        tinyassert(this.environment);
        const runtimeId = await normalizeReferenceId(id, "rsc");
        if (this.environment.name === "rsc") {
-diff --git a/misc/vite-ecosystem-ci.sh b/misc/vite-ecosystem-ci.sh
-index 7c8333f..b86267b 100644
---- a/misc/vite-ecosystem-ci.sh
-+++ b/misc/vite-ecosystem-ci.sh
-@@ -4,12 +4,14 @@ set -eu -o pipefail
- # web worker environment
- pnpm -C examples/web-worker test-e2e
- pnpm -C examples/web-worker build
--pnpm -C examples/web-worker test-e2e-preview
-+# FIXME: needs to investigate
-+# pnpm -C examples/web-worker test-e2e-preview
- 
- # workerd environment
- pnpm -C examples/react-ssr-workerd test-e2e
- 
- # react server environment
- pnpm -C examples/react-server test-e2e
--pnpm -C examples/react-server build
--pnpm -C examples/react-server test-e2e-preview
-+# FIXME: needs to investigate
-+# pnpm -C examples/react-server build
-+# pnpm -C examples/react-server test-e2e-preview
 -- 
 2.47.1
 
