@@ -102,7 +102,7 @@ cli
 	.option('--repo <repo>', 'svelte repository to use', {
 		default: 'sveltejs/svelte',
 	})
-	.option('--branch <branch>', 'svelte branch to use', { default: 'master' })
+	.option('--branch <branch>', 'svelte branch to use', { default: 'main' })
 	.option('--tag <tag>', 'svelte tag to use')
 	.option('--commit <commit>', 'svelte commit sha to use')
 	.action(async (suites, options: CommandOptions & { good: string }) => {

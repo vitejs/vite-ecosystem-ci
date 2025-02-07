@@ -1,5 +1,4 @@
-// eslint-disable-next-line n/no-unpublished-import
-import type { Agent } from '@antfu/ni'
+import type { AGENTS } from '@antfu/ni'
 export interface EnvironmentData {
 	root: string
 	workspace: string
@@ -16,7 +15,7 @@ export interface RunOptions {
 	verify?: boolean
 	skipGit?: boolean
 	release?: string
-	agent?: Agent
+	agent?: (typeof AGENTS)[number]
 	build?: Task | Task[]
 	test?: Task | Task[]
 	beforeInstall?: Task | Task[]
