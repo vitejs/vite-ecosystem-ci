@@ -55,6 +55,7 @@ jobs:
           - laravel
           - marko
           - nuxt
+          - one
           # - nx # disabled temporarily
           - previewjs
           - quasar
