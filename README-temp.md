@@ -30,7 +30,7 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 
 | suite                                                   | state | description                                                                                              |
 | ------------------------------------------------------- | ----: | :------------------------------------------------------------------------------------------------------- |
-| [analogjs](#analog)                                     |    ❌ | failing due to lack of decorators support                                                                |
+| analogjs                                                |    ✅ |                                                                                                          |
 | [astro](#astro)                                         |    👀 | need to investigate further                                                                              |
 | histoire                                                |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
 | ladle                                                   |    ✅ |                                                                                                          |
@@ -43,7 +43,7 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | rakkas                                                  |    ✅ | patched one plugin to return `moduleType: 'js'`                                                          |
 | [react-router](#react-router)                           |    ✅ | better to run with `CI=1` as some tests are flaky and setting that will retry them                       |
 | redwoodjs                                               |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
-| [storybook](#storybook)                                 |    ❌ | one test failing due to incorrect code output                                                            |
+| [storybook](#storybook)                                 |    ✅ |                                                                                                          |
 | [sveltekit](#sveltekit)                                 |    ⚠️ | mostly works, only one minor issue                                                                       |
 | [unocss](#unocss)                                       |    ❌ | modifies `chunk.modules`. needs `VITE_USE_LEGACY_PARSE_AST=1`                                            |
 | [vike](#vike)                                           |    ❌ | uses advanced `manualChunks`                                                                             |
@@ -55,18 +55,11 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | [vite-plugin-vue](#vite-plugin-vue)                     |    ⚠️ | 2 tests failing but not correctness failures                                                             |
 | vite-setup-catalogue                                    |    ✅ |                                                                                                          |
 | vitepress                                               |    ✅ | patched one place that was assigning to OutputBundle                                                     |
-| vitest                                                  |    ⏭️ | skipped for now. It is failing with original main branch.                                                |
+| vitest                                                  |    👀 | will check                                                                                               |
 | vuepress                                                |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
 | [waku](#waku)                                           |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
 
 ## Details
-
-### analog
-
-needs `VITE_USE_LEGACY_PARSE_AST=1`
-
-- ❌ `nx run vite-plugin-angular:test`, `nx run content:test`, `nx run router:test` errors with `SyntaxError: Invalid or unexpected token`
-  - failing due to lack of decorators support ([rolldown/rolldown#2296](https://github.com/rolldown/rolldown/issues/2296), [oxc-project/oxc#4047](https://github.com/oxc-project/oxc/issues/4047))
 
 ### astro
 
