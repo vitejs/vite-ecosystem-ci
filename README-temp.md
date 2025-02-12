@@ -28,36 +28,36 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 
 ## Summary
 
-| suite                                                   | state | description                                                                                              |
-| ------------------------------------------------------- | ----: | :------------------------------------------------------------------------------------------------------- |
-| analogjs                                                |    ✅ |                                                                                                          |
-| [astro](#astro)                                         |    👀 | need to investigate further                                                                              |
-| histoire                                                |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
-| ladle                                                   |    ✅ |                                                                                                          |
-| laravel                                                 |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
-| [marko](#marko)                                         |    ✅ | passed by esbuild-rollup plugin conversion                                                               |
-| [nuxt](#nuxt)                                           |    ✅ | uses function type `outputOptions.assetFileNames` in `generateBundle` hook but can be worked around      |
-| previewjs                                               |    ⚠️ | fails locally but when running tests manually in playwright ui, it works. probably fine                  |
-| quasar                                                  |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
-| [qwik](#qwik)                                           |    ⚠️ | passes, but uses some missing features                                                                   |
-| rakkas                                                  |    ✅ | patched one plugin to return `moduleType: 'js'`                                                          |
-| [react-router](#react-router)                           |    ✅ | better to run with `CI=1` as some tests are flaky and setting that will retry them                       |
-| redwoodjs                                               |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
-| [storybook](#storybook)                                 |    ✅ |                                                                                                          |
-| [sveltekit](#sveltekit)                                 |    ⚠️ | mostly works, only one minor issue                                                                       |
-| [unocss](#unocss)                                       |    ❌ | modifies `chunk.modules`. needs `VITE_USE_LEGACY_PARSE_AST=1`                                            |
-| [vike](#vike)                                           |    ❌ | uses advanced `manualChunks`                                                                             |
-| [vite-environment-examples](#vite-environment-examples) |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
-| vite-plugin-pwa                                         |    ✅ | patched one place that was assigning to OutputBundle                                                     |
-| vite-plugin-react                                       |    ✅ | I did not ran because it was tested separately. See https://github.com/rolldown/vite-plugin-react/pull/1 |
-| vite-plugin-react-swc                                   |    ⏭️ | skipped for now. It should be fine as vite-plugin-react is tested.                                       |
-| [vite-plugin-svelte](#vite-plugin-svelte)               |    ⚠️ | one test failing but not correctness failures                                                            |
-| [vite-plugin-vue](#vite-plugin-vue)                     |    ⚠️ | 2 tests failing but not correctness failures                                                             |
-| vite-setup-catalogue                                    |    ✅ |                                                                                                          |
-| vitepress                                               |    ✅ | patched one place that was assigning to OutputBundle                                                     |
-| vitest                                                  |    👀 | will check                                                                                               |
-| vuepress                                                |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
-| [waku](#waku)                                           |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
+| suite                                     | state | description                                                                                              |
+| ----------------------------------------- | ----: | :------------------------------------------------------------------------------------------------------- |
+| analogjs                                  |    ✅ |                                                                                                          |
+| [astro](#astro)                           |    👀 | need to investigate further                                                                              |
+| histoire                                  |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
+| ladle                                     |    ✅ |                                                                                                          |
+| laravel                                   |    ✅ |                                                                                                          |
+| [marko](#marko)                           |    ✅ | passed by esbuild-rollup plugin conversion                                                               |
+| [nuxt](#nuxt)                             |    ✅ | uses function type `outputOptions.assetFileNames` in `generateBundle` hook but can be worked around      |
+| previewjs                                 |    ⚠️ | fails locally but when running tests manually in playwright ui, it works. probably fine                  |
+| quasar                                    |    ✅ |                                                                                                          |
+| [qwik](#qwik)                             |    ⚠️ | passes, but uses some missing features                                                                   |
+| rakkas                                    |    ✅ | patched one plugin to return `moduleType: 'js'`                                                          |
+| react-router                              |    ✅ | better to run with `CI=1` as some tests are flaky and setting that will retry them                       |
+| redwoodjs                                 |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
+| storybook                                 |    ✅ |                                                                                                          |
+| [sveltekit](#sveltekit)                   |    ⚠️ | mostly works, only one minor issue                                                                       |
+| [unocss](#unocss)                         |    ❌ | modifies `chunk.modules`.                                                                                |
+| [vike](#vike)                             |    ❌ | uses advanced `manualChunks`                                                                             |
+| vite-environment-examples                 |    ✅ |                                                                                                          |
+| vite-plugin-pwa                           |    ✅ | patched one place that was assigning to OutputBundle                                                     |
+| vite-plugin-react                         |    ✅ | I did not ran because it was tested separately. See https://github.com/rolldown/vite-plugin-react/pull/1 |
+| vite-plugin-react-swc                     |    ⏭️ | skipped for now. It should be fine as vite-plugin-react is tested.                                       |
+| [vite-plugin-svelte](#vite-plugin-svelte) |    ⚠️ | one test failing but not correctness failures                                                            |
+| [vite-plugin-vue](#vite-plugin-vue)       |    ⚠️ | 2 tests failing but not correctness failures                                                             |
+| vite-setup-catalogue                      |    ✅ |                                                                                                          |
+| vitepress                                 |    ✅ | patched one place that was assigning to OutputBundle                                                     |
+| vitest                                    |    👀 | will check                                                                                               |
+| vuepress                                  |    ✅ |                                                                                                          |
+| [waku](#waku)                             |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
 
 ## Details
 
@@ -92,13 +92,6 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
     - [rolldown/rolldown#3500](https://github.com/rolldown/rolldown/issues/3500)
 - ✅ `pnpm tsx --require ./scripts/runBefore.ts starters/dev-server.ts 3301` hanged
   - added a fix, probably because there was a dead-lock
-
-### storybook
-
-`yarn task --task test-runner --template react-vite/default-ts --start-from=build` passes.
-
-- ❌ `yarn task --task test-runner-dev --template react-vite/default-ts --start-from=dev` fails
-  - OXC outputs an incorrect code in a edge case ([oxc-project/oxc#8906](https://github.com/oxc-project/oxc/issues/8906))
 
 ### sveltekit
 
@@ -144,7 +137,7 @@ The failing tests are
 
 ### waku
 
-needs `VITE_USE_LEGACY_PARSE_AST=1`
+needs `VITE_USE_LEGACY_PARSE_AST=1` (waiting for https://github.com/oxc-project/oxc/pull/8983, released in OXC 0.50.0)
 
 make sure to run with `BROWSER=chromium` if you have a different value set to `BROWSER`
 

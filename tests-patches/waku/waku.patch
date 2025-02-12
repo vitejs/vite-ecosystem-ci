@@ -1,69 +1,41 @@
-From 17d4971c4b80802944092be9d203575fa4c36c52 Mon Sep 17 00:00:00 2001
+From 5e69e63753ab6c9f5601cf9a895e5d4253b1f871 Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Wed, 5 Feb 2025 21:04:47 +0900
+Date: Wed, 12 Feb 2025 19:27:27 +0900
 Subject: [PATCH] temporary commit
 
 ---
- e2e/utils.ts                                  | 28 +++++++++++++++----
- packages/waku/src/lib/builder/build.ts        |  3 +-
- .../lib/plugins/vite-plugin-rsc-entries.ts    |  4 ++-
- .../src/lib/plugins/vite-plugin-rsc-rsdw.ts   |  5 ++--
- tsconfig.json                                 |  4 ++-
- 5 files changed, 34 insertions(+), 10 deletions(-)
+ e2e/utils.ts                                             | 4 ++--
+ packages/waku/src/lib/builder/build.ts                   | 3 ++-
+ packages/waku/src/lib/plugins/vite-plugin-rsc-entries.ts | 4 +++-
+ packages/waku/src/lib/plugins/vite-plugin-rsc-rsdw.ts    | 5 +++--
+ 4 files changed, 10 insertions(+), 6 deletions(-)
 
 diff --git a/e2e/utils.ts b/e2e/utils.ts
-index 687d31a..6e58938 100644
+index 9fad665..279fe3c 100644
 --- a/e2e/utils.ts
 +++ b/e2e/utils.ts
-@@ -2,7 +2,13 @@ import net from 'node:net';
- import { execSync, exec } from 'node:child_process';
- import { createRequire } from 'node:module';
- import { fileURLToPath } from 'node:url';
--import { cpSync, rmSync, mkdtempSync } from 'node:fs';
-+import {
-+  cpSync,
-+  rmSync,
-+  mkdtempSync,
-+  writeFileSync,
-+  readFileSync,
-+} from 'node:fs';
- import { join } from 'node:path';
- import { tmpdir } from 'node:os';
- import type { ChildProcess } from 'node:child_process';
-@@ -148,6 +154,10 @@ const PACKAGE_INSTALL = {
- } as const;
- 
- export const prepareStandaloneSetup = (fixtureName: string) => {
-+  const rootDir = fileURLToPath(new URL('../', import.meta.url));
-+  const { pnpm: { overrides: pnpmOverrides } = {} } = createRequire(
-+    import.meta.url,
-+  )(join(rootDir, 'package.json'));
-   const wakuDir = fileURLToPath(new URL('../packages/waku', import.meta.url));
-   const { version } = createRequire(import.meta.url)(
-     join(wakuDir, 'package.json'),
-@@ -176,13 +186,21 @@ export const prepareStandaloneSetup = (fixtureName: string) => {
-       execSync(`pnpm pack --pack-destination ${standaloneDir}`, {
-         cwd: wakuDir,
+@@ -184,7 +184,6 @@ export const prepareStandaloneSetup = (fixtureName: string) => {
        });
-+      // workaround for https://github.com/dai-shi/waku/issues/1213
-+      const pkg = JSON.parse(readFileSync(join(standaloneDir, 'package.json'), 'utf-8'));
-+      pkg.overrides = {
-+        vite: pnpmOverrides.vite,
-+      };
-+      pkg.devDependencies ??= {}
-+      pkg.devDependencies.rollup = '^4.34.3';
-+      writeFileSync(
-+        join(standaloneDir, 'package.json'),
-+        JSON.stringify(pkg, null, 2),
-+        'utf-8',
-+      );
        const wakuPackageTgz = join(standaloneDir, `waku-${version}.tgz`);
        const installScript = PACKAGE_INSTALL[packageManager](wakuPackageTgz);
-       execSync(installScript, { cwd: standaloneDir });
--      execSync(
--        `npm install --force ${join(standaloneDir, `waku-${version}.tgz`)}`,
--        { cwd: standaloneDir },
--      );
+-      execSync(installScript, { cwd: standaloneDir });
+       const pkg = JSON.parse(
+         readFileSync(join(standaloneDir, 'package.json'), 'utf-8'),
+       );
+@@ -194,7 +193,7 @@ export const prepareStandaloneSetup = (fixtureName: string) => {
+           'utf-8',
+         ),
+       );
+-      const pnpmOverrides = rootPkg.pnpmOverrides;
++      const pnpmOverrides = rootPkg.pnpm?.overrides;
+       if (pnpmOverrides !== null && typeof pnpmOverrides === 'object') {
+         switch (packageManager) {
+           case 'npm': {
+@@ -224,6 +223,7 @@ export const prepareStandaloneSetup = (fixtureName: string) => {
+         JSON.stringify(pkg, null, 2),
+         'utf-8',
+       );
++      execSync(installScript, { cwd: standaloneDir });
      }
      if (mode !== 'DEV' && !built) {
        rmSync(`${join(standaloneDir, packageDir, 'dist')}`, {
@@ -119,21 +91,6 @@ index 69e9c3e..68ccc3a 100644
  `,
    );
  };
-diff --git a/tsconfig.json b/tsconfig.json
-index f5c21e1..5530abc 100644
---- a/tsconfig.json
-+++ b/tsconfig.json
-@@ -4,7 +4,9 @@
-     "target": "esnext",
-     "downlevelIteration": true,
-     "esModuleInterop": true,
--    "module": "nodenext",
-+    // NOTE: workaround for https://github.com/rolldown/rolldown/issues/3407
-+    "module": "preserve",
-+    "moduleResolution": "bundler",
-     "skipLibCheck": true,
-     "verbatimModuleSyntax": true,
-     "noUnusedLocals": true,
 -- 
-2.47.1
+2.48.1
 
