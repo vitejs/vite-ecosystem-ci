@@ -1,44 +1,14 @@
-From 141a77f4a05b704fc37846428ab9b4492f9b3193 Mon Sep 17 00:00:00 2001
+From d035271721e382b2c2874d0c2da56d0fb5bab773 Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Wed, 29 Jan 2025 14:49:27 +0900
+Date: Wed, 12 Feb 2025 18:30:54 +0900
 Subject: [PATCH] temporary commit
 
 ---
- .../src/adapters/shared/vite/index.ts         |  2 +-
- .../qwik-city/src/buildtime/vite/plugin.ts    |  2 +-
  .../qwik/src/optimizer/src/plugins/plugin.ts  | 22 ++++++++--------
  .../qwik/src/optimizer/src/plugins/rollup.ts  | 26 ++++++++++---------
  .../qwik/src/optimizer/src/plugins/vite.ts    | 18 ++++++++-----
- starters/features/storybook/tsconfig.json     |  3 +++
- 6 files changed, 41 insertions(+), 32 deletions(-)
- create mode 100644 starters/features/storybook/tsconfig.json
+ 3 files changed, 36 insertions(+), 30 deletions(-)
 
-diff --git a/packages/qwik-city/src/adapters/shared/vite/index.ts b/packages/qwik-city/src/adapters/shared/vite/index.ts
-index 9fb056d..41e1a86 100644
---- a/packages/qwik-city/src/adapters/shared/vite/index.ts
-+++ b/packages/qwik-city/src/adapters/shared/vite/index.ts
-@@ -106,7 +106,7 @@ export function viteAdapter(opts: ViteAdapterPluginOptions) {
-     },
- 
-     closeBundle: {
--      sequential: true,
-+      // sequential: true,
-       async handler() {
-         if (
-           isSsrBuild &&
-diff --git a/packages/qwik-city/src/buildtime/vite/plugin.ts b/packages/qwik-city/src/buildtime/vite/plugin.ts
-index b7ac8db..1952ccd 100644
---- a/packages/qwik-city/src/buildtime/vite/plugin.ts
-+++ b/packages/qwik-city/src/buildtime/vite/plugin.ts
-@@ -260,7 +260,7 @@ function qwikCityPlugin(userOpts?: QwikCityVitePluginOptions): any {
-     },
- 
-     closeBundle: {
--      sequential: true,
-+      // sequential: true,
-       async handler() {
-         if (ctx?.target === 'ssr' && !ctx?.isDevServer) {
-           // ssr build
 diff --git a/packages/qwik/src/optimizer/src/plugins/plugin.ts b/packages/qwik/src/optimizer/src/plugins/plugin.ts
 index 02e9acd..7193a5f 100644
 --- a/packages/qwik/src/optimizer/src/plugins/plugin.ts
@@ -101,7 +71,7 @@ index 02e9acd..7193a5f 100644
  }
  
 diff --git a/packages/qwik/src/optimizer/src/plugins/rollup.ts b/packages/qwik/src/optimizer/src/plugins/rollup.ts
-index 0438aec..908f0a3 100644
+index 7261aae..54eb9c1 100644
 --- a/packages/qwik/src/optimizer/src/plugins/rollup.ts
 +++ b/packages/qwik/src/optimizer/src/plugins/rollup.ts
 @@ -81,7 +81,7 @@ export function qwikRollup(qwikRollupOpts: QwikRollupPluginOptions = {}): any {
@@ -163,7 +133,7 @@ index 0438aec..908f0a3 100644
  ): Rollup.OutputOptions {
    const outputOpts: Rollup.OutputOptions = { ...rollupOutputOptsObj };
  
-@@ -225,13 +227,13 @@ export function normalizeRollupOutputOptionsObject(
+@@ -226,13 +228,13 @@ export function normalizeRollupOutputOptionsObject(
    if (opts.target === 'client') {
      // client should always be es
      outputOpts.format = 'es';
@@ -236,15 +206,6 @@ index 158188f..9488232 100644
            const outputAnalyzer = qwikPlugin.createOutputAnalyzer(rollupBundle);
  
            for (const [fileName, b] of Object.entries(rollupBundle)) {
-diff --git a/starters/features/storybook/tsconfig.json b/starters/features/storybook/tsconfig.json
-new file mode 100644
-index 0000000..d10ac0d
---- /dev/null
-+++ b/starters/features/storybook/tsconfig.json
-@@ -0,0 +1,3 @@
-+{
-+  "//": "empty for workaround"
-+}
 -- 
-2.47.1
+2.48.1
 
