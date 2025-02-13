@@ -58,7 +58,8 @@ async function run() {
 
 	const refType = env.REF_TYPE
 	// vite repo is not cloned when release
-	const permRef = refType === 'release' ? undefined : await getPermanentRef()
+	const permRef =
+		refType === 'release' ? undefined : await getPermanentRef(env.REPO, env.REF)
 
 	const targetText = createTargetText(refType, env.REF, permRef, env.REPO)
 
