@@ -50,6 +50,7 @@ on:
           - marko
           - nuxt
           - nx
+          - one
           - previewjs
           - quasar
           - qwik
