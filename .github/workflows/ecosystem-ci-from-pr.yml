@@ -66,6 +66,7 @@ on:
           - vite-plugin-react-swc
           - vite-plugin-svelte
           - vite-plugin-vue
+          - vite-plugin-cloudflare
           - vite-setup-catalogue
           - vitepress
           - vitest
@@ -169,6 +170,7 @@ jobs:
           - vite-plugin-react-swc
           - vite-plugin-svelte
           - vite-plugin-vue
+          - vite-plugin-cloudflare
           - vite-setup-catalogue
           - vitepress
           - vitest
