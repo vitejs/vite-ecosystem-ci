@@ -28,37 +28,37 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 
 ## Summary
 
-| suite                                     | state | description                                                                                              |
-| ----------------------------------------- | ----: | :------------------------------------------------------------------------------------------------------- |
-| analogjs                                  |    ❌ | failing due to [oxc-project/oxc#9171](https://github.com/oxc-project/oxc/issues/9171)                    |
-| [astro](#astro)                           |    👀 | need to investigate further                                                                              |
-| histoire                                  |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
-| ladle                                     |    ✅ |                                                                                                          |
-| laravel                                   |    ✅ |                                                                                                          |
-| [marko](#marko)                           |    ✅ | passed by esbuild-rollup plugin conversion                                                               |
-| [nuxt](#nuxt)                             |    ⚠️ | uses function type `outputOptions.assetFileNames` in `generateBundle` hook but can be worked around      |
-| previewjs                                 |    ⚠️ | fails locally but when running tests manually in playwright ui, it works. probably fine                  |
-| quasar                                    |    ✅ |                                                                                                          |
-| [qwik](#qwik)                             |    ⚠️ | passes, but uses some missing features                                                                   |
-| rakkas                                    |    ✅ | patched one plugin to return `moduleType: 'js'`                                                          |
-| react-router                              |    ✅ | better to run with `CI=1` as some tests are flaky and setting that will retry them                       |
-| redwoodjs                                 |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
-| storybook                                 |    ✅ |                                                                                                          |
-| [sveltekit](#sveltekit)                   |    ⚠️ | mostly works, only one minor issue                                                                       |
-| [unocss](#unocss)                         |    ❌ | modifies `chunk.modules`.                                                                                |
-| [vike](#vike)                             |    ❌ | uses advanced `manualChunks`                                                                             |
-| vite-environment-examples                 |    ✅ |                                                                                                          |
-| vite-plugin-pwa                           |    ✅ | patched one place that was assigning to OutputBundle                                                     |
-| vite-plugin-react                         |    ✅ | I did not ran because it was tested separately. See https://github.com/rolldown/vite-plugin-react/pull/1 |
-| vite-plugin-react-swc                     |    ⏭️ | skipped for now. It should be fine as vite-plugin-react is tested.                                       |
-| [vite-plugin-svelte](#vite-plugin-svelte) |    ⚠️ | one test failing but not correctness failures                                                            |
-| [vite-plugin-vue](#vite-plugin-vue)       |    ⚠️ | 2 tests failing but not correctness failures                                                             |
-| vite-plugin-cloudflare                    |    👀 | will check                                                                                               |
-| vite-setup-catalogue                      |    ✅ |                                                                                                          |
-| vitepress                                 |    ✅ | patched one place that was assigning to OutputBundle                                                     |
-| vitest                                    |    👀 | will check                                                                                               |
-| vuepress                                  |    ✅ |                                                                                                          |
-| [waku](#waku)                             |    ✅ |                                                                                                          |
+| suite                                             | state | description                                                                                              |
+| ------------------------------------------------- | ----: | :------------------------------------------------------------------------------------------------------- |
+| analogjs                                          |    ❌ | failing due to [oxc-project/oxc#9171](https://github.com/oxc-project/oxc/issues/9171)                    |
+| [astro](#astro)                                   |    👀 | need to investigate further                                                                              |
+| histoire                                          |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
+| ladle                                             |    ✅ |                                                                                                          |
+| laravel                                           |    ✅ |                                                                                                          |
+| [marko](#marko)                                   |    ✅ | passed by esbuild-rollup plugin conversion                                                               |
+| [nuxt](#nuxt)                                     |    ⚠️ | uses function type `outputOptions.assetFileNames` in `generateBundle` hook but can be worked around      |
+| previewjs                                         |    ⚠️ | fails locally but when running tests manually in playwright ui, it works. probably fine                  |
+| quasar                                            |    ✅ |                                                                                                          |
+| [qwik](#qwik)                                     |    ⚠️ | passes, but uses some missing features                                                                   |
+| rakkas                                            |    ✅ | patched one plugin to return `moduleType: 'js'`                                                          |
+| react-router                                      |    ✅ | better to run with `CI=1` as some tests are flaky and setting that will retry them                       |
+| redwoodjs                                         |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
+| storybook                                         |    ✅ |                                                                                                          |
+| [sveltekit](#sveltekit)                           |    ⚠️ | mostly works, only one minor issue                                                                       |
+| [unocss](#unocss)                                 |    ❌ | modifies `chunk.modules`.                                                                                |
+| [vike](#vike)                                     |    ❌ | uses advanced `manualChunks`                                                                             |
+| vite-environment-examples                         |    ✅ |                                                                                                          |
+| [vite-plugin-cloudflare](#vite-plugin-cloudflare) |    ⚠️ | one test failing but an edge case                                                                        |
+| vite-plugin-pwa                                   |    ✅ | patched one place that was assigning to OutputBundle                                                     |
+| vite-plugin-react                                 |    ✅ | I did not ran because it was tested separately. See https://github.com/rolldown/vite-plugin-react/pull/1 |
+| vite-plugin-react-swc                             |    ⏭️ | skipped for now. It should be fine as vite-plugin-react is tested.                                       |
+| [vite-plugin-svelte](#vite-plugin-svelte)         |    ⚠️ | one test failing but not correctness failures                                                            |
+| [vite-plugin-vue](#vite-plugin-vue)               |    ⚠️ | 2 tests failing but not correctness failures                                                             |
+| vite-setup-catalogue                              |    ✅ |                                                                                                          |
+| vitepress                                         |    ✅ | patched one place that was assigning to OutputBundle                                                     |
+| vitest                                            |    👀 | will check                                                                                               |
+| vuepress                                          |    ✅ |                                                                                                          |
+| [waku](#waku)                                     |    ✅ |                                                                                                          |
 
 ## Details
 
@@ -122,6 +122,10 @@ better to run with `CI=1` as some tests are flaky and setting that will retry th
     - maybe this can be workaround by adding `?url` to all CSS imports
 - ❌ `|e2e| test/preload/prod.spec.ts` fails
   - because `manualChunks` is not supported
+
+### vite-plugin-cloudflare
+
+- ⚠️ one test skipped due to [rolldown/rolldown#3604](https://github.com/rolldown/rolldown/issues/3604)
 
 ### vite-plugin-svelte
 

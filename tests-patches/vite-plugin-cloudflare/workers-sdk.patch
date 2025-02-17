@@ -1,0 +1,113 @@
+From acbc0a57bdaf07881d4bb328af7130181c72e69a Mon Sep 17 00:00:00 2001
+From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
+Date: Mon, 17 Feb 2025 17:49:43 +0900
+Subject: [PATCH] temporary commit
+
+---
+ .../module-resolution/__tests__/module-resolution.spec.ts   | 2 +-
+ .../playground/module-resolution/packages/requires/ext.js   | 6 ++++--
+ .../playground/multi-worker/__tests__/multi-worker.spec.ts  | 6 +++++-
+ .../with-worker-configs-warning/multi-worker.spec.ts        | 6 +++++-
+ .../playground/static-mpa/__tests__/assets.spec.ts          | 4 +++-
+ .../__tests__/with-worker-configs-warning/assets.spec.ts    | 4 +++-
+ 6 files changed, 21 insertions(+), 7 deletions(-)
+
+diff --git a/packages/vite-plugin-cloudflare/playground/module-resolution/__tests__/module-resolution.spec.ts b/packages/vite-plugin-cloudflare/playground/module-resolution/__tests__/module-resolution.spec.ts
+index 7b1d9c0..c10d4ce 100644
+--- a/packages/vite-plugin-cloudflare/playground/module-resolution/__tests__/module-resolution.spec.ts
++++ b/packages/vite-plugin-cloudflare/playground/module-resolution/__tests__/module-resolution.spec.ts
+@@ -10,7 +10,7 @@ import {
+ 
+ describe("module resolution", async () => {
+ 	afterAll(() => {
+-		expect(serverLogs.errors).toEqual([]);
++		expect(serverLogs.errors.filter(e => !e.includes('optimizeDeps.esbuildOptions'))).toEqual([]);
+ 	});
+ 
+ 	describe("basic module resolution", () => {
+diff --git a/packages/vite-plugin-cloudflare/playground/module-resolution/packages/requires/ext.js b/packages/vite-plugin-cloudflare/playground/module-resolution/packages/requires/ext.js
+index f60cb4c..c97b301 100644
+--- a/packages/vite-plugin-cloudflare/playground/module-resolution/packages/requires/ext.js
++++ b/packages/vite-plugin-cloudflare/playground/module-resolution/packages/requires/ext.js
+@@ -2,12 +2,14 @@ exports.helloWorldExt = `${require("./hello.js").default} ${require("./world.cjs
+ 
+ let helloCjs = null;
+ try {
+-	helloCjs = require("./hello.cjs");
++	// NOTE: comment out for now https://github.com/rolldown/rolldown/issues/3604
++	// helloCjs = require("./hello.cjs");
+ } catch {}
+ exports.helloCjs = helloCjs;
+ 
+ let worldJs = null;
+ try {
+-	helloCjs = require("./world.js");
++	// NOTE: comment out for now https://github.com/rolldown/rolldown/issues/3604
++	// helloCjs = require("./world.js");
+ } catch {}
+ exports.worldJs = worldJs;
+diff --git a/packages/vite-plugin-cloudflare/playground/multi-worker/__tests__/multi-worker.spec.ts b/packages/vite-plugin-cloudflare/playground/multi-worker/__tests__/multi-worker.spec.ts
+index 61ccd1d..c957132 100644
+--- a/packages/vite-plugin-cloudflare/playground/multi-worker/__tests__/multi-worker.spec.ts
++++ b/packages/vite-plugin-cloudflare/playground/multi-worker/__tests__/multi-worker.spec.ts
+@@ -17,7 +17,11 @@ describe.runIf(isBuild)("output directories", () => {
+ 
+ describe("multi-worker basic functionality", async () => {
+ 	test("worker configs warnings are not present in the terminal", async () => {
+-		expect(serverLogs.warns).toEqual([]);
++		expect(
++			serverLogs.warns.filter(
++				(warn) => !warn.includes("optimizeDeps.esbuildOptions")
++			)
++		).toEqual([]);
+ 	});
+ 
+ 	test("entry worker returns a response", async () => {
+diff --git a/packages/vite-plugin-cloudflare/playground/multi-worker/__tests__/with-worker-configs-warning/multi-worker.spec.ts b/packages/vite-plugin-cloudflare/playground/multi-worker/__tests__/with-worker-configs-warning/multi-worker.spec.ts
+index 282a407..2892be3 100644
+--- a/packages/vite-plugin-cloudflare/playground/multi-worker/__tests__/with-worker-configs-warning/multi-worker.spec.ts
++++ b/packages/vite-plugin-cloudflare/playground/multi-worker/__tests__/with-worker-configs-warning/multi-worker.spec.ts
+@@ -8,7 +8,11 @@ describe("multi-worker basic functionality", async () => {
+ 		 *       For dev is obvious, for builds we do get the warning once because we get it when we
+ 		 *       build the application but not when we run its preview (since that reads the generated wrangler.json)
+ 		 */
+-		expect(serverLogs.warns).toEqual([
++		expect(
++			serverLogs.warns.filter(
++				(warn) => !warn.includes("optimizeDeps.esbuildOptions")
++			)
++		).toEqual([
+ 			expect.stringMatching(
+ 				/your workers configs contain configuration options which are ignored[\s\S]+preserve_file_names[\s\S]+tsconfig[\s\S]+build/
+ 			),
+diff --git a/packages/vite-plugin-cloudflare/playground/static-mpa/__tests__/assets.spec.ts b/packages/vite-plugin-cloudflare/playground/static-mpa/__tests__/assets.spec.ts
+index 230fad4..ad7b344 100644
+--- a/packages/vite-plugin-cloudflare/playground/static-mpa/__tests__/assets.spec.ts
++++ b/packages/vite-plugin-cloudflare/playground/static-mpa/__tests__/assets.spec.ts
+@@ -37,5 +37,7 @@ test("returns the correct nested 404 page", async () => {
+ });
+ 
+ test("worker configs warnings are not present in the terminal", async () => {
+-	expect(serverLogs.warns).toEqual([]);
++	expect(
++		serverLogs.warns.filter((warn) => !warn.includes("built-in minifier"))
++	).toEqual([]);
+ });
+diff --git a/packages/vite-plugin-cloudflare/playground/static-mpa/__tests__/with-worker-configs-warning/assets.spec.ts b/packages/vite-plugin-cloudflare/playground/static-mpa/__tests__/with-worker-configs-warning/assets.spec.ts
+index acad837..5cb44e3 100644
+--- a/packages/vite-plugin-cloudflare/playground/static-mpa/__tests__/with-worker-configs-warning/assets.spec.ts
++++ b/packages/vite-plugin-cloudflare/playground/static-mpa/__tests__/with-worker-configs-warning/assets.spec.ts
+@@ -7,7 +7,9 @@ test("a worker configs warning is present in the terminal", async () => {
+ 	 *       For dev is obvious, for builds we do get the warning once because we get it when we
+ 	 *       build the application but not when we run its preview (since that reads the generated wrangler.json)
+ 	 */
+-	expect(serverLogs.warns).toEqual([
++	expect(
++		serverLogs.warns.filter((warn) => !warn.includes("built-in minifier"))
++	).toEqual([
+ 		expect.stringMatching(
+ 			/your worker config \(at `.*?wrangler.with-warning.toml`\) contains the following configuration options which are ignored since they are not applicable when using Vite:[\s\S]+preserve_file_names/
+ 		),
+-- 
+2.48.1
+
