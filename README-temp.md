@@ -30,13 +30,13 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 
 | suite                                     | state | description                                                                                              |
 | ----------------------------------------- | ----: | :------------------------------------------------------------------------------------------------------- |
-| analogjs                                  |    ✅ |                                                                                                          |
+| analogjs                                  |    ❌ | failing due to [oxc-project/oxc#9171](https://github.com/oxc-project/oxc/issues/9171)                    |
 | [astro](#astro)                           |    👀 | need to investigate further                                                                              |
 | histoire                                  |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
 | ladle                                     |    ✅ |                                                                                                          |
 | laravel                                   |    ✅ |                                                                                                          |
 | [marko](#marko)                           |    ✅ | passed by esbuild-rollup plugin conversion                                                               |
-| [nuxt](#nuxt)                             |    ✅ | uses function type `outputOptions.assetFileNames` in `generateBundle` hook but can be worked around      |
+| [nuxt](#nuxt)                             |    ⚠️ | uses function type `outputOptions.assetFileNames` in `generateBundle` hook but can be worked around      |
 | previewjs                                 |    ⚠️ | fails locally but when running tests manually in playwright ui, it works. probably fine                  |
 | quasar                                    |    ✅ |                                                                                                          |
 | [qwik](#qwik)                             |    ⚠️ | passes, but uses some missing features                                                                   |
@@ -53,11 +53,12 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | vite-plugin-react-swc                     |    ⏭️ | skipped for now. It should be fine as vite-plugin-react is tested.                                       |
 | [vite-plugin-svelte](#vite-plugin-svelte) |    ⚠️ | one test failing but not correctness failures                                                            |
 | [vite-plugin-vue](#vite-plugin-vue)       |    ⚠️ | 2 tests failing but not correctness failures                                                             |
+| vite-plugin-cloudflare                    |    👀 | will check                                                                                               |
 | vite-setup-catalogue                      |    ✅ |                                                                                                          |
 | vitepress                                 |    ✅ | patched one place that was assigning to OutputBundle                                                     |
 | vitest                                    |    👀 | will check                                                                                               |
 | vuepress                                  |    ✅ |                                                                                                          |
-| [waku](#waku)                             |    ✅ | needs `VITE_USE_LEGACY_PARSE_AST=1`                                                                      |
+| [waku](#waku)                             |    ✅ |                                                                                                          |
 
 ## Details
 
@@ -82,6 +83,10 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 - ⚠️ uses function type `outputOptions.assetFileNames` in `generateBundle` hook
   - it can be workaround by using `this.environment.config.build.rollupOptions.output.assetFileNames` (applied this workaround)
   - [rolldown/rolldown#3445](https://github.com/rolldown/rolldown/issues/3445)
+- ⚠️ skipped tests for [experimental.decorators](https://nuxt.com/docs/guide/going-further/experimental-features#decorators) feature which requires standard decorators support
+  - NOTE: this is NOT the `compilerOptions.experimentalDecorators` in tsconfig, it is an experimental option that enables **standard** decorators support
+  - [oxc-project/oxc#9170](https://github.com/oxc-project/oxc/issues/9170)
+  - Not released yet, probably released in 3.16.0
 
 ### qwik
 
@@ -136,8 +141,6 @@ The failing tests are
   - This is expected as rolldown-vite currently does not support the legacy plugin
 
 ### waku
-
-needs `VITE_USE_LEGACY_PARSE_AST=1` (waiting for https://github.com/oxc-project/oxc/pull/8983, released in OXC 0.50.0)
 
 make sure to run with `BROWSER=chromium` if you have a different value set to `BROWSER`
 
