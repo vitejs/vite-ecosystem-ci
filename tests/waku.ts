@@ -7,7 +7,10 @@ export async function test(options: RunOptions) {
 		repo: 'dai-shi/waku',
 		branch: 'main',
 		build: 'compile',
-		beforeTest: 'pnpm playwright install chromium',
+		beforeTest: [
+			'pnpm playwright install chromium',
+			'pnpm --filter ./packages/waku add -P rollup',
+		],
 		test: 'test-vite-ecosystem-ci',
 		overrides: {
 			// For Vite 7 support

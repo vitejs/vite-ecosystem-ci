@@ -1,19 +1,35 @@
-From 47f9ed40b7bb9e35acfb231ed36641a825fade5b Mon Sep 17 00:00:00 2001
+From c26551656589ec9d0ac4bdc94379434151c1ae8c Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Thu, 23 Jan 2025 19:54:52 +0900
+Date: Mon, 17 Feb 2025 15:57:55 +0900
 Subject: [PATCH] temporary commit
 
 ---
- packages/kit/src/exports/vite/index.js        | 10 ++++++++--
- packages/kit/test/apps/options-2/test/test.js |  3 ++-
- 2 files changed, 10 insertions(+), 3 deletions(-)
+ .../src/exports/vite/graph_analysis/index.spec.js |  1 -
+ packages/kit/src/exports/vite/index.js            | 15 ++++++++++++---
+ packages/kit/test/apps/options-2/test/test.js     |  3 ++-
+ 3 files changed, 14 insertions(+), 5 deletions(-)
 
+diff --git a/packages/kit/src/exports/vite/graph_analysis/index.spec.js b/packages/kit/src/exports/vite/graph_analysis/index.spec.js
+index 35ecd31..4617849 100644
+--- a/packages/kit/src/exports/vite/graph_analysis/index.spec.js
++++ b/packages/kit/src/exports/vite/graph_analysis/index.spec.js
+@@ -8,7 +8,6 @@ import * as module_ids from '../module_ids.js';
+  * @param {string} [expected_error]
+  */
+ function check(graph, expected_error) {
+-	// @ts-expect-error
+ 	const context = /** @type {import('vite').Rollup.PluginContext} */ ({
+ 		/** @param {string} id */
+ 		getModuleInfo(id) {
 diff --git a/packages/kit/src/exports/vite/index.js b/packages/kit/src/exports/vite/index.js
-index 82594f0..1bda214 100644
+index 4885d00..74ba54b 100644
 --- a/packages/kit/src/exports/vite/index.js
 +++ b/packages/kit/src/exports/vite/index.js
-@@ -670,7 +670,13 @@ Tips:
+@@ -673,9 +673,16 @@ Tips:
+ 								entryFileNames: ssr ? '[name].js' : `${prefix}/[name].[hash].${ext}`,
+ 								chunkFileNames: ssr ? 'chunks/[name].js' : `${prefix}/chunks/[hash].${ext}`,
  								assetFileNames: `${prefix}/assets/[name].[hash][extname]`,
++								// @ts-expect-error rolldown does not support `hoistTransitiveImports` option
  								hoistTransitiveImports: false,
  								sourcemapIgnoreList,
 -								manualChunks: split ? undefined : () => 'bundle',
@@ -27,7 +43,23 @@ index 82594f0..1bda214 100644
  								inlineDynamicImports: false
  							},
  							preserveEntrySignatures: 'strict'
-@@ -743,7 +749,7 @@ Tips:
+@@ -690,6 +697,7 @@ Tips:
+ 								entryFileNames: `${prefix}/workers/[name]-[hash].js`,
+ 								chunkFileNames: `${prefix}/workers/chunks/[hash].js`,
+ 								assetFileNames: `${prefix}/workers/assets/[name]-[hash][extname]`,
++								// @ts-expect-error rolldown does not support `hoistTransitiveImports` option
+ 								hoistTransitiveImports: false
+ 							}
+ 						}
+@@ -738,6 +746,7 @@ Tips:
+ 			if (secondary_build_started) return;
+ 
+ 			if (is_build) {
++				// @ts-expect-error rolldown-vite does not support `watch` yet
+ 				if (!vite_config.build.watch) {
+ 					rimraf(out);
+ 				}
+@@ -748,7 +757,7 @@ Tips:
  		renderChunk(code, chunk) {
  			if (code.includes('__SVELTEKIT_TRACK__')) {
  				return {
@@ -36,6 +68,15 @@ index 82594f0..1bda214 100644
  						(tracked_features[chunk.name + '.js'] ??= []).push(label);
  						// put extra whitespace at the end of the comment to preserve the source size and avoid interfering with source maps
  						return `/* track ${label}            */`;
+@@ -840,7 +849,7 @@ Tips:
+ 
+ 				secondary_build_started = true;
+ 
+-				const { output } = /** @type {import('vite').Rollup.RollupOutput} */ (
++				const { output } = /** @type {import('vite').Rollup.RolldownOutput} */ (
+ 					await vite.build({
+ 						configFile: vite_config.configFile,
+ 						// CLI args
 diff --git a/packages/kit/test/apps/options-2/test/test.js b/packages/kit/test/apps/options-2/test/test.js
 index ba5f100..b381e4b 100644
 --- a/packages/kit/test/apps/options-2/test/test.js
@@ -51,5 +92,5 @@ index ba5f100..b381e4b 100644
  	});
  });
 -- 
-2.47.1
+2.48.1
 
