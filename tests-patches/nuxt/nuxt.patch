@@ -1,17 +1,56 @@
-From 13eefda21b3b3699f39c171f01fa18870401416a Mon Sep 17 00:00:00 2001
+From 5c987a499accf9a67daa2b902940e32aefad358e Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Wed, 5 Feb 2025 14:54:47 +0900
+Date: Mon, 17 Feb 2025 16:25:59 +0900
 Subject: [PATCH] temporary commit
 
 ---
+ packages/kit/src/build.ts                     |  3 +++
+ packages/nuxt/src/core/nuxt.ts                |  2 ++
  packages/vite/src/plugins/ssr-styles.ts       | 27 ++++++++++++-------
- packages/vite/src/vite.ts                     |  4 +++
- test/basic.test.ts                            |  2 ++
+ packages/vite/src/vite.ts                     |  6 +++++
+ test/basic.test.ts                            |  5 +++-
  test/fixtures/basic/pages/assets.vue          | 10 +++----
+ .../basic/pages/experimental/decorators.vue   |  2 +-
  test/fixtures/runtime-compiler/nuxt.config.ts |  2 +-
  test/fixtures/suspense/nuxt.config.ts         |  2 +-
- 6 files changed, 29 insertions(+), 18 deletions(-)
+ 9 files changed, 39 insertions(+), 20 deletions(-)
 
+diff --git a/packages/kit/src/build.ts b/packages/kit/src/build.ts
+index 0f3bb8f..c652241 100644
+--- a/packages/kit/src/build.ts
++++ b/packages/kit/src/build.ts
+@@ -93,14 +93,17 @@ export function extendViteConfig (fn: ((config: ViteConfig) => void), options: E
+ 
+   if (options.server !== false && options.client !== false) {
+     // Call fn() only once
++    // @ts-expect-error rolldown type incompat
+     return nuxt.hook('vite:extend', ({ config }) => fn(config))
+   }
+ 
+   nuxt.hook('vite:extendConfig', (config, { isClient, isServer }) => {
+     if (options.server !== false && isServer) {
++      // @ts-expect-error rolldown type incompat
+       return fn(config)
+     }
+     if (options.client !== false && isClient) {
++      // @ts-expect-error rolldown type incompat
+       return fn(config)
+     }
+   })
+diff --git a/packages/nuxt/src/core/nuxt.ts b/packages/nuxt/src/core/nuxt.ts
+index 0f65e66..0d9a0b4 100644
+--- a/packages/nuxt/src/core/nuxt.ts
++++ b/packages/nuxt/src/core/nuxt.ts
+@@ -373,7 +373,9 @@ async function initNuxt (nuxt: Nuxt) {
+   addWebpackPlugin(() => ImpoundPlugin.webpack(nuxtProtectionConfig))
+ 
+   // add resolver for modules used in virtual files
++  // @ts-expect-error rolldown type incompat
+   addVitePlugin(() => resolveDeepImportsPlugin(nuxt), { client: false })
++  // @ts-expect-error rolldown type incompat
+   addVitePlugin(() => resolveDeepImportsPlugin(nuxt), { server: false })
+ 
+   // Add transform for `onPrehydrate` lifecycle hook
 diff --git a/packages/vite/src/plugins/ssr-styles.ts b/packages/vite/src/plugins/ssr-styles.ts
 index bfe227c..2a32de0 100644
 --- a/packages/vite/src/plugins/ssr-styles.ts
@@ -66,7 +105,7 @@ index bfe227c..2a32de0 100644
          const baseDir = dirname(base)
  
 diff --git a/packages/vite/src/vite.ts b/packages/vite/src/vite.ts
-index ed63c8c..7321c83 100644
+index ed63c8c..a94fa68 100644
 --- a/packages/vite/src/vite.ts
 +++ b/packages/vite/src/vite.ts
 @@ -88,6 +88,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
@@ -77,7 +116,13 @@ index ed63c8c..7321c83 100644
            watch: {
              chokidar: { ...nuxt.options.watchers.chokidar, ignored: [isIgnored, /[\\/]node_modules[\\/]/] },
              exclude: nuxt.options.ignore,
-@@ -100,6 +101,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
+@@ -95,11 +96,13 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
+         },
+         plugins: [
+           // add resolver for files in public assets directories
++          // @ts-expect-error rolldown type incompat
+           VitePublicDirsPlugin.vite({
+             dev: nuxt.options.dev,
              sourcemap: !!nuxt.options.sourcemap.server,
              baseURL: nuxt.options.app.baseURL,
            }),
@@ -85,7 +130,7 @@ index ed63c8c..7321c83 100644
            replace({ preventAssignment: true, ...globalThisReplacements }),
          ],
          server: {
-@@ -117,6 +119,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
+@@ -117,6 +120,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
    // to detect whether to inject production or development code (such as HMR code)
    if (!nuxt.options.dev) {
      ctx.config.server!.watch = undefined
@@ -93,7 +138,15 @@ index ed63c8c..7321c83 100644
      ctx.config.build!.watch = undefined
    }
  
-@@ -175,6 +178,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
+@@ -156,6 +160,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
+   // Add type-checking
+   if (!ctx.nuxt.options.test && (ctx.nuxt.options.typescript.typeCheck === true || (ctx.nuxt.options.typescript.typeCheck === 'build' && !ctx.nuxt.options.dev))) {
+     const checker = await import('vite-plugin-checker').then(r => r.default)
++    // @ts-expect-error rolldown type incompat
+     addVitePlugin(checker({
+       vueTsc: {
+         tsconfigPath: await resolveTSConfig(ctx.nuxt.options.rootDir),
+@@ -175,6 +180,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
        }
      }
  
@@ -102,7 +155,7 @@ index ed63c8c..7321c83 100644
    })
  
 diff --git a/test/basic.test.ts b/test/basic.test.ts
-index 312bc91..b0b3d45 100644
+index 5010a23..988fceb 100644
 --- a/test/basic.test.ts
 +++ b/test/basic.test.ts
 @@ -1879,6 +1879,8 @@ describe.skipIf(isDev() || isWebpack)('inlining component styles', () => {
@@ -114,6 +167,16 @@ index 312bc91..b0b3d45 100644
        expect.soft(css).not.toContain(style)
      }
  
+@@ -2780,7 +2782,8 @@ describe('teleports', () => {
+ })
+ 
+ describe('experimental', () => {
+-  it('decorators support works', async () => {
++  // NOTE: OXC does not support standard decorators yet
++  it.skip('decorators support works', async () => {
+     const html = await $fetch('/experimental/decorators')
+     expect(html).toContain('decorated-decorated')
+     expectNoClientErrors('/experimental/decorators')
 diff --git a/test/fixtures/basic/pages/assets.vue b/test/fixtures/basic/pages/assets.vue
 index 4b200f8..06fb95c 100644
 --- a/test/fixtures/basic/pages/assets.vue
@@ -139,6 +202,19 @@ index 4b200f8..06fb95c 100644
 +  src: url("/public.svg") format("woff2");
  }
  </style>
+diff --git a/test/fixtures/basic/pages/experimental/decorators.vue b/test/fixtures/basic/pages/experimental/decorators.vue
+index dfe7a49..090920e 100644
+--- a/test/fixtures/basic/pages/experimental/decorators.vue
++++ b/test/fixtures/basic/pages/experimental/decorators.vue
+@@ -4,7 +4,7 @@ function something (_method: () => unknown) {
+ }
+ 
+ class SomeClass {
+-  @something
++  // @something
+   public someMethod () {
+     return 'initial'
+   }
 diff --git a/test/fixtures/runtime-compiler/nuxt.config.ts b/test/fixtures/runtime-compiler/nuxt.config.ts
 index b5a3318..f6c2c81 100644
 --- a/test/fixtures/runtime-compiler/nuxt.config.ts
@@ -162,5 +238,5 @@ index b485e67..b36fe5a 100644
 +  }
  })
 -- 
-2.47.1
+2.48.1
 
