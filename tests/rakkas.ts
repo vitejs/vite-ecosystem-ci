@@ -10,13 +10,16 @@ export async function test(options: RunOptions) {
 		build: 'build',
 		// This is needed to run puppeteer in Ubuntu 23+
 		// https://github.com/puppeteer/puppeteer/pull/13196
-		beforeTest: process.env.GITHUB_ACTIONS
-			? async () => {
-					execSync(
-						'echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns',
-					)
-				}
-			: undefined,
+		beforeTest: [
+			process.env.GITHUB_ACTIONS
+				? async () => {
+						execSync(
+							'echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns',
+						)
+					}
+				: null,
+			'pnpm --dir testbed/examples exec puppeteer browsers install chrome',
+		].filter((x) => x != null),
 		test: 'vite-ecosystem-ci',
 	})
 }
