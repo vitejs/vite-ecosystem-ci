@@ -11,6 +11,7 @@ export async function test(options: RunOptions) {
 			'@vitejs/plugin-vue': true,
 		},
 		build: 'build',
+		beforeTest: 'pnpm playwright install chromium',
 		test: 'test:vite-ecosystem-ci',
 	})
 }
