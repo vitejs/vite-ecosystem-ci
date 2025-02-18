@@ -1,16 +1,15 @@
-From acbc0a57bdaf07881d4bb328af7130181c72e69a Mon Sep 17 00:00:00 2001
+From d92262f369cbec241132e3f4c7a3dd0b6c29b034 Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Mon, 17 Feb 2025 17:49:43 +0900
+Date: Tue, 18 Feb 2025 18:18:05 +0900
 Subject: [PATCH] temporary commit
 
 ---
  .../module-resolution/__tests__/module-resolution.spec.ts   | 2 +-
- .../playground/module-resolution/packages/requires/ext.js   | 6 ++++--
  .../playground/multi-worker/__tests__/multi-worker.spec.ts  | 6 +++++-
  .../with-worker-configs-warning/multi-worker.spec.ts        | 6 +++++-
  .../playground/static-mpa/__tests__/assets.spec.ts          | 4 +++-
  .../__tests__/with-worker-configs-warning/assets.spec.ts    | 4 +++-
- 6 files changed, 21 insertions(+), 7 deletions(-)
+ 5 files changed, 17 insertions(+), 5 deletions(-)
 
 diff --git a/packages/vite-plugin-cloudflare/playground/module-resolution/__tests__/module-resolution.spec.ts b/packages/vite-plugin-cloudflare/playground/module-resolution/__tests__/module-resolution.spec.ts
 index 7b1d9c0..c10d4ce 100644
@@ -25,27 +24,6 @@ index 7b1d9c0..c10d4ce 100644
  	});
  
  	describe("basic module resolution", () => {
-diff --git a/packages/vite-plugin-cloudflare/playground/module-resolution/packages/requires/ext.js b/packages/vite-plugin-cloudflare/playground/module-resolution/packages/requires/ext.js
-index f60cb4c..c97b301 100644
---- a/packages/vite-plugin-cloudflare/playground/module-resolution/packages/requires/ext.js
-+++ b/packages/vite-plugin-cloudflare/playground/module-resolution/packages/requires/ext.js
-@@ -2,12 +2,14 @@ exports.helloWorldExt = `${require("./hello.js").default} ${require("./world.cjs
- 
- let helloCjs = null;
- try {
--	helloCjs = require("./hello.cjs");
-+	// NOTE: comment out for now https://github.com/rolldown/rolldown/issues/3604
-+	// helloCjs = require("./hello.cjs");
- } catch {}
- exports.helloCjs = helloCjs;
- 
- let worldJs = null;
- try {
--	helloCjs = require("./world.js");
-+	// NOTE: comment out for now https://github.com/rolldown/rolldown/issues/3604
-+	// helloCjs = require("./world.js");
- } catch {}
- exports.worldJs = worldJs;
 diff --git a/packages/vite-plugin-cloudflare/playground/multi-worker/__tests__/multi-worker.spec.ts b/packages/vite-plugin-cloudflare/playground/multi-worker/__tests__/multi-worker.spec.ts
 index 61ccd1d..c957132 100644
 --- a/packages/vite-plugin-cloudflare/playground/multi-worker/__tests__/multi-worker.spec.ts
