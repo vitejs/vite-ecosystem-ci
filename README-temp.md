@@ -36,7 +36,7 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | ladle                                             |    ✅ |                                                                                                          |
 | laravel                                           |    ✅ |                                                                                                          |
 | [marko](#marko)                                   |    ✅ | passed by esbuild-rollup plugin conversion                                                               |
-| [nuxt](#nuxt)                                     |    ⚠️ | uses function type `outputOptions.assetFileNames` in `generateBundle` hook but can be worked around      |
+| [nuxt](#nuxt)                                     |    ✅ |                                                                                                          |
 | previewjs                                         |    ⚠️ | fails locally but when running tests manually in playwright ui, it works. probably fine                  |
 | quasar                                            |    ✅ |                                                                                                          |
 | [qwik](#qwik)                                     |    ⚠️ | passes, but uses some missing features                                                                   |
@@ -48,7 +48,7 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | [unocss](#unocss)                                 |    ❌ | modifies `chunk.modules`.                                                                                |
 | [vike](#vike)                                     |    ❌ | uses advanced `manualChunks`                                                                             |
 | vite-environment-examples                         |    ✅ |                                                                                                          |
-| [vite-plugin-cloudflare](#vite-plugin-cloudflare) |    ⚠️ | one test failing but an edge case                                                                        |
+| [vite-plugin-cloudflare](#vite-plugin-cloudflare) |    ✅ |                                                                                                          |
 | vite-plugin-pwa                                   |    ✅ | patched one place that was assigning to OutputBundle                                                     |
 | vite-plugin-react                                 |    ✅ | I did not ran because it was tested separately. See https://github.com/rolldown/vite-plugin-react/pull/1 |
 | vite-plugin-react-swc                             |    ⏭️ | skipped for now. It should be fine as vite-plugin-react is tested.                                       |
@@ -80,9 +80,6 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 
 ### nuxt
 
-- ⚠️ uses function type `outputOptions.assetFileNames` in `generateBundle` hook
-  - it can be workaround by using `this.environment.config.build.rollupOptions.output.assetFileNames` (applied this workaround)
-  - [rolldown/rolldown#3445](https://github.com/rolldown/rolldown/issues/3445)
 - ⚠️ skipped tests for [experimental.decorators](https://nuxt.com/docs/guide/going-further/experimental-features#decorators) feature which requires standard decorators support
   - NOTE: this is NOT the `compilerOptions.experimentalDecorators` in tsconfig, it is an experimental option that enables **standard** decorators support
   - [oxc-project/oxc#9170](https://github.com/oxc-project/oxc/issues/9170)

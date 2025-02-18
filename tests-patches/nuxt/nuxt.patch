@@ -1,19 +1,19 @@
-From 5c987a499accf9a67daa2b902940e32aefad358e Mon Sep 17 00:00:00 2001
+From 40e9d2c6d84a954d3b7b971ac3af19cc83e3cb7a Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Mon, 17 Feb 2025 16:25:59 +0900
+Date: Tue, 18 Feb 2025 17:32:38 +0900
 Subject: [PATCH] temporary commit
 
 ---
- packages/kit/src/build.ts                     |  3 +++
- packages/nuxt/src/core/nuxt.ts                |  2 ++
- packages/vite/src/plugins/ssr-styles.ts       | 27 ++++++++++++-------
- packages/vite/src/vite.ts                     |  6 +++++
- test/basic.test.ts                            |  5 +++-
- test/fixtures/basic/pages/assets.vue          | 10 +++----
- .../basic/pages/experimental/decorators.vue   |  2 +-
- test/fixtures/runtime-compiler/nuxt.config.ts |  2 +-
- test/fixtures/suspense/nuxt.config.ts         |  2 +-
- 9 files changed, 39 insertions(+), 20 deletions(-)
+ packages/kit/src/build.ts                             |  3 +++
+ packages/nuxt/src/core/nuxt.ts                        |  2 ++
+ packages/vite/src/plugins/ssr-styles.ts               |  4 +---
+ packages/vite/src/vite.ts                             |  6 ++++++
+ test/basic.test.ts                                    |  5 ++++-
+ test/fixtures/basic/pages/assets.vue                  | 10 ++++------
+ test/fixtures/basic/pages/experimental/decorators.vue |  2 +-
+ test/fixtures/runtime-compiler/nuxt.config.ts         |  2 +-
+ test/fixtures/suspense/nuxt.config.ts                 |  2 +-
+ 9 files changed, 23 insertions(+), 13 deletions(-)
 
 diff --git a/packages/kit/src/build.ts b/packages/kit/src/build.ts
 index 0f3bb8f..c652241 100644
@@ -52,7 +52,7 @@ index 0f65e66..0d9a0b4 100644
  
    // Add transform for `onPrehydrate` lifecycle hook
 diff --git a/packages/vite/src/plugins/ssr-styles.ts b/packages/vite/src/plugins/ssr-styles.ts
-index bfe227c..2a32de0 100644
+index bfe227c..88bcb85 100644
 --- a/packages/vite/src/plugins/ssr-styles.ts
 +++ b/packages/vite/src/plugins/ssr-styles.ts
 @@ -1,6 +1,6 @@
@@ -63,47 +63,16 @@ index bfe227c..2a32de0 100644
  import { genImport, genObjectFromRawEntries } from 'knitwork'
  import { filename as _filename } from 'pathe/utils'
  import { parseQuery, parseURL } from 'ufo'
-@@ -58,9 +58,16 @@ export function ssrStylesPlugin (options: SSRStylePluginOptions): Plugin {
-         }
-       },
-     },
--    generateBundle (outputOptions) {
-+    generateBundle () {
-       if (options.mode === 'client') { return }
- 
-+      // NOTE: rolldown does not allow calling `outputOptions.assetFileNames`
-+      // get that value from this.environment.config.build.rollupOptions to workaround that
-+      const outputOptions = this.environment.config.build.rollupOptions.output ?? {}
-+      if (Array.isArray(outputOptions)) {
-+        throw new Error('expected `outputOptions` not to be an array')
-+      }
-+
-       const emitted: Record<string, string> = {}
-       for (const [file, { files, inBundle }] of Object.entries(cssMap)) {
-         // File has been tree-shaken out of build (or there are no styles to inline)
-@@ -68,14 +75,14 @@ export function ssrStylesPlugin (options: SSRStylePluginOptions): Plugin {
-         const fileName = filename(file)
-         const base = typeof outputOptions.assetFileNames === 'string'
+@@ -70,9 +70,7 @@ export function ssrStylesPlugin (options: SSRStylePluginOptions): Plugin {
            ? outputOptions.assetFileNames
--          : outputOptions.assetFileNames({
--              type: 'asset',
+           : outputOptions.assetFileNames({
+               type: 'asset',
 -              name: `${fileName}-styles.mjs`,
--              names: [`${fileName}-styles.mjs`],
+               names: [`${fileName}-styles.mjs`],
 -              originalFileName: `${fileName}-styles.mjs`,
--              originalFileNames: [`${fileName}-styles.mjs`],
--              source: '',
--            })
-+          : outputOptions.assetFileNames
-+            ? outputOptions.assetFileNames({
-+                type: 'asset',
-+                names: [`${fileName}-styles.mjs`],
-+                originalFileNames: [`${fileName}-styles.mjs`],
-+                source: '',
-+              })
-+            : join(this.environment.config.build.assetsDir, `${fileName}-styles.mjs`)
- 
-         const baseDir = dirname(base)
- 
+               originalFileNames: [`${fileName}-styles.mjs`],
+               source: '',
+             })
 diff --git a/packages/vite/src/vite.ts b/packages/vite/src/vite.ts
 index ed63c8c..a94fa68 100644
 --- a/packages/vite/src/vite.ts
