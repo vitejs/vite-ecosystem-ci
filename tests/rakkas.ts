@@ -18,7 +18,7 @@ export async function test(options: RunOptions) {
 						)
 					}
 				: null,
-			'pnpm exec puppeteer browsers install chrome',
+			'pnpm exec --dir testbed/examples puppeteer browsers install chrome',
 		].filter((x) => x != null),
 		test: 'vite-ecosystem-ci',
 	})
