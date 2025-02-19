@@ -61,7 +61,7 @@ jobs:
           - qwik
           - rakkas
           - react-router
-          - redwoodjs
+          # - redwoodjs # disabled temporarily
           - storybook
           - sveltekit
           - unocss
