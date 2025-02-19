@@ -52,7 +52,7 @@ on:
           - quasar
           - qwik
           - rakkas
-          - redwoodjs
+          # - redwoodjs # disabled temporarily
           - storybook
           - sveltekit
           - unocss
@@ -156,7 +156,7 @@ jobs:
           - qwik
           - rakkas
           - react-router
-          - redwoodjs
+          # - redwoodjs # disabled temporarily
           - storybook
           - sveltekit
           - unocss
