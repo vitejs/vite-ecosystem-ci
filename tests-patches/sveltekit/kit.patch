@@ -1,13 +1,12 @@
-From c26551656589ec9d0ac4bdc94379434151c1ae8c Mon Sep 17 00:00:00 2001
+From d3569d6c773f4ba249dd752e61c9f71f9eed4ea1 Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Mon, 17 Feb 2025 15:57:55 +0900
+Date: Thu, 20 Feb 2025 17:08:01 +0900
 Subject: [PATCH] temporary commit
 
 ---
- .../src/exports/vite/graph_analysis/index.spec.js |  1 -
- packages/kit/src/exports/vite/index.js            | 15 ++++++++++++---
- packages/kit/test/apps/options-2/test/test.js     |  3 ++-
- 3 files changed, 14 insertions(+), 5 deletions(-)
+ .../exports/vite/graph_analysis/index.spec.js  |  1 -
+ packages/kit/src/exports/vite/index.js         | 18 +++++++++++++-----
+ 2 files changed, 13 insertions(+), 6 deletions(-)
 
 diff --git a/packages/kit/src/exports/vite/graph_analysis/index.spec.js b/packages/kit/src/exports/vite/graph_analysis/index.spec.js
 index 35ecd31..4617849 100644
@@ -22,10 +21,10 @@ index 35ecd31..4617849 100644
  		/** @param {string} id */
  		getModuleInfo(id) {
 diff --git a/packages/kit/src/exports/vite/index.js b/packages/kit/src/exports/vite/index.js
-index 4885d00..74ba54b 100644
+index 4885d00..b74fcfd 100644
 --- a/packages/kit/src/exports/vite/index.js
 +++ b/packages/kit/src/exports/vite/index.js
-@@ -673,9 +673,16 @@ Tips:
+@@ -673,12 +673,18 @@ Tips:
  								entryFileNames: ssr ? '[name].js' : `${prefix}/[name].[hash].${ext}`,
  								chunkFileNames: ssr ? 'chunks/[name].js' : `${prefix}/chunks/[hash].${ext}`,
  								assetFileNames: `${prefix}/assets/[name].[hash][extname]`,
@@ -33,17 +32,21 @@ index 4885d00..74ba54b 100644
  								hoistTransitiveImports: false,
  								sourcemapIgnoreList,
 -								manualChunks: split ? undefined : () => 'bundle',
-+								// manualChunks: split ? undefined : () => 'bundle',
+-								inlineDynamicImports: false
 +								// NOTE: rolldown does not support manualChunks option
-+								advancedChunks: split
-+									? undefined
-+									: {
-+											groups: [{ name: 'bundle', test: /./ }]
-+										},
- 								inlineDynamicImports: false
++								// manualChunks: split ? undefined : () => 'bundle',
++								inlineDynamicImports: split ? false : true
  							},
- 							preserveEntrySignatures: 'strict'
-@@ -690,6 +697,7 @@ Tips:
+-							preserveEntrySignatures: 'strict'
++							preserveEntrySignatures: 'strict',
++							experimental: {
++								// NOTE: so that inlineDynamicImports does not break the execution order
++								strictExecutionOrder: split ? undefined : true
++							}
+ 						},
+ 						ssrEmitAssets: true,
+ 						target: ssr ? 'node18.13' : undefined
+@@ -690,6 +696,7 @@ Tips:
  								entryFileNames: `${prefix}/workers/[name]-[hash].js`,
  								chunkFileNames: `${prefix}/workers/chunks/[hash].js`,
  								assetFileNames: `${prefix}/workers/assets/[name]-[hash][extname]`,
@@ -51,7 +54,7 @@ index 4885d00..74ba54b 100644
  								hoistTransitiveImports: false
  							}
  						}
-@@ -738,6 +746,7 @@ Tips:
+@@ -738,6 +745,7 @@ Tips:
  			if (secondary_build_started) return;
  
  			if (is_build) {
@@ -59,7 +62,7 @@ index 4885d00..74ba54b 100644
  				if (!vite_config.build.watch) {
  					rimraf(out);
  				}
-@@ -748,7 +757,7 @@ Tips:
+@@ -748,7 +756,7 @@ Tips:
  		renderChunk(code, chunk) {
  			if (code.includes('__SVELTEKIT_TRACK__')) {
  				return {
@@ -68,7 +71,7 @@ index 4885d00..74ba54b 100644
  						(tracked_features[chunk.name + '.js'] ??= []).push(label);
  						// put extra whitespace at the end of the comment to preserve the source size and avoid interfering with source maps
  						return `/* track ${label}            */`;
-@@ -840,7 +849,7 @@ Tips:
+@@ -840,7 +848,7 @@ Tips:
  
  				secondary_build_started = true;
  
@@ -77,20 +80,6 @@ index 4885d00..74ba54b 100644
  					await vite.build({
  						configFile: vite_config.configFile,
  						// CLI args
-diff --git a/packages/kit/test/apps/options-2/test/test.js b/packages/kit/test/apps/options-2/test/test.js
-index ba5f100..b381e4b 100644
---- a/packages/kit/test/apps/options-2/test/test.js
-+++ b/packages/kit/test/apps/options-2/test/test.js
-@@ -132,7 +132,8 @@ test.describe("bundleStrategy: 'single'", () => {
- 			page.waitForLoadState('networkidle') // wait for preloading to finish
- 		]);
- 
--		expect(requests.filter((req) => req.endsWith('.js')).length).toBe(1);
-+		// NOTE: rolldown cannot generate a single chunk (probably because it'll break the execution order)
-+		expect(requests.filter((req) => req.endsWith('.js')).length).toBe(5);
- 		expect(requests.filter((req) => req.endsWith('.css')).length).toBe(1);
- 	});
- });
 -- 
 2.48.1
 
