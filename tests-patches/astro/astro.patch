@@ -1,14 +1,14 @@
-From e8333db8e83ec282055252d56098d5c3a2afa742 Mon Sep 17 00:00:00 2001
+From 1608dd70fad98329dd6c3b845fa6650587ef842e Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Thu, 20 Feb 2025 20:16:41 +0900
+Date: Thu, 20 Feb 2025 21:19:41 +0900
 Subject: [PATCH] temporary commit
 
 ---
  .../astro/src/assets/vite-plugin-assets.ts    | 85 +++++++++++--------
  packages/astro/src/content/runtime-assets.ts  |  2 +-
  .../src/core/build/plugins/plugin-css.ts      | 14 +--
+ .../core/build/plugins/plugin-prerender.ts    |  6 ++
  packages/astro/test/0-css.test.js             |  6 +-
- packages/astro/test/actions.test.js           |  3 +-
  .../astro/test/astro-css-bundling.test.js     |  3 +-
  .../astro/test/client-address-node.test.js    |  3 +-
  .../astro/test/config-vite-css-target.test.js |  3 +-
@@ -23,7 +23,7 @@ Subject: [PATCH] temporary commit
  packages/astro/test/i18n-routing.test.js      |  2 +-
  .../test/reuse-injected-entrypoint.test.js    |  4 +-
  .../markdoc/src/content-entry-type.ts         |  2 +-
- 19 files changed, 86 insertions(+), 64 deletions(-)
+ 19 files changed, 90 insertions(+), 63 deletions(-)
 
 diff --git a/packages/astro/src/assets/vite-plugin-assets.ts b/packages/astro/src/assets/vite-plugin-assets.ts
 index c3f37b8..81c6ed4 100644
@@ -199,6 +199,23 @@ index c39d4da..6aaa2e3 100644
  			return true;
  		}
  	}
+diff --git a/packages/astro/src/core/build/plugins/plugin-prerender.ts b/packages/astro/src/core/build/plugins/plugin-prerender.ts
+index f915c92..e2b64d2 100644
+--- a/packages/astro/src/core/build/plugins/plugin-prerender.ts
++++ b/packages/astro/src/core/build/plugins/plugin-prerender.ts
+@@ -57,6 +57,12 @@ function getNonPrerenderOnlyChunks(bundle: Rollup.OutputBundle, internals: Build
+ 
+ 			nonPrerenderOnlyEntryChunks.add(chunk);
+ 		}
++		// NOTE: it seems to be a bug in astro?
++		// cleanStaticOutput checks `isDynamicEntry` as well
++		// https://github.com/withastro/astro/blob/3842ce5ec9471d358042b3d9ef697cf06c7a91f6/packages/astro/src/core/build/static-build.ts#L335
++		if (chunk.type === 'chunk' && chunk.isDynamicEntry) {
++			nonPrerenderOnlyEntryChunks.add(chunk);
++		}
+ 	}
+ 
+ 	// From the `nonPrerenderedEntryChunks`, we crawl all the imports/dynamicImports to find all
 diff --git a/packages/astro/test/0-css.test.js b/packages/astro/test/0-css.test.js
 index 65010f5..f715c77 100644
 --- a/packages/astro/test/0-css.test.js
@@ -223,20 +240,6 @@ index 65010f5..f715c77 100644
  			const bundledAssets = await fixture.readdir('./_astro');
  			// SvelteDynamic styles is already included in the main page css asset
  			const unusedCssAsset = bundledAssets.find((asset) => /SvelteDynamic\..*\.css/.test(asset));
-diff --git a/packages/astro/test/actions.test.js b/packages/astro/test/actions.test.js
-index 929a2d8..3324c87 100644
---- a/packages/astro/test/actions.test.js
-+++ b/packages/astro/test/actions.test.js
-@@ -428,7 +428,8 @@ describe('Astro Actions', () => {
- 			assert.equal(res.status, 415);
- 		});
- 
--		it('Is callable from the server with rewrite', async () => {
-+		// TODO: need to investigate
-+		it.skip('Is callable from the server with rewrite', async () => {
- 			const req = new Request('http://example.com/rewrite');
- 			const res = await app.render(req);
- 			assert.equal(res.ok, true);
 diff --git a/packages/astro/test/astro-css-bundling.test.js b/packages/astro/test/astro-css-bundling.test.js
 index 92aa6db..9a7439a 100644
 --- a/packages/astro/test/astro-css-bundling.test.js
