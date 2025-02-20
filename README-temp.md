@@ -31,7 +31,7 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | suite                                             | state | description                                                                                              |
 | ------------------------------------------------- | ----: | :------------------------------------------------------------------------------------------------------- |
 | analogjs                                          |    ❌ | failing due to [oxc-project/oxc#9171](https://github.com/oxc-project/oxc/issues/9171)                    |
-| [astro](#astro)                                   |    ❌ | need to investigate further                                                                              |
+| [astro](#astro)                                   |    ❌ | modifies `chunk.modules`, chunk.modules order difference, CJS-ESM interop issue with JSON files          |
 | histoire                                          |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
 | ladle                                             |    ✅ |                                                                                                          |
 | laravel                                           |    ✅ |                                                                                                          |
@@ -64,23 +64,20 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 
 ### astro
 
-[WIP]
-
 - ❌ `CSS > build > Astro Styles > Styles through barrel files should only include used Astro scoped styles`, `CSS > dev > remove unused styles from client:load components`
   - uses `meta.chunks` in `renderChunk` hook and `renderedExports`, also does `delete chunk.modules[id]`
     - https://github.com/withastro/astro/blob/46ec06ed82887eaf1fe3a73158407b496669c5f0/packages/astro/src/core/build/plugins/plugin-css.ts#L172-L175
     - going to fix this by https://github.com/vitejs/vite/pull/19418
-- ⚠️ `CSS Bundling > using custom assetFileNames config > there are 2 index named CSS files`
-  - TODO: it should be fine, need to check a bit more
 - ❌ `NodeClientAddress`
-  - TODO: need to investigate, seems to be CJS-ESM interop issue
+  - CJS-ESM interop issue with JSON files: [rolldown/rolldown#3640](https://github.com/rolldown/rolldown/issues/3640)
 - ❌ `CSS ordering - import order > Development > import order is depth-first`
   - caused by [rolldown/rolldown#3636](https://github.com/rolldown/rolldown/issues/3636)
-- ❌ `Dynamic route collision > Builds a dynamic route when in conflict with a spread route`
-  - TODO: need to investigate
 - ⚠️ some code relies on `this` to be bound to `this.emitFile`
   - related: https://github.com/rolldown/rolldown/issues/3631
   - applied a patch for now
+- ⚠️ `CSS Bundling > using custom assetFileNames config > there are 2 index named CSS files`
+  - uses `manualChunks` to set a custom name
+  - I guess `manualChunks` can be removed
 
 ### marko
 

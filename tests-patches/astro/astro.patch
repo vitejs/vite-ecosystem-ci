@@ -1,29 +1,29 @@
-From 1608dd70fad98329dd6c3b845fa6650587ef842e Mon Sep 17 00:00:00 2001
+From 7342128c0743ce9aff397e35d8a95b2f8e15e793 Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Thu, 20 Feb 2025 21:19:41 +0900
+Date: Fri, 21 Feb 2025 00:59:16 +0900
 Subject: [PATCH] temporary commit
 
 ---
- .../astro/src/assets/vite-plugin-assets.ts    | 85 +++++++++++--------
+ .../astro/src/assets/vite-plugin-assets.ts    | 85 ++++++++++--------
  packages/astro/src/content/runtime-assets.ts  |  2 +-
- .../src/core/build/plugins/plugin-css.ts      | 14 +--
+ .../src/core/build/plugins/plugin-css.ts      | 88 +++++++++----------
  .../core/build/plugins/plugin-prerender.ts    |  6 ++
  packages/astro/test/0-css.test.js             |  6 +-
- .../astro/test/astro-css-bundling.test.js     |  3 +-
+ .../astro/test/astro-css-bundling.test.js     |  5 +-
  .../astro/test/client-address-node.test.js    |  3 +-
  .../astro/test/config-vite-css-target.test.js |  3 +-
  packages/astro/test/config-vite.test.js       |  2 +-
  packages/astro/test/core-image.test.js        |  2 +-
  .../astro/test/css-inline-stylesheets.test.js |  4 +-
  packages/astro/test/css-order-import.test.js  |  3 +-
- .../test/dynamic-route-collision.test.js      |  3 +-
+ .../test/dynamic-route-collision.test.js      |  6 +-
  packages/astro/test/env-public.test.js        |  2 +-
  packages/astro/test/env-secret.test.js        |  3 +-
  packages/astro/test/hoisted-imports.test.js   |  4 +-
  packages/astro/test/i18n-routing.test.js      |  2 +-
  .../test/reuse-injected-entrypoint.test.js    |  4 +-
  .../markdoc/src/content-entry-type.ts         |  2 +-
- 19 files changed, 90 insertions(+), 63 deletions(-)
+ 19 files changed, 131 insertions(+), 101 deletions(-)
 
 diff --git a/packages/astro/src/assets/vite-plugin-assets.ts b/packages/astro/src/assets/vite-plugin-assets.ts
 index c3f37b8..81c6ed4 100644
@@ -164,10 +164,91 @@ index 74204e1..1c6f9fe 100644
  
  			if (!metadata) {
 diff --git a/packages/astro/src/core/build/plugins/plugin-css.ts b/packages/astro/src/core/build/plugins/plugin-css.ts
-index c39d4da..6aaa2e3 100644
+index c39d4da..d787002 100644
 --- a/packages/astro/src/core/build/plugins/plugin-css.ts
 +++ b/packages/astro/src/core/build/plugins/plugin-css.ts
-@@ -169,7 +169,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
+@@ -63,44 +63,42 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
+ 		name: 'astro:rollup-plugin-build-css',
+ 
+ 		outputOptions(outputOptions) {
+-			const assetFileNames = outputOptions.assetFileNames;
+-			const namingIncludesHash = assetFileNames?.toString().includes('[hash]');
+-			const createNameForParentPages = namingIncludesHash
+-				? assetName.shortHashedName(settings)
+-				: assetName.createSlugger(settings);
+-
+-			extendManualChunks(outputOptions, {
+-				after(id, meta) {
+-					// For CSS, create a hash of all of the pages that use it.
+-					// This causes CSS to be built into shared chunks when used by multiple pages.
+-					if (isBuildableCSSRequest(id)) {
+-						// For client builds that has hydrated components as entrypoints, there's no way
+-						// to crawl up and find the pages that use it. So we lookup the cache during SSR
+-						// build (that has the pages information) to derive the same chunk id so they
+-						// match up on build, making sure both builds has the CSS deduped.
+-						// NOTE: Components that are only used with `client:only` may not exist in the cache
+-						// and that's okay. We can use Rollup's default chunk strategy instead as these CSS
+-						// are outside of the SSR build scope, which no dedupe is needed.
+-						if (options.target === 'client') {
+-							return internals.cssModuleToChunkIdMap.get(id)!;
+-						}
+-
+-						const ctx = { getModuleInfo: meta.getModuleInfo };
+-						for (const pageInfo of getParentModuleInfos(id, ctx)) {
+-							if (hasAssetPropagationFlag(pageInfo.id)) {
+-								// Split delayed assets to separate modules
+-								// so they can be injected where needed
+-								const chunkId = assetName.createNameHash(id, [id], settings);
+-								internals.cssModuleToChunkIdMap.set(id, chunkId);
+-								return chunkId;
+-							}
+-						}
+-						const chunkId = createNameForParentPages(id, meta);
+-						internals.cssModuleToChunkIdMap.set(id, chunkId);
+-						return chunkId;
+-					}
+-				},
+-			});
++			// const assetFileNames = outputOptions.assetFileNames;
++			// const namingIncludesHash = assetFileNames?.toString().includes('[hash]');
++			// const createNameForParentPages = namingIncludesHash
++			// 	? assetName.shortHashedName(settings)
++			// 	: assetName.createSlugger(settings);
++			// extendManualChunks(outputOptions, {
++			// 	after(id, meta) {
++			// 		// For CSS, create a hash of all of the pages that use it.
++			// 		// This causes CSS to be built into shared chunks when used by multiple pages.
++			// 		if (isBuildableCSSRequest(id)) {
++			// 			// For client builds that has hydrated components as entrypoints, there's no way
++			// 			// to crawl up and find the pages that use it. So we lookup the cache during SSR
++			// 			// build (that has the pages information) to derive the same chunk id so they
++			// 			// match up on build, making sure both builds has the CSS deduped.
++			// 			// NOTE: Components that are only used with `client:only` may not exist in the cache
++			// 			// and that's okay. We can use Rollup's default chunk strategy instead as these CSS
++			// 			// are outside of the SSR build scope, which no dedupe is needed.
++			// 			if (options.target === 'client') {
++			// 				return internals.cssModuleToChunkIdMap.get(id)!;
++			// 			}
++			// 			const ctx = { getModuleInfo: meta.getModuleInfo };
++			// 			for (const pageInfo of getParentModuleInfos(id, ctx)) {
++			// 				if (hasAssetPropagationFlag(pageInfo.id)) {
++			// 					// Split delayed assets to separate modules
++			// 					// so they can be injected where needed
++			// 					const chunkId = assetName.createNameHash(id, [id], settings);
++			// 					internals.cssModuleToChunkIdMap.set(id, chunkId);
++			// 					return chunkId;
++			// 				}
++			// 			}
++			// 			const chunkId = createNameForParentPages(id, meta);
++			// 			internals.cssModuleToChunkIdMap.set(id, chunkId);
++			// 			return chunkId;
++			// 		}
++			// 	},
++			// });
+ 		},
+ 
+ 		async generateBundle(_outputOptions, bundle) {
+@@ -169,7 +167,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
  				// are rendered in the chunks. If they are not, we can skip bundling this CSS.
  				const modMeta = this.getModuleInfo(id)?.meta as AstroPluginCssMetadata | undefined;
  				const cssScopeTo = modMeta?.astroCss?.cssScopeTo;
@@ -176,7 +257,7 @@ index c39d4da..6aaa2e3 100644
  					// If this CSS is not used, delete it from the chunk modules so that Vite is unable
  					// to trace that it's used
  					delete chunk.modules[id];
-@@ -327,16 +327,16 @@ function appendCSSToPage(
+@@ -327,16 +325,16 @@ function appendCSSToPage(
   * and check if the `importer` and its `export`s exists in the final chunks. If at least one matches,
   * `cssScopeTo` is considered "rendered" by Rollup and we return true.
   */
@@ -241,15 +322,17 @@ index 65010f5..f715c77 100644
  			// SvelteDynamic styles is already included in the main page css asset
  			const unusedCssAsset = bundledAssets.find((asset) => /SvelteDynamic\..*\.css/.test(asset));
 diff --git a/packages/astro/test/astro-css-bundling.test.js b/packages/astro/test/astro-css-bundling.test.js
-index 92aa6db..9a7439a 100644
+index 92aa6db..1539293 100644
 --- a/packages/astro/test/astro-css-bundling.test.js
 +++ b/packages/astro/test/astro-css-bundling.test.js
-@@ -106,7 +106,8 @@ describe('CSS Bundling', function () {
+@@ -106,7 +106,10 @@ describe('CSS Bundling', function () {
  			assert.doesNotMatch(firstFound, /[a-z]+\.[\da-z]{8}\.css/);
  		});
  
 -		it('there are 2 index named CSS files', async () => {
-+		// TODO: need to investigate
++		// NOTE: this test requires manualChunks but I'm not sure if that is required.
++		//       it looks working fine without it to me.
++		//       the name is different, but the CSS file is shared between pages as expected.
 +		it.skip('there are 2 index named CSS files', async () => {
  			const dir = await fixture.readdir('/assets');
  			const indexNamedFiles = dir.filter((name) => name.startsWith('index'));
@@ -345,15 +428,18 @@ index f8a9cf5..62f7955 100644
  
  			const content = await Promise.all(getLinks(html).map((href) => getLinkContent(href)));
 diff --git a/packages/astro/test/dynamic-route-collision.test.js b/packages/astro/test/dynamic-route-collision.test.js
-index 20bd060..97cb495 100644
+index 20bd060..18d7db1 100644
 --- a/packages/astro/test/dynamic-route-collision.test.js
 +++ b/packages/astro/test/dynamic-route-collision.test.js
-@@ -57,7 +57,8 @@ describe('Dynamic route collision', () => {
+@@ -57,7 +57,11 @@ describe('Dynamic route collision', () => {
  		assert.equal($('h1').text(), 'Dynamic-only Localized Index');
  	});
  
 -	it('Builds a dynamic route when in conflict with a spread route', async () => {
-+	// TODO: need to investigate
++	// NOTE: this test was relying on the order of the properties of `bundle` variable here
++	// https://github.com/withastro/astro/blob/7cb718969801f81892be0726faf1935d0c7e9bfd/packages/astro/src/core/build/plugins/plugin-internals.ts#L43
++	// but the order of the properties of `bundle` variable does not have a meaning AFAIK
++	// so I guess this test happened to pass in the past
 +	it.skip('Builds a dynamic route when in conflict with a spread route', async () => {
  		const html = await fixture.readFile('/blog/index.html');
  		const $ = cheerio.load(html);
