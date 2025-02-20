@@ -31,7 +31,7 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | suite                                             | state | description                                                                                              |
 | ------------------------------------------------- | ----: | :------------------------------------------------------------------------------------------------------- |
 | analogjs                                          |    ❌ | failing due to [oxc-project/oxc#9171](https://github.com/oxc-project/oxc/issues/9171)                    |
-| [astro](#astro)                                   |    👀 | need to investigate further                                                                              |
+| [astro](#astro)                                   |    ❌ | need to investigate further                                                                              |
 | histoire                                          |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
 | ladle                                             |    ✅ |                                                                                                          |
 | laravel                                           |    ✅ |                                                                                                          |
@@ -44,9 +44,9 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | react-router                                      |    ✅ | better to run with `CI=1` as some tests are flaky and setting that will retry them                       |
 | redwoodjs                                         |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
 | storybook                                         |    ✅ |                                                                                                          |
-| [sveltekit](#sveltekit)                           |    ⚠️ | mostly works, only one minor issue                                                                       |
-| [unocss](#unocss)                                 |    ❌ | modifies `chunk.modules`.                                                                                |
-| [vike](#vike)                                     |    ❌ | uses advanced `manualChunks`                                                                             |
+| [sveltekit](#sveltekit)                           |    ✅ |                                                                                                          |
+| [unocss](#unocss)                                 |    ⚠️ | modifies `chunk.modules`, added workaround for now                                                       |
+| [vike](#vike)                                     |    ⚠️ | uses advanced `manualChunks`                                                                             |
 | vite-environment-examples                         |    ✅ |                                                                                                          |
 | [vite-plugin-cloudflare](#vite-plugin-cloudflare) |    ✅ |                                                                                                          |
 | vite-plugin-pwa                                   |    ✅ | patched one place that was assigning to OutputBundle                                                     |
@@ -56,7 +56,7 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | [vite-plugin-vue](#vite-plugin-vue)               |    ⚠️ | 2 tests failing but not correctness failures                                                             |
 | vite-setup-catalogue                              |    ✅ |                                                                                                          |
 | vitepress                                         |    ✅ | patched one place that was assigning to OutputBundle                                                     |
-| vitest                                            |    👀 | will check                                                                                               |
+| vitest                                            |    ⚠️ | currently tracking at https://github.com/vitest-dev/vitest/pull/7509                                     |
 | vuepress                                          |    ✅ |                                                                                                          |
 | [waku](#waku)                                     |    ✅ |                                                                                                          |
 
@@ -66,11 +66,23 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 
 [WIP]
 
-- ❌ uses missing features
-  - uses `meta.chunks` in `renderChunk` hook, also does `delete chunk.modules[id]`
+- ❌ `CSS > build > Astro Styles > Styles through barrel files should only include used Astro scoped styles`, `CSS > dev > remove unused styles from client:load components`
+  - uses `meta.chunks` in `renderChunk` hook and `renderedExports`, also does `delete chunk.modules[id]`
     - https://github.com/withastro/astro/blob/46ec06ed82887eaf1fe3a73158407b496669c5f0/packages/astro/src/core/build/plugins/plugin-css.ts#L172-L175
-- ❌ many tests failing
-  - TODO: need to investigate further
+    - going to fix this by https://github.com/vitejs/vite/pull/19418
+- ❌ `Astro Actions > build > Is callable from the server with rewrite`
+  - TODO: need to investigate
+- ⚠️ `CSS Bundling > using custom assetFileNames config > there are 2 index named CSS files`
+  - TODO: it should be fine, need to check a bit more
+- ❌ `NodeClientAddress`
+  - TODO: need to investigate, seems to be CJS-ESM interop issue
+- ❌ `CSS ordering - import order > Development > import order is depth-first`
+  - caused by [rolldown/rolldown#3636](https://github.com/rolldown/rolldown/issues/3636)
+- ❌ `Dynamic route collision > Builds a dynamic route when in conflict with a spread route`
+  - TODO: need to investigate
+- ⚠️ some code relies on `this` to be bound to `this.emitFile`
+  - related: https://github.com/rolldown/rolldown/issues/3631
+  - applied a patch for now
 
 ### marko
 
@@ -99,25 +111,30 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 
 better to run with `CI=1` as some tests are flaky and setting that will retry them
 
-- ⚠️ uses `manualChunks` but can be replaced with `advancedChunks`
-  - Note that the test expects a single chunk to be output, but rolldown outputs 5 chunks (probably because it'll break the execution order), ~~I guess this is fine~~ maybe not (https://github.com/sveltejs/kit/issues/3882), it seems they want to make sure there's a single chunk
-  - Also found some issue with `experimental.strictExecutionOrder`: https://github.com/rolldown/rolldown/issues/3410
+- ✅ uses `manualChunks` but can be replaced with `advancedChunks` / `output.inlineDynamicImports` + `experimental.strictExecutionOrder`
+  - found some issue with `experimental.strictExecutionOrder` that would be nice to improve: https://github.com/rolldown/rolldown/issues/3410
 - ✅ tests in `apps/dev-only`
   - passed by converting esbuild plugins to rollup plugins
 
 ### unocss
 
-- ❌ `test/fixtures.test.ts > fixtures > vite client`/`test/fixtures.test.ts > fixtures > vite lib`/`test/fixtures.test.ts > fixtures > vite lib rollupOptions` fails
+- ⚠️ `test/fixtures.test.ts > fixtures > vite client`/`test/fixtures.test.ts > fixtures > vite lib`/`test/fixtures.test.ts > fixtures > vite lib rollupOptions` fails
   - UnoCSS modifies `chunk.modules` to fool the css plugin to generate the css in corresponding chunk ([unocss/unocss#4403](https://github.com/unocss/unocss/issues/4403))
+  - added a workaround for now
+- ⚠️ relies on an edge case semantics of class field
+  - see [unocss/unocss#4437](https://github.com/unocss/unocss/issues/4437)
+  - there's a bug in oxc ([oxc-project/oxc#9192](https://github.com/oxc-project/oxc/issues/9192)) but it's an edge case
+  - added a workaround for now
 
 ### vike
 
 - uses missing features
-  - ❌ uses `manualChunks` that requires callbacks
+  - ⚠️ uses `manualChunks` that requires callbacks
     - https://github.com/vikejs/vike/blob/ea3a84264222768b9869e5f87ce4429e0685f3ae/vike/node/plugin/plugins/distFileNames.ts#L45-L101
     - introduced to workaround [vikejs/vike#1815](https://github.com/vikejs/vike/issues/1815)
     - maybe this can be workaround by adding `?url` to all CSS imports
-- ❌ `|e2e| test/preload/prod.spec.ts` fails
+    - it shouldn't cause a big issue
+- ⚠️ `|e2e| test/preload/prod.spec.ts` fails
   - because `manualChunks` is not supported
 
 ### vite-plugin-cloudflare
