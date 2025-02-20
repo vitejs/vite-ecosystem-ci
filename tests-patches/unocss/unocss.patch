@@ -1,15 +1,41 @@
-From 82ed46742cdf61fdf8079503d249d64c6168f0b5 Mon Sep 17 00:00:00 2001
+From a03bb28d5e6e80cab39f69b1a527447710f54e4f Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Mon, 20 Jan 2025 11:07:22 +0900
+Date: Thu, 20 Feb 2025 17:53:30 +0900
 Subject: [PATCH] temporary commit
 
 ---
+ .../core/src/utils/countable-set.ts           | 11 +++++----
  packages-integrations/astro/src/index.ts      |  1 +
  .../vite/src/modes/chunk-build.ts             |  6 ++---
  .../vite/src/modes/global/build.ts            | 23 ++++++++++---------
  test/fixtures.test.ts                         |  6 +++--
- 4 files changed, 20 insertions(+), 16 deletions(-)
+ 5 files changed, 27 insertions(+), 20 deletions(-)
 
+diff --git a/packages-engine/core/src/utils/countable-set.ts b/packages-engine/core/src/utils/countable-set.ts
+index 6b7e144..742b179 100644
+--- a/packages-engine/core/src/utils/countable-set.ts
++++ b/packages-engine/core/src/utils/countable-set.ts
+@@ -1,13 +1,16 @@
+ export class CountableSet<K> extends Set<K> {
+-  _map: Map<K, number>
++  _map: Map<K, number> = new Map()
+ 
+   constructor(values?: Iterable<K>) {
+-    super(values)
+-    this._map ??= new Map()
++    super()
++    if (values) {
++      for (const key of values) {
++        this.add(key)
++      }
++    }
+   }
+ 
+   add(key: K) {
+-    this._map ??= new Map()
+     this._map.set(key, (this._map.get(key) ?? 0) + 1)
+     return super.add(key)
+   }
 diff --git a/packages-integrations/astro/src/index.ts b/packages-integrations/astro/src/index.ts
 index 446d044..c582727 100644
 --- a/packages-integrations/astro/src/index.ts
@@ -102,10 +128,10 @@ index fc56593..150e9e8 100644
          if (!Object.keys(chunk.modules).some(i => RESOLVED_ID_RE.test(i)))
            return null
 diff --git a/test/fixtures.test.ts b/test/fixtures.test.ts
-index f14efc1..5331db3 100644
+index c353031..ca318b8 100644
 --- a/test/fixtures.test.ts
 +++ b/test/fixtures.test.ts
-@@ -55,7 +55,8 @@ describe.concurrent('fixtures', () => {
+@@ -52,7 +52,8 @@ describe.concurrent('fixtures', () => {
      expect(css).not.contains('.text-teal')
    })
  
@@ -115,7 +141,7 @@ index f14efc1..5331db3 100644
      const root = resolve(__dirname, 'fixtures/vite-legacy')
      await fs.emptyDir(join(root, 'dist'))
      await build({
-@@ -74,7 +75,8 @@ describe.concurrent('fixtures', () => {
+@@ -71,7 +72,8 @@ describe.concurrent('fixtures', () => {
      expect(css).contains('.text-red')
    }, 15000)
  
@@ -126,5 +152,5 @@ index f14efc1..5331db3 100644
      await fs.emptyDir(join(root, 'dist'))
      await build({
 -- 
-2.47.1
+2.48.1
 
