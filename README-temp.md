@@ -70,8 +70,6 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
   - uses `meta.chunks` in `renderChunk` hook and `renderedExports`, also does `delete chunk.modules[id]`
     - https://github.com/withastro/astro/blob/46ec06ed82887eaf1fe3a73158407b496669c5f0/packages/astro/src/core/build/plugins/plugin-css.ts#L172-L175
     - going to fix this by https://github.com/vitejs/vite/pull/19418
-- ❌ `Astro Actions > build > Is callable from the server with rewrite`
-  - TODO: need to investigate
 - ⚠️ `CSS Bundling > using custom assetFileNames config > there are 2 index named CSS files`
   - TODO: it should be fine, need to check a bit more
 - ❌ `NodeClientAddress`
