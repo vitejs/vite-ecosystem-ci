@@ -31,7 +31,7 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | suite                                             | state | description                                                                                              |
 | ------------------------------------------------- | ----: | :------------------------------------------------------------------------------------------------------- |
 | analogjs                                          |    ❌ | failing due to [oxc-project/oxc#9171](https://github.com/oxc-project/oxc/issues/9171)                    |
-| [astro](#astro)                                   |    ❌ | modifies `chunk.modules`, chunk.modules order difference, CJS-ESM interop issue with JSON files          |
+| [astro](#astro)                                   |    ❌ | CJS-ESM interop issue with JSON files, modifies `chunk.modules`, uses `manualChunks`                     |
 | histoire                                          |    ⏭️ | skipped for now. It is failing with Vite 6.                                                              |
 | ladle                                             |    ✅ |                                                                                                          |
 | laravel                                           |    ✅ |                                                                                                          |
@@ -64,20 +64,23 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 
 ### astro
 
-- ❌ `CSS > build > Astro Styles > Styles through barrel files should only include used Astro scoped styles`, `CSS > dev > remove unused styles from client:load components`
+- ❌ `NodeClientAddress`
+  - CJS-ESM interop issue with JSON files: [rolldown/rolldown#3640](https://github.com/rolldown/rolldown/issues/3640)
+- ⚠️ `CSS production ordering > Page vs. Shared CSS > Page level CSS is defined lower in the page`
+  - uses `manualChunks` to reorder the execution order
+    - https://github.com/withastro/astro/blob/e5ea5a9c009791b4868f21cff05a9b68e46e639c/packages/astro/src/core/build/plugins/plugin-css.ts#L72-L102
+- ⚠ `CSS > dev > remove unused styles from client:load components`
+  - uses `manualChunks` to split some styles in a separate chunk?
+- ⚠️ `CSS Bundling > using custom assetFileNames config > there are 2 index named CSS files`
+  - uses `manualChunks` to set a custom name
+- ⚠️ `CSS > build > Astro Styles > Styles through barrel files should only include used Astro scoped styles`
   - uses `meta.chunks` in `renderChunk` hook and `renderedExports`, also does `delete chunk.modules[id]`
     - https://github.com/withastro/astro/blob/46ec06ed82887eaf1fe3a73158407b496669c5f0/packages/astro/src/core/build/plugins/plugin-css.ts#L172-L175
     - going to fix this by https://github.com/vitejs/vite/pull/19418
-- ❌ `NodeClientAddress`
-  - CJS-ESM interop issue with JSON files: [rolldown/rolldown#3640](https://github.com/rolldown/rolldown/issues/3640)
-- ❌ `CSS ordering - import order > Development > import order is depth-first`
-  - caused by [rolldown/rolldown#3636](https://github.com/rolldown/rolldown/issues/3636)
+  - applied a patch for now
 - ⚠️ some code relies on `this` to be bound to `this.emitFile`
   - related: https://github.com/rolldown/rolldown/issues/3631
   - applied a patch for now
-- ⚠️ `CSS Bundling > using custom assetFileNames config > there are 2 index named CSS files`
-  - uses `manualChunks` to set a custom name
-  - I guess `manualChunks` can be removed
 
 ### marko
 
