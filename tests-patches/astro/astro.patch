@@ -1,14 +1,13 @@
-From 7342128c0743ce9aff397e35d8a95b2f8e15e793 Mon Sep 17 00:00:00 2001
+From 3259443ac2b4afd0d8840c41f7e6cfe66a674816 Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Fri, 21 Feb 2025 00:59:16 +0900
+Date: Fri, 21 Feb 2025 20:44:03 +0900
 Subject: [PATCH] temporary commit
 
 ---
- .../astro/src/assets/vite-plugin-assets.ts    | 85 ++++++++++--------
+ .../astro/src/assets/vite-plugin-assets.ts    | 85 +++++++++++--------
  packages/astro/src/content/runtime-assets.ts  |  2 +-
- .../src/core/build/plugins/plugin-css.ts      | 88 +++++++++----------
+ .../src/core/build/plugins/plugin-css.ts      | 83 +++++++++---------
  .../core/build/plugins/plugin-prerender.ts    |  6 ++
- packages/astro/test/0-css.test.js             |  6 +-
  .../astro/test/astro-css-bundling.test.js     |  5 +-
  .../astro/test/client-address-node.test.js    |  3 +-
  .../astro/test/config-vite-css-target.test.js |  3 +-
@@ -22,8 +21,9 @@ Subject: [PATCH] temporary commit
  packages/astro/test/hoisted-imports.test.js   |  4 +-
  packages/astro/test/i18n-routing.test.js      |  2 +-
  .../test/reuse-injected-entrypoint.test.js    |  4 +-
+ packages/astro/test/ssr-script.test.js        |  2 +-
  .../markdoc/src/content-entry-type.ts         |  2 +-
- 19 files changed, 131 insertions(+), 101 deletions(-)
+ 19 files changed, 124 insertions(+), 99 deletions(-)
 
 diff --git a/packages/astro/src/assets/vite-plugin-assets.ts b/packages/astro/src/assets/vite-plugin-assets.ts
 index c3f37b8..81c6ed4 100644
@@ -164,7 +164,7 @@ index 74204e1..1c6f9fe 100644
  
  			if (!metadata) {
 diff --git a/packages/astro/src/core/build/plugins/plugin-css.ts b/packages/astro/src/core/build/plugins/plugin-css.ts
-index c39d4da..d787002 100644
+index c39d4da..661c87c 100644
 --- a/packages/astro/src/core/build/plugins/plugin-css.ts
 +++ b/packages/astro/src/core/build/plugins/plugin-css.ts
 @@ -63,44 +63,42 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
@@ -257,7 +257,7 @@ index c39d4da..d787002 100644
  					// If this CSS is not used, delete it from the chunk modules so that Vite is unable
  					// to trace that it's used
  					delete chunk.modules[id];
-@@ -327,16 +325,16 @@ function appendCSSToPage(
+@@ -327,14 +325,11 @@ function appendCSSToPage(
   * and check if the `importer` and its `export`s exists in the final chunks. If at least one matches,
   * `cssScopeTo` is considered "rendered" by Rollup and we return true.
   */
@@ -272,14 +272,8 @@ index c39d4da..d787002 100644
 -		const renderedModule = chunks.find((c) => c.moduleIds.includes(moduleId))?.modules[moduleId];
 +		const renderedModule = chunk.modules[moduleId];
  		// Return true if `renderedModule` exists and one of its exports is rendered
--		if (renderedModule?.renderedExports.some((e) => exports.includes(e))) {
-+		// if (renderedModule?.renderedExports.some((e) => exports.includes(e))) {
-+		// 	return true;
-+		// }
-+		if (renderedModule) {
+ 		if (renderedModule?.renderedExports.some((e) => exports.includes(e))) {
  			return true;
- 		}
- 	}
 diff --git a/packages/astro/src/core/build/plugins/plugin-prerender.ts b/packages/astro/src/core/build/plugins/plugin-prerender.ts
 index f915c92..e2b64d2 100644
 --- a/packages/astro/src/core/build/plugins/plugin-prerender.ts
@@ -297,30 +291,6 @@ index f915c92..e2b64d2 100644
  	}
  
  	// From the `nonPrerenderedEntryChunks`, we crawl all the imports/dynamicImports to find all
-diff --git a/packages/astro/test/0-css.test.js b/packages/astro/test/0-css.test.js
-index 65010f5..f715c77 100644
---- a/packages/astro/test/0-css.test.js
-+++ b/packages/astro/test/0-css.test.js
-@@ -96,7 +96,8 @@ describe('CSS', function () {
- 				assert.match(bundledCSS, /h1\[data-astro-cid-[^{]*\{color:#ff69b4\}/);
- 			});
- 
--			it('Styles through barrel files should only include used Astro scoped styles', async () => {
-+			// NOTE: fix after renderedExports is supported by Rolldown
-+			it.skip('Styles through barrel files should only include used Astro scoped styles', async () => {
- 				const barrelHtml = await fixture.readFile('/barrel-styles/index.html');
- 				const barrel$ = cheerio.load(barrelHtml);
- 				const barrelBundledCssHref = barrel$('link[rel=stylesheet][href^=/_astro/]').attr('href');
-@@ -414,7 +415,8 @@ describe('CSS', function () {
- 			assert.equal(allInjectedStyles.includes('._vueModules_'), true);
- 		});
- 
--		it('remove unused styles from client:load components', async () => {
-+		// NOTE: fix after renderedExports is supported by Rolldown
-+		it.skip('remove unused styles from client:load components', async () => {
- 			const bundledAssets = await fixture.readdir('./_astro');
- 			// SvelteDynamic styles is already included in the main page css asset
- 			const unusedCssAsset = bundledAssets.find((asset) => /SvelteDynamic\..*\.css/.test(asset));
 diff --git a/packages/astro/test/astro-css-bundling.test.js b/packages/astro/test/astro-css-bundling.test.js
 index 92aa6db..1539293 100644
 --- a/packages/astro/test/astro-css-bundling.test.js
@@ -414,19 +384,19 @@ index 7bae334..53771c9 100644
  	});
  
 diff --git a/packages/astro/test/css-order-import.test.js b/packages/astro/test/css-order-import.test.js
-index f8a9cf5..62f7955 100644
+index f8a9cf5..54f1ae3 100644
 --- a/packages/astro/test/css-order-import.test.js
 +++ b/packages/astro/test/css-order-import.test.js
-@@ -96,7 +96,8 @@ describe('CSS ordering - import order', () => {
- 			assert.equal(idx1 > idx2, true, 'Page level CSS should be placed after imported CSS');
+@@ -107,7 +107,8 @@ describe('CSS ordering - import order', () => {
+ 			let idx3 = css.indexOf('#deb887'); // burlywoord minified
+ 
+ 			assert.ok(idx1 > idx2);
+-			assert.ok(idx2 > idx3);
++			// NOTE: lightningcss removes overridden styles and both becomes -1
++			assert.ok(idx2 >= idx3);
  		});
  
--		it('import order is depth-first', async () => {
-+		// TODO: rolldown's chunk.modules order is different from rollup
-+		it.skip('import order is depth-first', async () => {
- 			let html = await fixture.readFile('/component/index.html');
- 
- 			const content = await Promise.all(getLinks(html).map((href) => getLinkContent(href)));
+ 		it('correctly chunks css import from framework components', async () => {
 diff --git a/packages/astro/test/dynamic-route-collision.test.js b/packages/astro/test/dynamic-route-collision.test.js
 index 20bd060..18d7db1 100644
 --- a/packages/astro/test/dynamic-route-collision.test.js
@@ -522,6 +492,19 @@ index d0b004a..d2862b7 100644
  	},
  	{
  		description: 'matches /dynamic-a/id-1 to [id].astro',
+diff --git a/packages/astro/test/ssr-script.test.js b/packages/astro/test/ssr-script.test.js
+index 2ccf864..c2b6c77 100644
+--- a/packages/astro/test/ssr-script.test.js
++++ b/packages/astro/test/ssr-script.test.js
+@@ -54,7 +54,7 @@ describe('Inline scripts in SSR', () => {
+ 		it('Inlined scripts get included without base path in the script', async () => {
+ 			const html = await fetchHTML(fixture, '/hello/');
+ 			const $ = cheerioLoad(html);
+-			assert.equal($('script').html(), 'console.log("hello world");');
++			assert.equal($('script').html(), 'console.log(`hello world`);');
+ 		});
+ 	});
+ });
 diff --git a/packages/integrations/markdoc/src/content-entry-type.ts b/packages/integrations/markdoc/src/content-entry-type.ts
 index 998d8fb..e948a61 100644
 --- a/packages/integrations/markdoc/src/content-entry-type.ts
