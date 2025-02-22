@@ -62,8 +62,7 @@ async function run() {
 
 	if (env.COMMIT) {
 		permRef = env.COMMIT
-	} else if (refType !== 'release') {
-		// vite repo is not cloned when release
+	} else if (refType !== 'release') { // vite repo is not cloned when release
 		permRef = await getPermanentRef()
 	}
 
