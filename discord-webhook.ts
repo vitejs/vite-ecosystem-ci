@@ -58,13 +58,12 @@ async function run() {
 	await setupEnvironment()
 
 	const refType = env.REF_TYPE
-	// vite repo is not cloned when release
-
 	let permRef: string | undefined
 
 	if (env.COMMIT) {
 		permRef = env.COMMIT
 	} else if (refType !== 'release') {
+		// vite repo is not cloned when release
 		permRef = await getPermanentRef()
 	}
 
