@@ -11,7 +11,6 @@ import {
 	bisectVite,
 	parseViteMajor,
 	parseMajorVersion,
-	getPermanentRef,
 } from './utils.ts'
 import type { CommandOptions, RunOptions } from './types.d.ts'
 
@@ -30,7 +29,12 @@ cli
 			options.repo === 'vitejs/vite' &&
 			!options.commit
 		) {
-			const sha = await getPermanentRef(options.repo, options.branch)
+			const res = await fetch(
+				`https://api.github.com/repos/${options.repo}/branches/${options.branch}`,
+			)
+			const {
+				commit: { sha },
+			} = (await res.json()) as { commit: { sha: string } }
 			if (sha) {
 				options.commit = sha
 				actionsCore.setOutput('commit', sha)
