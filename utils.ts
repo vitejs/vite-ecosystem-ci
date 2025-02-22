@@ -371,15 +371,11 @@ export async function setupViteRepo(options: Partial<RepoOptions>) {
 	}
 }
 
-export async function getPermanentRef(repo: string, ref: string) {
+export async function getPermanentRef() {
+	cd(vitePath)
 	try {
-		const res = await fetch(
-			`https://api.github.com/repos/${repo}/branches/${ref}`,
-		)
-		const {
-			commit: { sha },
-		} = (await res.json()) as { commit: { sha: string } }
-		return sha
+		const ref = await $`git log -1 --pretty=format:%H`
+		return ref
 	} catch (e) {
 		console.warn(`Failed to obtain perm ref. ${e}`)
 		return undefined
