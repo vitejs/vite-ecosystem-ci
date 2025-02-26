@@ -8,6 +8,6 @@ export async function test(options: RunOptions) {
     branch: 'main',
     build: 'build',
     beforeTest: 'yarn playwright install chromium',
-    test: 'test',
+    test: 'test:vite-ecosystem-ci',
   })
 }
