@@ -24,6 +24,7 @@ cli
 	.option('--commit <commit>', 'vite commit sha to use')
 	.option('--release <version>', 'vite release to use from npm registry')
 	.action(async (suites, options: CommandOptions) => {
+		let poll = false
 		if (
 			options.branch === 'main' &&
 			options.repo === 'vitejs/vite' &&
@@ -38,17 +39,30 @@ cli
 			if (sha) {
 				options.commit = sha
 				actionsCore.setOutput('commit', sha)
+				poll = true
 			}
 		}
 		if (options.commit) {
 			const url = `https://pkg.pr.new/vite@${options.commit}`
-			const { status } = await fetch(url)
-			if (status === 200) {
-				options.release = url
-				delete options.commit
-
-				console.log(`continuous release available on ${url}`)
-			}
+			const maxAttempts = 60 // 5 minutes
+			let attempts = 0
+			do {
+				const { status } = await fetch(url)
+				if (status !== 200) {
+					options.release = url
+					delete options.commit
+					console.log(`continuous release available on ${url}`)
+					poll = false
+				}
+				if (poll) {
+					// wait 5 seconds before polling again
+					await sleep(5 * 1000)
+				}
+				attempts++
+				console.log(
+					`Polling attempt ${attempts}/${maxAttempts} for continuous release at ${url}`,
+				)
+			} while (poll && attempts < maxAttempts)
 		}
 		const { root, vitePath, workspace } = await setupEnvironment()
 		const suitesToRun = getSuitesToRun(suites, root)
@@ -193,4 +207,8 @@ function getSuitesToRun(suites: string[], root: string) {
 		}
 	}
 	return suitesToRun
+}
+
+async function sleep(ms: number) {
+	return new Promise((resolve) => setTimeout(resolve, ms))
 }
