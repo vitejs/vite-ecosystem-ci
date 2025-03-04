@@ -44,11 +44,11 @@ cli
 		}
 		if (options.commit) {
 			const url = `https://pkg.pr.new/vite@${options.commit}`
-			const maxAttempts = 60 // 5 minutes
+			const maxAttempts = 12 // 1 minute
 			let attempts = 0
 			do {
 				const { status } = await fetch(url)
-				if (status !== 200) {
+				if (status === 200) {
 					options.release = url
 					delete options.commit
 					console.log(`continuous release available on ${url}`)
@@ -63,6 +63,11 @@ cli
 					`Polling attempt ${attempts}/${maxAttempts} for continuous release at ${url}`,
 				)
 			} while (poll && attempts < maxAttempts)
+
+			if (poll && !options.release) {
+				console.error(`no continuous release found for ${options.commit}`)
+				process.exit(1)
+			}
 		}
 		const { root, vitePath, workspace } = await setupEnvironment()
 		const suitesToRun = getSuitesToRun(suites, root)
