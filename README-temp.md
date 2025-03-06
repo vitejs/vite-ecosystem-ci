@@ -73,14 +73,6 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
   - uses `manualChunks` to split some styles in a separate chunk?
 - ⚠️ `CSS Bundling > using custom assetFileNames config > there are 2 index named CSS files`
   - uses `manualChunks` to set a custom name
-- ⚠️ `CSS > build > Astro Styles > Styles through barrel files should only include used Astro scoped styles`
-  - uses `meta.chunks` in `renderChunk` hook and `renderedExports`, also does `delete chunk.modules[id]`
-    - https://github.com/withastro/astro/blob/46ec06ed82887eaf1fe3a73158407b496669c5f0/packages/astro/src/core/build/plugins/plugin-css.ts#L172-L175
-    - going to fix this by https://github.com/vitejs/vite/pull/19418
-  - applied a patch for now
-- ⚠️ some code relies on `this` to be bound to `this.emitFile`
-  - related: https://github.com/rolldown/rolldown/issues/3631
-  - applied a patch for now
 
 ### marko
 
