@@ -1,29 +1,27 @@
-From 3259443ac2b4afd0d8840c41f7e6cfe66a674816 Mon Sep 17 00:00:00 2001
+From 79d4d34c382a059d851cdea75d8b90606be00de3 Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Fri, 21 Feb 2025 20:44:03 +0900
+Date: Thu, 6 Mar 2025 19:39:13 +0900
 Subject: [PATCH] temporary commit
 
 ---
  .../astro/src/assets/vite-plugin-assets.ts    | 85 +++++++++++--------
- packages/astro/src/content/runtime-assets.ts  |  2 +-
- .../src/core/build/plugins/plugin-css.ts      | 83 +++++++++---------
+ .../src/core/build/plugins/plugin-css.ts      | 74 ++++++++--------
  .../core/build/plugins/plugin-prerender.ts    |  6 ++
- .../astro/test/astro-css-bundling.test.js     |  5 +-
+ .../astro/test/astro-css-bundling.test.js     | 15 ++--
  .../astro/test/client-address-node.test.js    |  3 +-
  .../astro/test/config-vite-css-target.test.js |  3 +-
- packages/astro/test/config-vite.test.js       |  2 +-
  packages/astro/test/core-image.test.js        |  2 +-
- .../astro/test/css-inline-stylesheets.test.js |  4 +-
- packages/astro/test/css-order-import.test.js  |  3 +-
+ packages/astro/test/css-order-import.test.js  |  8 +-
  .../test/dynamic-route-collision.test.js      |  6 +-
  packages/astro/test/env-public.test.js        |  2 +-
  packages/astro/test/env-secret.test.js        |  3 +-
+ .../custom-assets-name/astro.config.mjs       |  4 +-
  packages/astro/test/hoisted-imports.test.js   |  4 +-
  packages/astro/test/i18n-routing.test.js      |  2 +-
  .../test/reuse-injected-entrypoint.test.js    |  4 +-
+ packages/astro/test/serializeManifest.test.js |  2 +-
  packages/astro/test/ssr-script.test.js        |  2 +-
- .../markdoc/src/content-entry-type.ts         |  2 +-
- 19 files changed, 124 insertions(+), 99 deletions(-)
+ 17 files changed, 128 insertions(+), 97 deletions(-)
 
 diff --git a/packages/astro/src/assets/vite-plugin-assets.ts b/packages/astro/src/assets/vite-plugin-assets.ts
 index c3f37b8..81c6ed4 100644
@@ -150,24 +148,11 @@ index c3f37b8..81c6ed4 100644
  					}
  				}
  			},
-diff --git a/packages/astro/src/content/runtime-assets.ts b/packages/astro/src/content/runtime-assets.ts
-index 74204e1..1c6f9fe 100644
---- a/packages/astro/src/content/runtime-assets.ts
-+++ b/packages/astro/src/content/runtime-assets.ts
-@@ -16,7 +16,7 @@ export function createImage(
- 				resolvedFilePath,
- 				pluginContext.meta.watchMode,
- 				experimentalSvgEnabled,
--				shouldEmitFile ? pluginContext.emitFile : undefined,
-+				shouldEmitFile ? pluginContext.emitFile.bind(pluginContext) : undefined,
- 			)) as OmitBrand<ImageMetadata>;
- 
- 			if (!metadata) {
 diff --git a/packages/astro/src/core/build/plugins/plugin-css.ts b/packages/astro/src/core/build/plugins/plugin-css.ts
-index c39d4da..661c87c 100644
+index d985a6a..ca95b10 100644
 --- a/packages/astro/src/core/build/plugins/plugin-css.ts
 +++ b/packages/astro/src/core/build/plugins/plugin-css.ts
-@@ -63,44 +63,42 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
+@@ -62,44 +62,42 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
  		name: 'astro:rollup-plugin-build-css',
  
  		outputOptions(outputOptions) {
@@ -248,32 +233,6 @@ index c39d4da..661c87c 100644
  		},
  
  		async generateBundle(_outputOptions, bundle) {
-@@ -169,7 +167,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
- 				// are rendered in the chunks. If they are not, we can skip bundling this CSS.
- 				const modMeta = this.getModuleInfo(id)?.meta as AstroPluginCssMetadata | undefined;
- 				const cssScopeTo = modMeta?.astroCss?.cssScopeTo;
--				if (cssScopeTo && !isCssScopeToRendered(cssScopeTo, Object.values(meta.chunks))) {
-+				if (cssScopeTo && !isCssScopeToRendered(cssScopeTo, chunk)) {
- 					// If this CSS is not used, delete it from the chunk modules so that Vite is unable
- 					// to trace that it's used
- 					delete chunk.modules[id];
-@@ -327,14 +325,11 @@ function appendCSSToPage(
-  * and check if the `importer` and its `export`s exists in the final chunks. If at least one matches,
-  * `cssScopeTo` is considered "rendered" by Rollup and we return true.
-  */
--function isCssScopeToRendered(
--	cssScopeTo: Record<string, string[]>,
--	chunks: Rollup.RenderedChunk[],
--) {
-+function isCssScopeToRendered(cssScopeTo: Record<string, string[]>, chunk: Rollup.RenderedChunk) {
- 	for (const moduleId in cssScopeTo) {
- 		const exports = cssScopeTo[moduleId];
- 		// Find the chunk that renders this `moduleId` and get the rendered module
--		const renderedModule = chunks.find((c) => c.moduleIds.includes(moduleId))?.modules[moduleId];
-+		const renderedModule = chunk.modules[moduleId];
- 		// Return true if `renderedModule` exists and one of its exports is rendered
- 		if (renderedModule?.renderedExports.some((e) => exports.includes(e))) {
- 			return true;
 diff --git a/packages/astro/src/core/build/plugins/plugin-prerender.ts b/packages/astro/src/core/build/plugins/plugin-prerender.ts
 index f915c92..e2b64d2 100644
 --- a/packages/astro/src/core/build/plugins/plugin-prerender.ts
@@ -292,10 +251,36 @@ index f915c92..e2b64d2 100644
  
  	// From the `nonPrerenderedEntryChunks`, we crawl all the imports/dynamicImports to find all
 diff --git a/packages/astro/test/astro-css-bundling.test.js b/packages/astro/test/astro-css-bundling.test.js
-index 92aa6db..1539293 100644
+index 8319563..2466845 100644
 --- a/packages/astro/test/astro-css-bundling.test.js
 +++ b/packages/astro/test/astro-css-bundling.test.js
-@@ -106,7 +106,10 @@ describe('CSS Bundling', function () {
+@@ -63,9 +63,10 @@ describe('CSS Bundling', function () {
+ 			}
+ 		});
+ 
+-		it('there are 5 css files', async () => {
++		// NOTE: rolldown does not split sideeffect free barrel files yet https://github.com/rolldown/rolldown/issues/3746
++		it('there are 4 css files', async () => {
+ 			const dir = await fixture.readdir('/_astro');
+-			assert.equal(dir.length, 5);
++			assert.equal(dir.length, 4);
+ 		});
+ 
+ 		it('CSS includes hashes', async () => {
+@@ -96,9 +97,10 @@ describe('CSS Bundling', function () {
+ 			await fixture.build({ mode: 'production' });
+ 		});
+ 
+-		it('there are 5 css files', async () => {
++		// NOTE: rolldown does not split sideeffect free barrel files yet https://github.com/rolldown/rolldown/issues/3746
++		it('there are 4 css files', async () => {
+ 			const dir = await fixture.readdir('/assets');
+-			assert.equal(dir.length, 5);
++			assert.equal(dir.length, 4);
+ 		});
+ 
+ 		it('CSS does not include hashes', async () => {
+@@ -106,7 +108,10 @@ describe('CSS Bundling', function () {
  			assert.doesNotMatch(firstFound, /[a-z]+\.[\da-z]{8}\.css/);
  		});
  
@@ -335,19 +320,6 @@ index 1a2137d..5a3df75 100644
  		});
  	});
  });
-diff --git a/packages/astro/test/config-vite.test.js b/packages/astro/test/config-vite.test.js
-index 90d3487..b25c33e 100644
---- a/packages/astro/test/config-vite.test.js
-+++ b/packages/astro/test/config-vite.test.js
-@@ -20,7 +20,7 @@ describe('Vite Config', async () => {
- 	it('Allows overriding bundle naming options in the build', async () => {
- 		const html = await fixture.readFile('/index.html');
- 		const $ = cheerio.load(html);
--		assert.match($('link').attr('href'), /\/assets\/testing-[a-z\d]+\.css/);
-+		assert.match($('link').attr('href'), /\/assets\/testing-[a-z_\d]+\.css/);
- 	});
- });
- 
 diff --git a/packages/astro/test/core-image.test.js b/packages/astro/test/core-image.test.js
 index 10ca9b6..bc99d7d 100644
 --- a/packages/astro/test/core-image.test.js
@@ -361,30 +333,8 @@ index 10ca9b6..bc99d7d 100644
  			const imageSrc = regex.exec($script.html())[1];
  			const data = await fixture.readFile(imageSrc, null);
  			assert.equal(data instanceof Buffer, true);
-diff --git a/packages/astro/test/css-inline-stylesheets.test.js b/packages/astro/test/css-inline-stylesheets.test.js
-index 7bae334..53771c9 100644
---- a/packages/astro/test/css-inline-stylesheets.test.js
-+++ b/packages/astro/test/css-inline-stylesheets.test.js
-@@ -113,7 +113,7 @@ describe('Setting inlineStylesheets to auto in static output', () => {
- 
- 		// the count of style/link tags depends on our css chunking logic
- 		// this test should be updated if it changes
--		assert.equal($('style').length, 3);
-+		assert.equal($('style').length, 2);
- 		assert.equal($('link[rel=stylesheet]').length, 1);
- 	});
- 
-@@ -162,7 +162,7 @@ describe('Setting inlineStylesheets to auto in server output', () => {
- 
- 		// the count of style/link tags depends on our css chunking logic
- 		// this test should be updated if it changes
--		assert.equal($('style').length, 3);
-+		assert.equal($('style').length, 2);
- 		assert.equal($('link[rel=stylesheet]').length, 1);
- 	});
- 
 diff --git a/packages/astro/test/css-order-import.test.js b/packages/astro/test/css-order-import.test.js
-index f8a9cf5..54f1ae3 100644
+index 9b67f15..eef5fc5 100644
 --- a/packages/astro/test/css-order-import.test.js
 +++ b/packages/astro/test/css-order-import.test.js
 @@ -107,7 +107,8 @@ describe('CSS ordering - import order', () => {
@@ -397,6 +347,19 @@ index f8a9cf5..54f1ae3 100644
  		});
  
  		it('correctly chunks css import from framework components', async () => {
+@@ -147,9 +148,10 @@ describe('CSS ordering - import order', () => {
+ 			const content = await Promise.all(
+ 				getLinks(html).map((href) => getLinkContent(href, fixture)),
+ 			);
+-			let [link1, , link3] = content;
++			// NOTE: rolldown chunking difference
++			let [link1, link2] = content;
+ 			assert.ok(link1.css.includes('f0f8ff')); // aliceblue minified
+-			assert.ok(link3.css.includes('ff0')); // yellow minified
++			assert.ok(link2.css.includes('ff0')); // yellow minified
+ 		});
+ 	});
+ });
 diff --git a/packages/astro/test/dynamic-route-collision.test.js b/packages/astro/test/dynamic-route-collision.test.js
 index 20bd060..18d7db1 100644
 --- a/packages/astro/test/dynamic-route-collision.test.js
@@ -441,6 +404,23 @@ index cad86dc..461973b 100644
  			assert.equal(error instanceof Error, true);
  			assert.equal(error.title, 'Invalid Environment Variables');
  			assert.equal(error.message.includes('KNOWN_SECRET is missing'), true);
+diff --git a/packages/astro/test/fixtures/custom-assets-name/astro.config.mjs b/packages/astro/test/fixtures/custom-assets-name/astro.config.mjs
+index cfcddec..ecff699 100644
+--- a/packages/astro/test/fixtures/custom-assets-name/astro.config.mjs
++++ b/packages/astro/test/fixtures/custom-assets-name/astro.config.mjs
+@@ -12,10 +12,10 @@ export default defineConfig({
+       assetsInlineLimit: 0,
+       rollupOptions: {
+         output: {
+-          
++
+           entryFileNames: 'assets/script/a.[hash].js',
+           assetFileNames: (option) => {
+-            const { ext, dir, base } = path.parse(option.name);
++            const { ext, dir, base } = path.parse(option.names[0]);
+ 
+             if (ext == ".css") return path.join(dir, "assets/css", 'a.css');
+             return "assets/img/[name].[ext]";
 diff --git a/packages/astro/test/hoisted-imports.test.js b/packages/astro/test/hoisted-imports.test.js
 index 219b231..c213e52 100644
 --- a/packages/astro/test/hoisted-imports.test.js
@@ -492,6 +472,19 @@ index d0b004a..d2862b7 100644
  	},
  	{
  		description: 'matches /dynamic-a/id-1 to [id].astro',
+diff --git a/packages/astro/test/serializeManifest.test.js b/packages/astro/test/serializeManifest.test.js
+index 6fb4903..2e31c25 100644
+--- a/packages/astro/test/serializeManifest.test.js
++++ b/packages/astro/test/serializeManifest.test.js
+@@ -126,7 +126,7 @@ describe('astro:config/server', () => {
+ 		});
+ 
+ 		it('should return an error when using inside a client script', async () => {
+-			const error = await fixture.build().catch((err) => err);
++			const error = await fixture.build().catch((err) => err.errors[0]);
+ 			assert.equal(error instanceof AstroError, true);
+ 			assert.equal(error.name, ServerOnlyModule.name);
+ 		});
 diff --git a/packages/astro/test/ssr-script.test.js b/packages/astro/test/ssr-script.test.js
 index 2ccf864..c2b6c77 100644
 --- a/packages/astro/test/ssr-script.test.js
@@ -505,19 +498,6 @@ index 2ccf864..c2b6c77 100644
  		});
  	});
  });
-diff --git a/packages/integrations/markdoc/src/content-entry-type.ts b/packages/integrations/markdoc/src/content-entry-type.ts
-index 998d8fb..e948a61 100644
---- a/packages/integrations/markdoc/src/content-entry-type.ts
-+++ b/packages/integrations/markdoc/src/content-entry-type.ts
-@@ -313,7 +313,7 @@ async function emitOptimizedImages(
- 						resolved.id,
- 						ctx.pluginContext.meta.watchMode,
- 						!!ctx.astroConfig.experimental.svg,
--						ctx.pluginContext.emitFile,
-+						ctx.pluginContext.emitFile.bind(ctx.pluginContext),
- 					);
- 
- 					const fsPath = resolved.id;
 -- 
 2.48.1
 
