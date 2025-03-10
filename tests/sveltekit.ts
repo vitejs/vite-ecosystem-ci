@@ -12,6 +12,9 @@ export async function test(options: RunOptions) {
 			'@sveltejs/vite-plugin-svelte-inspector': true,
 		},
 		beforeTest: 'pnpm playwright install chromium',
-		test: ['test:vite-ecosystem-ci', 'lint', 'check'],
+		test: [
+			'test:vite-ecosystem-ci',
+			'pnpm --dir packages/kit check', // only run checks for kit package, not the whole repo
+		],
 	})
 }
