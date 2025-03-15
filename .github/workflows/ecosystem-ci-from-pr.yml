@@ -55,7 +55,7 @@ jobs:
       comment-id: ${{ steps.create-comment.outputs.result }}
     steps:
       - id: generate-token
-        uses: tibdex/github-app-token@v1
+        uses: tibdex/github-app-token@32691ba7c9e7063bd457bd8f2a5703138591fa58 #v1.9.0
         with:
           app_id: ${{ secrets.ECOSYSTEM_CI_GITHUB_APP_ID }}
           private_key: ${{ secrets.ECOSYSTEM_CI_GITHUB_APP_PRIVATE_KEY }}
@@ -87,7 +87,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - uses: denoland/setup-deno@v1
+      - uses: denoland/setup-deno@11b63cf76cfcafb4e43f97b6cad24d8e8438f62d #v1.5.2
         with:
           deno-version: v1.x
         continue-on-error: true
@@ -127,7 +127,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - uses: denoland/setup-deno@v1
+      - uses: denoland/setup-deno@11b63cf76cfcafb4e43f97b6cad24d8e8438f62d #v1.5.2
         with:
           deno-version: v1.x
         continue-on-error: true
@@ -146,7 +146,7 @@ jobs:
     if: always()
     steps:
       - id: generate-token
-        uses: tibdex/github-app-token@v1
+        uses: tibdex/github-app-token@32691ba7c9e7063bd457bd8f2a5703138591fa58 #v1.9.0
         with:
           app_id: ${{ secrets.ECOSYSTEM_CI_GITHUB_APP_ID }}
           private_key: ${{ secrets.ECOSYSTEM_CI_GITHUB_APP_PRIVATE_KEY }}

@@ -66,6 +66,14 @@
     "overrides": {
       "braces@<3.0.3": "^3.0.3",
       "cross-spawn@>=7.0.0 <7.0.5": "^7.0.5"
+    },
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ],
+    "auditConfig": {
+      "ignoreGhsas": [
+        "GHSA-67mh-4wv8-2f99"
+      ]
     }
   }
 }
