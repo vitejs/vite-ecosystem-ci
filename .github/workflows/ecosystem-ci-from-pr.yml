@@ -112,7 +112,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ^22.14.0
-      - uses: denoland/setup-deno@v1
+      - uses: denoland/setup-deno@11b63cf76cfcafb4e43f97b6cad24d8e8438f62d #v1.5.2
         with:
           deno-version: v1.x
         continue-on-error: true
@@ -181,7 +181,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ^22.14.0
-      - uses: denoland/setup-deno@v1
+      - uses: denoland/setup-deno@11b63cf76cfcafb4e43f97b6cad24d8e8438f62d #v1.5.2
         with:
           deno-version: v1.x
         continue-on-error: true
@@ -207,7 +207,7 @@ jobs:
     if: always()
     steps:
       - id: generate-token
-        uses: tibdex/github-app-token@v2
+        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a #v2.1.0
         with:
           app_id: ${{ secrets.PR_GITHUB_APP_ID }}
           installation_retrieval_payload: "${{ github.repository_owner }}/vite"
