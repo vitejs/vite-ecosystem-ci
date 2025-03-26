@@ -1,19 +1,29 @@
-From d035271721e382b2c2874d0c2da56d0fb5bab773 Mon Sep 17 00:00:00 2001
+From 3cea7b91c19eb1b3e95d5003ffd2bf07c96e77e8 Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Wed, 12 Feb 2025 18:30:54 +0900
+Date: Wed, 26 Mar 2025 16:38:37 +0900
 Subject: [PATCH] temporary commit
 
 ---
- .../qwik/src/optimizer/src/plugins/plugin.ts  | 22 ++++++++--------
- .../qwik/src/optimizer/src/plugins/rollup.ts  | 26 ++++++++++---------
- .../qwik/src/optimizer/src/plugins/vite.ts    | 18 ++++++++-----
- 3 files changed, 36 insertions(+), 30 deletions(-)
+ .../qwik/src/optimizer/src/plugins/plugin.ts  | 44 +++++++++----------
+ .../qwik/src/optimizer/src/plugins/rollup.ts  | 17 +++----
+ .../qwik/src/optimizer/src/plugins/vite.ts    | 10 +++--
+ .../src/optimizer/src/plugins/vite.unit.ts    |  8 ++--
+ 4 files changed, 42 insertions(+), 37 deletions(-)
 
 diff --git a/packages/qwik/src/optimizer/src/plugins/plugin.ts b/packages/qwik/src/optimizer/src/plugins/plugin.ts
-index 02e9acd..7193a5f 100644
+index 560af23..3699727 100644
 --- a/packages/qwik/src/optimizer/src/plugins/plugin.ts
 +++ b/packages/qwik/src/optimizer/src/plugins/plugin.ts
-@@ -605,7 +605,7 @@ export function createPlugin(optimizerOptions: OptimizerOptions = {}) {
+@@ -17,7 +17,7 @@ import type {
+   TransformModuleInput,
+   TransformModulesOptions,
+   TransformOutput,
+-  SmartEntryStrategy,
++  // SmartEntryStrategy,
+ } from '../types';
+ import { createLinter, type QwikLinter } from './eslint-plugin';
+ import type { LoadResult, OutputBundle, ResolveIdResult, TransformResult } from 'rollup';
+@@ -612,7 +612,7 @@ export function createQwikPlugin(optimizerOptions: OptimizerOptions = {}) {
      ctx: Rollup.PluginContext,
      code: string,
      id: string,
@@ -22,7 +32,7 @@ index 02e9acd..7193a5f 100644
    ): Promise<TransformResult> {
      if (id.startsWith('\0')) {
        return;
-@@ -721,7 +721,8 @@ export function createPlugin(optimizerOptions: OptimizerOptions = {}) {
+@@ -728,7 +728,8 @@ export function createQwikPlugin(optimizerOptions: OptimizerOptions = {}) {
                ctx.emitFile({
                  id: key,
                  type: 'chunk',
@@ -32,7 +42,7 @@ index 02e9acd..7193a5f 100644
                });
              }
            }
-@@ -732,9 +733,8 @@ export function createPlugin(optimizerOptions: OptimizerOptions = {}) {
+@@ -739,9 +740,8 @@ export function createQwikPlugin(optimizerOptions: OptimizerOptions = {}) {
        // unchanged imports are not missing in our internal transform cache
        // This can happen in the repl when the plugin is re-initialized
        // and possibly in other places
@@ -44,24 +54,44 @@ index 02e9acd..7193a5f 100644
  
        ctx.addWatchFile(id);
  
-@@ -873,11 +873,11 @@ export const manifest = ${JSON.stringify(manifest)};\n`;
-   // This groups all QRL segments into their respective entry points
-   // optimization opportunity: group small segments that don't import anything into smallish chunks
-   // order by discovery time, so that related segments are more likely to group together
+@@ -877,21 +877,21 @@ export const manifest = ${JSON.stringify(manifest)};\n`;
+     }
+   }
+ 
 -  function manualChunks(id: string, { getModuleInfo }: Rollup.ManualChunkMeta) {
--    const module = getModuleInfo(id)!;
--    const segment = module.meta.segment as SegmentAnalysis | undefined;
--    return segment?.entry;
+-    if ((opts.entryStrategy as SmartEntryStrategy).manual) {
+-      const module = getModuleInfo(id)!;
+-      const segment = module.meta.segment as SegmentAnalysis | undefined;
+-
+-      if (segment) {
+-        const { hash } = segment;
+-        const chunkName = (opts.entryStrategy as SmartEntryStrategy).manual![hash] || segment.entry;
+-        if (chunkName) {
+-          return chunkName;
+-        }
+-      }
+-    }
+-    return null;
 -  }
 +  // function manualChunks(id: string, { getModuleInfo }: Rollup.ManualChunkMeta) {
-+  //   const module = getModuleInfo(id)!;
-+  //   const segment = module.meta.segment as SegmentAnalysis | undefined;
-+  //   return segment?.entry;
++  //   if ((opts.entryStrategy as SmartEntryStrategy).manual) {
++  //     const module = getModuleInfo(id)!;
++  //     const segment = module.meta.segment as SegmentAnalysis | undefined;
++
++  //     if (segment) {
++  //       const { hash } = segment;
++  //       const chunkName = (opts.entryStrategy as SmartEntryStrategy).manual![hash] || segment.entry;
++  //       if (chunkName) {
++  //         return chunkName;
++  //       }
++  //     }
++  //   }
++  //   return null;
 +  // }
  
    return {
      buildStart,
-@@ -901,7 +901,7 @@ export const manifest = ${JSON.stringify(manifest)};\n`;
+@@ -915,7 +915,7 @@ export const manifest = ${JSON.stringify(manifest)};\n`;
      setSourceMapSupport,
      configureServer,
      handleHotUpdate,
@@ -71,27 +101,10 @@ index 02e9acd..7193a5f 100644
  }
  
 diff --git a/packages/qwik/src/optimizer/src/plugins/rollup.ts b/packages/qwik/src/optimizer/src/plugins/rollup.ts
-index 7261aae..54eb9c1 100644
+index f03e73d..6d10138 100644
 --- a/packages/qwik/src/optimizer/src/plugins/rollup.ts
 +++ b/packages/qwik/src/optimizer/src/plugins/rollup.ts
-@@ -81,7 +81,7 @@ export function qwikRollup(qwikRollupOpts: QwikRollupPluginOptions = {}): any {
-         qwikPlugin.getOptions(),
-         rollupOutputOpts,
-         false,
--        qwikPlugin.manualChunks
-+        // qwikPlugin.manualChunks
-       );
-     },
- 
-@@ -100,6 +100,7 @@ export function qwikRollup(qwikRollupOpts: QwikRollupPluginOptions = {}): any {
-       await qwikPlugin.buildStart(this);
-     },
- 
-+    // @ts-expect-error rolldown type incompat
-     resolveId(id, importer) {
-       if (id.startsWith('\0')) {
-         return null;
-@@ -127,6 +128,7 @@ export function qwikRollup(qwikRollupOpts: QwikRollupPluginOptions = {}): any {
+@@ -123,6 +123,7 @@ export function qwikRollup(qwikRollupOpts: QwikRollupPluginOptions = {}): any {
        if (opts.target === 'client') {
          // client build
          const optimizer = qwikPlugin.getOptimizer();
@@ -99,41 +112,16 @@ index 7261aae..54eb9c1 100644
          const outputAnalyzer = qwikPlugin.createOutputAnalyzer(rollupBundle);
          const manifest = await outputAnalyzer.generateManifest();
          manifest.platform = {
-@@ -163,7 +165,7 @@ export function normalizeRollupOutputOptions(
-   opts: NormalizedQwikPluginOptions,
-   rollupOutputOpts: Rollup.OutputOptions | Rollup.OutputOptions[] | undefined,
-   useAssetsDir: boolean,
--  manualChunks: Rollup.GetManualChunk,
-+  // manualChunks: Rollup.GetManualChunk,
-   outDir?: string
- ): Rollup.OutputOptions | Rollup.OutputOptions[] {
-   if (Array.isArray(rollupOutputOpts)) {
-@@ -173,13 +175,13 @@ export function normalizeRollupOutputOptions(
-     }
- 
-     return rollupOutputOpts.map((outputOptsObj) => ({
--      ...normalizeRollupOutputOptionsObject(opts, outputOptsObj, useAssetsDir, manualChunks),
-+      ...normalizeRollupOutputOptionsObject(opts, outputOptsObj, useAssetsDir),
-       dir: outDir || outputOptsObj.dir,
-     }));
-   }
- 
-   return {
--    ...normalizeRollupOutputOptionsObject(opts, rollupOutputOpts, useAssetsDir, manualChunks),
-+    ...normalizeRollupOutputOptionsObject(opts, rollupOutputOpts, useAssetsDir),
-     dir: outDir || rollupOutputOpts?.dir,
-   };
- }
-@@ -188,7 +190,7 @@ export function normalizeRollupOutputOptionsObject(
-   opts: NormalizedQwikPluginOptions,
-   rollupOutputOptsObj: Rollup.OutputOptions | undefined,
-   useAssetsDir: boolean,
--  manualChunks: Rollup.GetManualChunk
-+  // manualChunks: Rollup.GetManualChunk
- ): Rollup.OutputOptions {
+@@ -187,7 +188,7 @@ export function normalizeRollupOutputOptionsObject(
    const outputOpts: Rollup.OutputOptions = { ...rollupOutputOptsObj };
- 
-@@ -226,13 +228,13 @@ export function normalizeRollupOutputOptionsObject(
+   const opts = qwikPlugin.getOptions();
+   const optimizer = qwikPlugin.getOptimizer();
+-  const manualChunks = qwikPlugin.manualChunks;
++  // const manualChunks = qwikPlugin.manualChunks;
+   if (opts.target === 'client') {
+     // client output
+     if (!outputOpts.assetFileNames) {
+@@ -244,13 +245,13 @@ export function normalizeRollupOutputOptionsObject(
    if (opts.target === 'client') {
      // client should always be es
      outputOpts.format = 'es';
@@ -155,33 +143,25 @@ index 7261aae..54eb9c1 100644
  
    if (!outputOpts.dir) {
 diff --git a/packages/qwik/src/optimizer/src/plugins/vite.ts b/packages/qwik/src/optimizer/src/plugins/vite.ts
-index 158188f..9488232 100644
+index b30f102..8467cb6 100644
 --- a/packages/qwik/src/optimizer/src/plugins/vite.ts
 +++ b/packages/qwik/src/optimizer/src/plugins/vite.ts
-@@ -334,11 +334,12 @@ export function qwikVite(qwikViteOpts: QwikVitePluginOptions = {}): any {
-           dynamicImportVarsOptions: {
-             exclude: [/./],
+@@ -336,9 +336,11 @@ export function qwikVite(qwikViteOpts: QwikVitePluginOptions = {}): any {
            },
--          rollupOptions: {
--            output: {
+           rollupOptions: {
+             output: {
++              // NOTE: rolldown does not support hoistTransitiveImports
+               // We have waterfall prevention so don't hoist
+-              hoistTransitiveImports: false,
 -              manualChunks: qwikPlugin.manualChunks,
--            },
--          },
-+          // NOTE: rolldown does not support manualChunks
-+          // rollupOptions: {
-+          //   output: {
-+          //     manualChunks: qwikPlugin.manualChunks,
-+          //   },
-+          // },
++              // hoistTransitiveImports: false,
++              // NOTE: rolldown does not support manualChunks
++              // manualChunks: qwikPlugin.manualChunks,
+             },
+           },
          },
-         define: {
-           [qDevKey]: qDev,
-@@ -363,10 +364,11 @@ export function qwikVite(qwikViteOpts: QwikVitePluginOptions = {}): any {
-             opts,
-             viteConfig.build?.rollupOptions?.output,
+@@ -367,7 +369,8 @@ export function qwikVite(qwikViteOpts: QwikVitePluginOptions = {}): any {
              useAssetsDir,
--            qwikPlugin.manualChunks,
-+            // qwikPlugin.manualChunks,
              buildOutputDir
            ),
 -          preserveEntrySignatures: 'exports-only',
@@ -190,15 +170,7 @@ index 158188f..9488232 100644
            onwarn: (warning, warn) => {
              if (warning.plugin === 'typescript' && warning.message.includes('outputToFilesystem')) {
                return;
-@@ -467,6 +469,7 @@ export function qwikVite(qwikViteOpts: QwikVitePluginOptions = {}): any {
-       await qwikPlugin.buildStart(this);
-     },
- 
-+    // @ts-expect-error rolldown type incompat
-     resolveId(id, importer, resolveIdOpts) {
-       if (id.startsWith('\0') || !fileFilter(id, 'resolveId')) {
-         return null;
-@@ -522,6 +525,7 @@ export function qwikVite(qwikViteOpts: QwikVitePluginOptions = {}): any {
+@@ -525,6 +528,7 @@ export function qwikVite(qwikViteOpts: QwikVitePluginOptions = {}): any {
  
          if (opts.target === 'client') {
            // client build
@@ -206,6 +178,34 @@ index 158188f..9488232 100644
            const outputAnalyzer = qwikPlugin.createOutputAnalyzer(rollupBundle);
  
            for (const [fileName, b] of Object.entries(rollupBundle)) {
+diff --git a/packages/qwik/src/optimizer/src/plugins/vite.unit.ts b/packages/qwik/src/optimizer/src/plugins/vite.unit.ts
+index f75d71e..188ea2e 100644
+--- a/packages/qwik/src/optimizer/src/plugins/vite.unit.ts
++++ b/packages/qwik/src/optimizer/src/plugins/vite.unit.ts
+@@ -19,9 +19,9 @@ const chunkInfoMocks: Rollup.PreRenderedChunk[] = [
+     facadeModuleId: 'chunk.tsx',
+     isDynamicEntry: false,
+     isEntry: false,
+-    isImplicitEntry: false,
++    // isImplicitEntry: false,
+     moduleIds: ['chunk.tsx'],
+-    type: 'chunk',
++    // type: 'chunk',
+   },
+   {
+     exports: [''],
+@@ -29,9 +29,9 @@ const chunkInfoMocks: Rollup.PreRenderedChunk[] = [
+     facadeModuleId: cwd + '/app/chunk.tsx',
+     isDynamicEntry: false,
+     isEntry: false,
+-    isImplicitEntry: false,
++    // isImplicitEntry: false,
+     moduleIds: [cwd + '/app/chunk.tsx'],
+-    type: 'chunk',
++    // type: 'chunk',
+   },
+ ];
+ 
 -- 
 2.48.1
 

@@ -1,41 +1,15 @@
-From a03bb28d5e6e80cab39f69b1a527447710f54e4f Mon Sep 17 00:00:00 2001
+From 8faf06394a880eecfda5f7ed1be3bbf0b8a35dd8 Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Thu, 20 Feb 2025 17:53:30 +0900
+Date: Wed, 26 Mar 2025 17:09:07 +0900
 Subject: [PATCH] temporary commit
 
 ---
- .../core/src/utils/countable-set.ts           | 11 +++++----
  packages-integrations/astro/src/index.ts      |  1 +
- .../vite/src/modes/chunk-build.ts             |  6 ++---
- .../vite/src/modes/global/build.ts            | 23 ++++++++++---------
- test/fixtures.test.ts                         |  6 +++--
- 5 files changed, 27 insertions(+), 20 deletions(-)
+ .../vite/src/modes/chunk-build.ts             |  4 ++--
+ .../vite/src/modes/global/build.ts            | 21 ++++++++++---------
+ test/fixtures.test.ts                         |  6 ++++--
+ 4 files changed, 18 insertions(+), 14 deletions(-)
 
-diff --git a/packages-engine/core/src/utils/countable-set.ts b/packages-engine/core/src/utils/countable-set.ts
-index 6b7e144..742b179 100644
---- a/packages-engine/core/src/utils/countable-set.ts
-+++ b/packages-engine/core/src/utils/countable-set.ts
-@@ -1,13 +1,16 @@
- export class CountableSet<K> extends Set<K> {
--  _map: Map<K, number>
-+  _map: Map<K, number> = new Map()
- 
-   constructor(values?: Iterable<K>) {
--    super(values)
--    this._map ??= new Map()
-+    super()
-+    if (values) {
-+      for (const key of values) {
-+        this.add(key)
-+      }
-+    }
-   }
- 
-   add(key: K) {
--    this._map ??= new Map()
-     this._map.set(key, (this._map.get(key) ?? 0) + 1)
-     return super.add(key)
-   }
 diff --git a/packages-integrations/astro/src/index.ts b/packages-integrations/astro/src/index.ts
 index 446d044..c582727 100644
 --- a/packages-integrations/astro/src/index.ts
@@ -49,24 +23,22 @@ index 446d044..c582727 100644
            },
          })
 diff --git a/packages-integrations/vite/src/modes/chunk-build.ts b/packages-integrations/vite/src/modes/chunk-build.ts
-index 5d057fd..dd0a6c8 100644
+index 5d057fd..030d03b 100644
 --- a/packages-integrations/vite/src/modes/chunk-build.ts
 +++ b/packages-integrations/vite/src/modes/chunk-build.ts
-@@ -39,9 +39,9 @@ export function ChunkModeBuildPlugin(ctx: UnocssPluginContext): Plugin {
+@@ -39,8 +39,8 @@ export function ChunkModeBuildPlugin(ctx: UnocssPluginContext): Plugin {
        await cssPlugin!.transform(css, fakeCssId)
        chunk.modules[fakeCssId] = {
          code: null,
 -        originalLength: 0,
 -        removedExports: [],
--        renderedExports: [],
 +        // originalLength: 0,
 +        // removedExports: [],
-+        // renderedExports: [],
+         renderedExports: [],
          renderedLength: 0,
        }
- 
 diff --git a/packages-integrations/vite/src/modes/global/build.ts b/packages-integrations/vite/src/modes/global/build.ts
-index fc56593..150e9e8 100644
+index fc56593..f97a126 100644
 --- a/packages-integrations/vite/src/modes/global/build.ts
 +++ b/packages-integrations/vite/src/modes/global/build.ts
 @@ -1,6 +1,5 @@
@@ -103,19 +75,17 @@ index fc56593..150e9e8 100644
  
          if (isLegacy && (!ctx.uno.config.legacy || ctx.uno.config.legacy.renderModernChunks))
            return null
-@@ -190,9 +191,9 @@ export function GlobalModeBuildPlugin(ctx: UnocssPluginContext<VitePluginConfig>
+@@ -190,8 +191,8 @@ export function GlobalModeBuildPlugin(ctx: UnocssPluginContext<VitePluginConfig>
          // fool the css plugin to generate the css in corresponding chunk
          chunk.modules[fakeCssId] = {
            code: null,
 -          originalLength: 0,
 -          removedExports: [],
--          renderedExports: [],
 +          // originalLength: 0,
 +          // removedExports: [],
-+          // renderedExports: [],
+           renderedExports: [],
            renderedLength: 0,
          }
- 
 @@ -213,8 +214,8 @@ export function GlobalModeBuildPlugin(ctx: UnocssPluginContext<VitePluginConfig>
        name: 'unocss:global:build:generate',
        apply: 'build',

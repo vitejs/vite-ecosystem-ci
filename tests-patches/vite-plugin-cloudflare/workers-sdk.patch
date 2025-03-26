@@ -1,21 +1,21 @@
-From d92262f369cbec241132e3f4c7a3dd0b6c29b034 Mon Sep 17 00:00:00 2001
+From 125625a1fea7cfbf81e2e3a759e8c2bd1612a99a Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Tue, 18 Feb 2025 18:18:05 +0900
+Date: Wed, 26 Mar 2025 17:46:56 +0900
 Subject: [PATCH] temporary commit
 
 ---
- .../module-resolution/__tests__/module-resolution.spec.ts   | 2 +-
+ .../playground/module-resolution/__tests__/base-tests.ts    | 2 +-
  .../playground/multi-worker/__tests__/multi-worker.spec.ts  | 6 +++++-
  .../with-worker-configs-warning/multi-worker.spec.ts        | 6 +++++-
  .../playground/static-mpa/__tests__/assets.spec.ts          | 4 +++-
  .../__tests__/with-worker-configs-warning/assets.spec.ts    | 4 +++-
  5 files changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/packages/vite-plugin-cloudflare/playground/module-resolution/__tests__/module-resolution.spec.ts b/packages/vite-plugin-cloudflare/playground/module-resolution/__tests__/module-resolution.spec.ts
-index 7b1d9c0..c10d4ce 100644
---- a/packages/vite-plugin-cloudflare/playground/module-resolution/__tests__/module-resolution.spec.ts
-+++ b/packages/vite-plugin-cloudflare/playground/module-resolution/__tests__/module-resolution.spec.ts
-@@ -10,7 +10,7 @@ import {
+diff --git a/packages/vite-plugin-cloudflare/playground/module-resolution/__tests__/base-tests.ts b/packages/vite-plugin-cloudflare/playground/module-resolution/__tests__/base-tests.ts
+index 382e7c5..87253b6 100644
+--- a/packages/vite-plugin-cloudflare/playground/module-resolution/__tests__/base-tests.ts
++++ b/packages/vite-plugin-cloudflare/playground/module-resolution/__tests__/base-tests.ts
+@@ -8,7 +8,7 @@ import {
  
  describe("module resolution", async () => {
  	afterAll(() => {
@@ -25,7 +25,7 @@ index 7b1d9c0..c10d4ce 100644
  
  	describe("basic module resolution", () => {
 diff --git a/packages/vite-plugin-cloudflare/playground/multi-worker/__tests__/multi-worker.spec.ts b/packages/vite-plugin-cloudflare/playground/multi-worker/__tests__/multi-worker.spec.ts
-index 61ccd1d..c957132 100644
+index dc296bd..d282797 100644
 --- a/packages/vite-plugin-cloudflare/playground/multi-worker/__tests__/multi-worker.spec.ts
 +++ b/packages/vite-plugin-cloudflare/playground/multi-worker/__tests__/multi-worker.spec.ts
 @@ -17,7 +17,11 @@ describe.runIf(isBuild)("output directories", () => {
@@ -59,10 +59,10 @@ index 282a407..2892be3 100644
  				/your workers configs contain configuration options which are ignored[\s\S]+preserve_file_names[\s\S]+tsconfig[\s\S]+build/
  			),
 diff --git a/packages/vite-plugin-cloudflare/playground/static-mpa/__tests__/assets.spec.ts b/packages/vite-plugin-cloudflare/playground/static-mpa/__tests__/assets.spec.ts
-index 230fad4..ad7b344 100644
+index 5b440a9..c8c1cea 100644
 --- a/packages/vite-plugin-cloudflare/playground/static-mpa/__tests__/assets.spec.ts
 +++ b/packages/vite-plugin-cloudflare/playground/static-mpa/__tests__/assets.spec.ts
-@@ -37,5 +37,7 @@ test("returns the correct nested 404 page", async () => {
+@@ -43,7 +43,9 @@ test("returns the correct nested 404 page", async () => {
  });
  
  test("worker configs warnings are not present in the terminal", async () => {
@@ -71,6 +71,8 @@ index 230fad4..ad7b344 100644
 +		serverLogs.warns.filter((warn) => !warn.includes("built-in minifier"))
 +	).toEqual([]);
  });
+ 
+ describe.runIf(isBuild)("_headers", () => {
 diff --git a/packages/vite-plugin-cloudflare/playground/static-mpa/__tests__/with-worker-configs-warning/assets.spec.ts b/packages/vite-plugin-cloudflare/playground/static-mpa/__tests__/with-worker-configs-warning/assets.spec.ts
 index acad837..5cb44e3 100644
 --- a/packages/vite-plugin-cloudflare/playground/static-mpa/__tests__/with-worker-configs-warning/assets.spec.ts

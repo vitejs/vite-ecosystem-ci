@@ -1,16 +1,15 @@
-From 9a34c0b3555d2389569c74cfb406d68741b2e579 Mon Sep 17 00:00:00 2001
+From 21928aadd484c5952f4d909664fe8f9235fd8eeb Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Wed, 22 Jan 2025 11:37:42 +0900
+Date: Wed, 26 Mar 2025 22:00:29 +0900
 Subject: [PATCH] temporary commit
 
 ---
- package.json       |  2 +-
- rollup.config.ts   | 72 +++++++++++++++++++++++-----------------------
- src/node/plugin.ts | 23 +++++++++------
- 3 files changed, 52 insertions(+), 45 deletions(-)
+ package.json     |  2 +-
+ rollup.config.ts | 72 ++++++++++++++++++++++++------------------------
+ 2 files changed, 37 insertions(+), 37 deletions(-)
 
 diff --git a/package.json b/package.json
-index a488b4a..90bc3cc 100644
+index f44e3c2..b6fdb4b 100644
 --- a/package.json
 +++ b/package.json
 @@ -60,7 +60,7 @@
@@ -23,10 +22,10 @@ index a488b4a..90bc3cc 100644
      "test:unit": "vitest run -r __tests__/unit",
      "test:unit:watch": "vitest -r __tests__/unit",
 diff --git a/rollup.config.ts b/rollup.config.ts
-index 8a996b0..cff0866 100644
+index 6bf7ff1..f0a9c0c 100644
 --- a/rollup.config.ts
 +++ b/rollup.config.ts
-@@ -14,7 +14,7 @@ const require = createRequire(import.meta.url)
+@@ -13,7 +13,7 @@ const require = createRequire(import.meta.url)
  const pkg = require('./package.json')
  
  const DEV = !!process.env.DEV
@@ -35,7 +34,7 @@ index 8a996b0..cff0866 100644
  
  const external = [
    ...Object.keys(pkg.dependencies),
-@@ -58,12 +58,12 @@ const esmBuild: RollupOptions = {
+@@ -53,12 +53,12 @@ const esmBuild: RollupOptions = {
    }
  }
  
@@ -54,7 +53,7 @@ index 8a996b0..cff0866 100644
  
  const dtsNode = dts({
    respectExternal: true,
-@@ -78,34 +78,34 @@ dtsNode.resolveId = async function (source, importer) {
+@@ -73,34 +73,34 @@ dtsNode.resolveId = async function (source, importer) {
    return res
  }
  
@@ -118,41 +117,6 @@ index 8a996b0..cff0866 100644
  
 -export default defineConfig([esmBuild, nodeTypes, clientTypes])
 +export default defineConfig([esmBuild /*, nodeTypes, clientTypes */])
-diff --git a/src/node/plugin.ts b/src/node/plugin.ts
-index 27c8552..f8da6e1 100644
---- a/src/node/plugin.ts
-+++ b/src/node/plugin.ts
-@@ -352,15 +352,22 @@ export async function createVitePressPlugin(
-             pageToHashMap![chunk.name.toLowerCase()] = hash
- 
-             // inject another chunk with the content stripped
--            bundle[name + '-lean'] = {
--              ...chunk,
-+            this.emitFile({
-+              type: 'asset',
-+              name: name + '-lean',
-               fileName: chunk.fileName.replace(/\.js$/, '.lean.js'),
--              preliminaryFileName: chunk.preliminaryFileName.replace(
--                /\.js$/,
--                '.lean.js'
--              ),
--              code: chunk.code.replace(staticStripRE, `""`)
--            }
-+              source: chunk.code.replace(staticStripRE, `""`)
-+            })
-+            // NOTE: assigning to bundle[foo] is not supported by Rolldown and is discouraged by Rollup
-+            // bundle[name + '-lean'] = {
-+            //   ...chunk,
-+            //   fileName: chunk.fileName.replace(/\.js$/, '.lean.js'),
-+            //   preliminaryFileName: chunk.preliminaryFileName.replace(
-+            //     /\.js$/,
-+            //     '.lean.js'
-+            //   ),
-+            //   code: chunk.code.replace(staticStripRE, `""`)
-+            // }
- 
-             // remove static markers from original code
-             chunk.code = chunk.code.replace(staticRestoreRE, '')
 -- 
-2.47.1
+2.48.1
 

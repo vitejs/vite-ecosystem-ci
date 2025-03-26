@@ -1,17 +1,17 @@
-From 027d2171eac1a73b0d9472289d9abd1ed37a0ab4 Mon Sep 17 00:00:00 2001
+From f6fe99ed344d14313b9c417e8aff6f25db608a7e Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Wed, 12 Feb 2025 18:35:32 +0900
+Date: Wed, 26 Mar 2025 17:39:51 +0900
 Subject: [PATCH] temporary commit
 
 ---
- vike/node/plugin/plugins/distFileNames.ts | 115 +++++++++++-----------
+ .../plugins/build/pluginDistFileNames.ts      | 115 +++++++++---------
  1 file changed, 58 insertions(+), 57 deletions(-)
 
-diff --git a/vike/node/plugin/plugins/distFileNames.ts b/vike/node/plugin/plugins/distFileNames.ts
-index 4a0c586..4fddfa8 100644
---- a/vike/node/plugin/plugins/distFileNames.ts
-+++ b/vike/node/plugin/plugins/distFileNames.ts
-@@ -42,77 +42,78 @@ function distFileNames(): Plugin {
+diff --git a/vike/node/plugin/plugins/build/pluginDistFileNames.ts b/vike/node/plugin/plugins/build/pluginDistFileNames.ts
+index 63edd4f..a9be45e 100644
+--- a/vike/node/plugin/plugins/build/pluginDistFileNames.ts
++++ b/vike/node/plugin/plugins/build/pluginDistFileNames.ts
+@@ -42,77 +42,78 @@ function pluginDistFileNames(): Plugin {
            )
          }
          {

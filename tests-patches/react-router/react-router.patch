@@ -1,6 +1,6 @@
-From 0e21d49d16e71b6cb8e4c54327df06f97c8b0366 Mon Sep 17 00:00:00 2001
+From 65142c34518e7fa26ec98fb10b95596e6fa54185 Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Mon, 17 Feb 2025 15:35:05 +0900
+Date: Wed, 26 Mar 2025 16:55:06 +0900
 Subject: [PATCH] temporary commit
 
 ---
@@ -9,10 +9,9 @@ Subject: [PATCH] temporary commit
  integration/prefetch-test.ts                       | 12 ++++++------
  integration/vite-build-test.ts                     |  7 +++++++
  integration/vite-css-test.ts                       |  9 +++++++++
- integration/vite-dot-server-test.ts                |  6 +++---
  integration/vite-presets-test.ts                   | 11 +++++++++--
  packages/react-router-dev/vite/plugin.ts           |  1 +
- 8 files changed, 55 insertions(+), 11 deletions(-)
+ 7 files changed, 52 insertions(+), 8 deletions(-)
 
 diff --git a/integration/helpers/vite-5-template/vite.config.ts b/integration/helpers/vite-5-template/vite.config.ts
 index fac933f..f80ea08 100644
@@ -33,10 +32,10 @@ index fac933f..f80ea08 100644
 +  }
  });
 diff --git a/integration/helpers/vite.ts b/integration/helpers/vite.ts
-index 10e04eb..bf5e172 100644
+index 7354143..8f9d0c3 100644
 --- a/integration/helpers/vite.ts
 +++ b/integration/helpers/vite.ts
-@@ -92,6 +92,17 @@ export const viteConfig = {
+@@ -95,6 +95,17 @@ export const viteConfig = {
            envOnlyMacros(),
            tsconfigPaths()
          ],
@@ -150,34 +149,6 @@ index 8256dc0..fc51f22 100644
    }
  `;
  
-diff --git a/integration/vite-dot-server-test.ts b/integration/vite-dot-server-test.ts
-index a4d6847..89996bd 100644
---- a/integration/vite-dot-server-test.ts
-+++ b/integration/vite-dot-server-test.ts
-@@ -139,12 +139,12 @@ test.describe("Vite / route / server-only module referenced by client", () => {
-       [
-         "Server-only module referenced by client",
- 
--        `    '${specifier}' imported by route 'app/routes/_index.tsx'`,
-+        /    '[^']+' imported by route 'app\/routes\/_index\.tsx'/, // NOTE: specifier may be raw or resolved
- 
-         "  React Router automatically removes server-code from these exports:",
-         "    `loader`, `action`, `headers`",
- 
--        `  But other route exports in 'app/routes/_index.tsx' depend on '${specifier}'.`,
-+        /  But other route exports in 'app\/routes\/_index\.tsx' depend on '[^']+'\./, // NOTE: specifier may be raw or resolved
- 
-         "  See https://remix.run/docs/en/main/guides/vite#splitting-up-client-and-server-code",
-       ].forEach(expect(stderr).toMatch);
-@@ -204,7 +204,7 @@ test.describe("Vite / non-route / server-only module referenced by client", () =
-       [
-         `Server-only module referenced by client`,
- 
--        `    '${specifier}' imported by 'app/reexport-server-only.ts'`,
-+        /    '[^']+' imported by 'app\/reexport-server-only\.ts'/, // NOTE: specifier may be raw or resolved
- 
-         "  See https://remix.run/docs/en/main/guides/vite#splitting-up-client-and-server-code",
-       ].forEach(expect(stderr).toMatch);
 diff --git a/integration/vite-presets-test.ts b/integration/vite-presets-test.ts
 index 12ea017..e43b4c3 100644
 --- a/integration/vite-presets-test.ts
@@ -209,10 +180,10 @@ index 12ea017..e43b4c3 100644
    `),
  };
 diff --git a/packages/react-router-dev/vite/plugin.ts b/packages/react-router-dev/vite/plugin.ts
-index 8492c6b..5a84a79 100644
+index 321b57e..bd83e98 100644
 --- a/packages/react-router-dev/vite/plugin.ts
 +++ b/packages/react-router-dev/vite/plugin.ts
-@@ -3031,6 +3031,7 @@ export async function getEnvironmentOptionsResolvers(
+@@ -3366,6 +3366,7 @@ export async function getEnvironmentOptionsResolvers(
          cssMinify: viteUserConfig.build?.cssMinify ?? true,
          manifest: true, // The manifest is enabled for all builds to detect SSR-only assets
          rollupOptions: {
