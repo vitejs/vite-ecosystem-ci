@@ -1,17 +1,37 @@
-From 27564d708e4f4a3a0a1774d2fbf6ace845ea057c Mon Sep 17 00:00:00 2001
+From d61eff99a44732ccc2e6e46cf895f9a27efbeb4b Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Thu, 9 Jan 2025 18:12:37 +0900
+Date: Wed, 26 Mar 2025 22:27:14 +0900
 Subject: [PATCH] temporary commit
 
 ---
- packages/plugin-vue/src/index.ts | 3 +++
- 1 file changed, 3 insertions(+)
+ packages/plugin-vue/src/index.ts | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
 diff --git a/packages/plugin-vue/src/index.ts b/packages/plugin-vue/src/index.ts
-index dffe011..abcb9d2 100644
+index 4606b8b..ba6517d 100644
 --- a/packages/plugin-vue/src/index.ts
 +++ b/packages/plugin-vue/src/index.ts
-@@ -361,6 +361,7 @@ export default function vuePlugin(rawOptions: Options = {}): Plugin<Api> {
+@@ -314,9 +314,11 @@ export default function vuePlugin(rawOptions: Options = {}): Plugin<Api> {
+       transformCachedModule =
+         config.command === 'build' &&
+         options.value.sourceMap &&
++        // @ts-expect-error rolldown-vite does not support watch mode yet
+         config.build.watch != null
+     },
+ 
++    // @ts-expect-error allow any
+     shouldTransformCachedModule({ id }) {
+       if (transformCachedModule && parseVueRequest(id).query.vue) {
+         return true
+@@ -389,6 +391,7 @@ export default function vuePlugin(rawOptions: Options = {}): Plugin<Api> {
+       }
+     },
+ 
++    // @ts-expect-error rolldown type incompat
+     transform(code, id, opt) {
+       const ssr = opt?.ssr === true
+       const { filename, query } = parseVueRequest(id)
+@@ -407,6 +410,7 @@ export default function vuePlugin(rawOptions: Options = {}): Plugin<Api> {
            code,
            filename,
            options.value,
@@ -19,7 +39,7 @@ index dffe011..abcb9d2 100644
            this,
            ssr,
            customElementFilter.value(filename),
-@@ -377,6 +378,7 @@ export default function vuePlugin(rawOptions: Options = {}): Plugin<Api> {
+@@ -427,6 +431,7 @@ export default function vuePlugin(rawOptions: Options = {}): Plugin<Api> {
              code,
              descriptor,
              options.value,
@@ -27,7 +47,7 @@ index dffe011..abcb9d2 100644
              this,
              ssr,
              customElementFilter.value(filename),
-@@ -387,6 +389,7 @@ export default function vuePlugin(rawOptions: Options = {}): Plugin<Api> {
+@@ -437,6 +442,7 @@ export default function vuePlugin(rawOptions: Options = {}): Plugin<Api> {
              descriptor,
              Number(query.index || 0),
              options.value,
@@ -36,5 +56,5 @@ index dffe011..abcb9d2 100644
              filename,
            )
 -- 
-2.47.0
+2.48.1
 
