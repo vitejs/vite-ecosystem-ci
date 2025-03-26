@@ -1,12 +1,13 @@
-From a9a2b6b659552206212ce81671c96f65ad70a07c Mon Sep 17 00:00:00 2001
+From f18187703077e5311a864f2fcf59ca12da1fc840 Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Fri, 10 Jan 2025 15:43:15 +0900
+Date: Wed, 26 Mar 2025 22:32:29 +0900
 Subject: [PATCH] temporary commit
 
 ---
  packages/e2e-tests/scan-deps/__tests__/scan-deps.spec.ts | 2 +-
- packages/vite-plugin-svelte/src/index.js                 | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ packages/vite-plugin-svelte/src/index.js                 | 2 ++
+ packages/vite-plugin-svelte/src/preprocess.js            | 2 +-
+ 3 files changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/packages/e2e-tests/scan-deps/__tests__/scan-deps.spec.ts b/packages/e2e-tests/scan-deps/__tests__/scan-deps.spec.ts
 index 0bdde48..1d6eb5a 100644
@@ -22,10 +23,18 @@ index 0bdde48..1d6eb5a 100644
  		).toBe(0);
  	});
 diff --git a/packages/vite-plugin-svelte/src/index.js b/packages/vite-plugin-svelte/src/index.js
-index 9ec43e9..b3504ce 100644
+index 9ec43e9..dc962b5 100644
 --- a/packages/vite-plugin-svelte/src/index.js
 +++ b/packages/vite-plugin-svelte/src/index.js
-@@ -173,6 +173,7 @@ export function svelte(inlineOptions) {
+@@ -153,6 +153,7 @@ export function svelte(inlineOptions) {
+ 				}
+ 			},
+ 
++			// @ts-expect-error rolldown type incompatibility
+ 			async transform(code, id, opts) {
+ 				const ssr = !!opts?.ssr;
+ 				const svelteRequest = requestParser(id, ssr);
+@@ -173,6 +174,7 @@ export function svelte(inlineOptions) {
  						for (const dep of compileData.dependencies) {
  							ensureWatchedFile(options.server.watcher, dep, options.root);
  						}
@@ -33,6 +42,19 @@ index 9ec43e9..b3504ce 100644
  					} else if (options.isBuild && viteConfig.build.watch) {
  						for (const dep of compileData.dependencies) {
  							this.addWatchFile(dep);
+diff --git a/packages/vite-plugin-svelte/src/preprocess.js b/packages/vite-plugin-svelte/src/preprocess.js
+index d63ea23..d6adcc1 100644
+--- a/packages/vite-plugin-svelte/src/preprocess.js
++++ b/packages/vite-plugin-svelte/src/preprocess.js
+@@ -36,7 +36,7 @@ function viteScript() {
+ 			const lang = /** @type {string} */ (attributes.lang);
+ 			if (!supportedScriptLangs.includes(lang)) return;
+ 			const { code, map } = await transformWithEsbuild(content, filename, {
+-				loader: /** @type {import('vite').ESBuildOptions['loader']} */ (lang),
++				loader: /** @type {import('vite').EsbuildTransformOptions['loader']} */ (lang),
+ 				target: 'esnext',
+ 				tsconfigRaw: {
+ 					compilerOptions: {
 -- 
-2.47.0
+2.48.1
 

@@ -5,6 +5,7 @@ export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
 		repo: 'vitejs/vite-plugin-react',
+		beforeBuild: 'pnpm i -Dw esbuild',
 		build: 'build',
 		beforeTest: 'pnpm playwright install chromium',
 		test: ['test', 'typecheck'],
