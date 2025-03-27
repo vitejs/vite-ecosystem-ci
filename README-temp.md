@@ -42,15 +42,15 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | [qwik](#qwik)                             |    ⚠️ | passes, but uses some missing features                                                                                           |
 | rakkas                                    |    ✅ | patched one plugin to return `moduleType: 'js'`                                                                                  |
 | react-router                              |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`, better to run with `CI=1` as some tests are flaky and setting that will retry them |
-| storybook                                 |    ✅ | _[TODO: fails with duplicate emotion?]_                                                                                          |
+| storybook                                 |    ✅ |                                                                                                                                  |
 | [sveltekit](#sveltekit)                   |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`                                                                                     |
 | [unocss](#unocss)                         |    ⚠️ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`, modifies `chunk.modules`, added workaround for now                                 |
 | [vike](#vike)                             |    ⚠️ | uses advanced `manualChunks`                                                                                                     |
 | vite-environment-examples                 |    ✅ |                                                                                                                                  |
 | vite-plugin-cloudflare                    |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`                                                                                     |
-| vite-plugin-pwa                           |    ✅ | patched one place that was assigning to OutputBundle                                                                             |
-| vite-plugin-react                         |    ✅ | _[TODO: duplicate `__self` prop found in react-classic playground]_ See https://github.com/rolldown/vite-plugin-react/pull/1     |
-| vite-plugin-react-swc                     |    ⚠️ | _[TODO: emotion-plugin fails (why?)]_                                                                                            |
+| vite-plugin-pwa                           |    ✅ | patched one place that was assigning to OutputBundle (https://github.com/vite-pwa/vite-plugin-pwa/pull/843)                      |
+| vite-plugin-react                         |    ✅ | See https://github.com/rolldown/vite-plugin-react/pull/1                                                                         |
+| vite-plugin-react-swc                     |    ✅ | added `oxc: false` to align with `esbuild: false`                                                                                |
 | [vite-plugin-svelte](#vite-plugin-svelte) |    ⚠️ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`, one test failing but not correctness failures                                      |
 | [vite-plugin-vue](#vite-plugin-vue)       |    ⚠️ | 2 tests failing but not correctness failures                                                                                     |
 | vite-setup-catalogue                      |    ✅ |                                                                                                                                  |
@@ -76,7 +76,7 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 ### marko
 
 - ⚠️ Errors because it tries to update `input` option in `buildStart`
-  - Added a patch to update `input` option in `options` hook
+  - Added a patch to update `input` option in `options` hook (https://github.com/marko-js/vite/pull/197)
 - ✅ passed by converting esbuild plugins to rollup plugins
 
 ### nuxt
