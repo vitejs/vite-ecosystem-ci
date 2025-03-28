@@ -81,6 +81,8 @@ jobs:
           - vuepress
           - waku
       fail-fast: false
+    permissions:
+      contents: read # to clone the repo
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
