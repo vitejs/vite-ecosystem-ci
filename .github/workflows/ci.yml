@@ -23,6 +23,8 @@ jobs:
   ci:
     timeout-minutes: 10
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # to clone the repo
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
