@@ -30,12 +30,12 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 
 | suite                                     | state | description                                                                                                                      |
 | ----------------------------------------- | ----: | :------------------------------------------------------------------------------------------------------------------------------- |
-| [analogjs](#analog)                       |    ✅ |                                                                                                                                  |
+| analogjs                                  |    ✅ |                                                                                                                                  |
 | [astro](#astro)                           |    ❌ | CJS-ESM interop issue with JSON files, modifies `chunk.modules`, uses `manualChunks`                                             |
 | histoire                                  |    ❌ | uses `preserveModules: true`                                                                                                     |
 | ladle                                     |    ✅ |                                                                                                                                  |
 | laravel                                   |    ✅ |                                                                                                                                  |
-| [marko](#marko)                           |    ✅ | passed by esbuild-rollup plugin conversion                                                                                       |
+| marko                                     |    ✅ | passed by esbuild-rollup plugin conversion                                                                                       |
 | [nuxt](#nuxt)                             |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`                                                                                     |
 | previewjs                                 |    ⚠️ | fails locally but when running tests manually in playwright ui, it works. probably fine                                          |
 | quasar                                    |    ✅ |                                                                                                                                  |
@@ -73,18 +73,12 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 - ⚠️ `CSS Bundling > using custom assetFileNames config > there are 2 index named CSS files`
   - uses `manualChunks` to set a custom name
 
-### marko
-
-- ⚠️ Errors because it tries to update `input` option in `buildStart`
-  - Added a patch to update `input` option in `options` hook (https://github.com/marko-js/vite/pull/197)
-- ✅ passed by converting esbuild plugins to rollup plugins
-
 ### nuxt
 
 - ⚠️ skipped tests for [experimental.decorators](https://nuxt.com/docs/guide/going-further/experimental-features#decorators) feature which requires standard decorators support
   - NOTE: this is NOT the `compilerOptions.experimentalDecorators` in tsconfig, it is an experimental option that enables **standard** decorators support
   - [oxc-project/oxc#9170](https://github.com/oxc-project/oxc/issues/9170)
-  - Not released yet, probably released in 3.16.0
+  - was released in 3.16.0
 
 ### qwik
 
