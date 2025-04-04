@@ -522,12 +522,18 @@ export async function applyPackageOverrides(
 	await overridePackageManagerVersion(pkg, pm)
 
 	if (pm === 'pnpm') {
+		const overridesWithoutSpecialSyntax = Object.fromEntries(
+			Object.entries(overrides)
+				//eslint-disable-next-line @typescript-eslint/no-unused-vars
+				.filter(([key, value]) => (value as string).includes('>')),
+		)
+
 		if (!pkg.devDependencies) {
 			pkg.devDependencies = {}
 		}
 		pkg.devDependencies = {
 			...pkg.devDependencies,
-			...overrides, // overrides must be present in devDependencies or dependencies otherwise they may not work
+			...overridesWithoutSpecialSyntax, // overrides must be present in devDependencies or dependencies otherwise they may not work
 		}
 		if (!pkg.pnpm) {
 			pkg.pnpm = {}
