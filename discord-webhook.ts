@@ -166,8 +166,7 @@ function createTargetText(
 	permRef: string | undefined,
 	repo: string,
 ) {
-	const repoText =
-		repo !== 'vitejs/vite' && repo !== 'vitejs/rolldown-vite' ? `${repo}:` : ''
+	const repoText = repo !== 'vitejs/vite' ? `${repo}:` : ''
 	if (refType === 'branch') {
 		const shortRef = permRef?.slice(0, 7)
 		const link = `https://github.com/${repo}/commits/${permRef || ref}`
