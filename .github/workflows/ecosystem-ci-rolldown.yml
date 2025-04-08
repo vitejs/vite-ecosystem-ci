@@ -1,0 +1,116 @@
+# integration tests for vite ecosystem projects - scheduled or manual run for all suites
+name: vite-ecosystem-ci (rolldown-vite)
+
+env:
+  # 7 GiB by default on GitHub, setting to 6 GiB
+  # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+  NODE_OPTIONS: --max-old-space-size=6144
+  # configure corepack to be strict but not download newer versions or change anything
+  COREPACK_DEFAULT_TO_LATEST: 0
+  COREPACK_ENABLE_AUTO_PIN: 0
+  COREPACK_ENABLE_STRICT: 1
+  # see https://turbo.build/repo/docs/telemetry#how-do-i-opt-out
+  TURBO_TELEMETRY_DISABLED: 1
+  DO_NOT_TRACK: 1
+on:
+  schedule:
+    - cron: "0 5 * * 2,4" # tuesday,thursday 5AM
+  workflow_dispatch:
+    inputs:
+      refType:
+        description: "type of ref"
+        required: true
+        type: choice
+        options:
+          - branch
+          - tag
+          - commit
+          - release
+        default: "branch"
+      ref:
+        description: "vite ref to use"
+        required: true
+        type: string
+        default: "rolldown-vite"
+      repo:
+        description: "vite repository to use"
+        required: true
+        type: string
+        default: "vitejs/rolldown-vite"
+  repository_dispatch:
+    types: [ecosystem-ci]
+jobs:
+  test-ecosystem:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        suite:
+          - analogjs
+          - astro
+          - histoire
+          # - hydrogen # disabled until they complete they migration back to Vite
+          # - iles # disabled until its CI is fixed
+          - ladle
+          - laravel
+          - marko
+          - nuxt
+          - one
+          # - nx # disabled temporarily
+          - previewjs
+          - quasar
+          - qwik
+          - rakkas
+          - react-router
+          # - redwoodjs # disabled temporarily
+          - storybook
+          - sveltekit
+          - unocss
+          - vike
+          - vite-environment-examples
+          - vite-plugin-pwa
+          - vite-plugin-react
+          # - vite-plugin-react-pages # disabled until its install setup is fixed
+          - vite-plugin-react-swc
+          - vite-plugin-svelte
+          - vite-plugin-vue
+          - vite-plugin-cloudflare
+          - vite-setup-catalogue
+          - vitepress
+          - vitest
+          - vuepress
+          - waku
+      fail-fast: false
+    permissions:
+      contents: read # to clone the repo
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ^22.14.0
+        id: setup-node
+      - uses: denoland/setup-deno@11b63cf76cfcafb4e43f97b6cad24d8e8438f62d #v1.5.2
+        with:
+          deno-version: v1.x
+        id: setup-deno
+        continue-on-error: true
+      - run: corepack enable
+      - run: pnpm --version
+      - run: pnpm i --frozen-lockfile
+      - run: >-
+          pnpm tsx ecosystem-ci.ts
+          --${{ inputs.refType || github.event.client_payload.refType || 'branch' }} ${{ inputs.ref || github.event.client_payload.ref || 'rolldown-vite' }}
+          --repo ${{ inputs.repo || github.event.client_payload.repo || 'vitejs/rolldown-vite' }}
+          ${{ matrix.suite }}
+        id: ecosystem-ci-run
+      - if: always()
+        run: pnpm tsx discord-webhook.ts
+        env:
+          WORKFLOW_NAME: ci
+          REF_TYPE: ${{ inputs.refType || github.event.client_payload.refType || 'branch' }}
+          REF: ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
+          REPO: ${{ inputs.repo || github.event.client_payload.repo || 'vitejs/vite' }}
+          SUITE: ${{ matrix.suite }}
+          STATUS: ${{ job.status }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL_ROLLDOWN_VITE }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
