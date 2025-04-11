@@ -25,7 +25,7 @@
       "eslint --fix"
     ]
   },
-  "packageManager": "pnpm@10.6.3",
+  "packageManager": "pnpm@10.8.0",
   "type": "module",
   "engines": {
     "node": ">=18",
@@ -48,20 +48,20 @@
   },
   "devDependencies": {
     "@antfu/ni": "^23.3.1",
-    "@eslint/js": "^9.22.0",
-    "@types/node": "^22.13.10",
+    "@eslint/js": "^9.24.0",
+    "@types/node": "^22.14.0",
     "@types/pacote": "^11.1.8",
-    "@types/semver": "^7.5.8",
-    "eslint": "^9.22.0",
-    "eslint-plugin-n": "^17.16.2",
-    "lint-staged": "^15.5.0",
+    "@types/semver": "^7.7.0",
+    "eslint": "^9.24.0",
+    "eslint-plugin-n": "^17.17.0",
+    "lint-staged": "^15.5.1",
     "pacote": "^21.0.0",
     "prettier": "^3.5.3",
     "semver": "^7.7.1",
-    "simple-git-hooks": "^2.11.1",
+    "simple-git-hooks": "^2.12.1",
     "tsx": "^4.19.3",
-    "typescript": "^5.8.2",
-    "typescript-eslint": "^8.26.1"
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.29.1"
   },
   "pnpm": {
     "overrides": {
