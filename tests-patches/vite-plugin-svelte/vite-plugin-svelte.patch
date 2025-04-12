@@ -1,13 +1,13 @@
-From f18187703077e5311a864f2fcf59ca12da1fc840 Mon Sep 17 00:00:00 2001
+From f4cb8dce34b4c834dab3cea943529db548bb4cda Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Wed, 26 Mar 2025 22:32:29 +0900
+Date: Sat, 12 Apr 2025 19:34:40 +0900
 Subject: [PATCH] temporary commit
 
 ---
  packages/e2e-tests/scan-deps/__tests__/scan-deps.spec.ts | 2 +-
- packages/vite-plugin-svelte/src/index.js                 | 2 ++
+ packages/vite-plugin-svelte/src/index.js                 | 1 +
  packages/vite-plugin-svelte/src/preprocess.js            | 2 +-
- 3 files changed, 4 insertions(+), 2 deletions(-)
+ 3 files changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/packages/e2e-tests/scan-deps/__tests__/scan-deps.spec.ts b/packages/e2e-tests/scan-deps/__tests__/scan-deps.spec.ts
 index 0bdde48..1d6eb5a 100644
@@ -23,18 +23,10 @@ index 0bdde48..1d6eb5a 100644
  		).toBe(0);
  	});
 diff --git a/packages/vite-plugin-svelte/src/index.js b/packages/vite-plugin-svelte/src/index.js
-index 9ec43e9..dc962b5 100644
+index 9ec43e9..b3504ce 100644
 --- a/packages/vite-plugin-svelte/src/index.js
 +++ b/packages/vite-plugin-svelte/src/index.js
-@@ -153,6 +153,7 @@ export function svelte(inlineOptions) {
- 				}
- 			},
- 
-+			// @ts-expect-error rolldown type incompatibility
- 			async transform(code, id, opts) {
- 				const ssr = !!opts?.ssr;
- 				const svelteRequest = requestParser(id, ssr);
-@@ -173,6 +174,7 @@ export function svelte(inlineOptions) {
+@@ -173,6 +173,7 @@ export function svelte(inlineOptions) {
  						for (const dep of compileData.dependencies) {
  							ensureWatchedFile(options.server.watcher, dep, options.root);
  						}
