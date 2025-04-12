@@ -1,12 +1,12 @@
-From d3569d6c773f4ba249dd752e61c9f71f9eed4ea1 Mon Sep 17 00:00:00 2001
+From b70a5d3228b5eafd9e11aa69eb53d92c1ab08688 Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Thu, 20 Feb 2025 17:08:01 +0900
+Date: Sat, 12 Apr 2025 19:47:42 +0900
 Subject: [PATCH] temporary commit
 
 ---
- .../exports/vite/graph_analysis/index.spec.js  |  1 -
- packages/kit/src/exports/vite/index.js         | 18 +++++++++++++-----
- 2 files changed, 13 insertions(+), 6 deletions(-)
+ .../exports/vite/graph_analysis/index.spec.js    |  1 -
+ packages/kit/src/exports/vite/index.js           | 16 ++++++++++++----
+ 2 files changed, 12 insertions(+), 5 deletions(-)
 
 diff --git a/packages/kit/src/exports/vite/graph_analysis/index.spec.js b/packages/kit/src/exports/vite/graph_analysis/index.spec.js
 index 35ecd31..4617849 100644
@@ -21,7 +21,7 @@ index 35ecd31..4617849 100644
  		/** @param {string} id */
  		getModuleInfo(id) {
 diff --git a/packages/kit/src/exports/vite/index.js b/packages/kit/src/exports/vite/index.js
-index 4885d00..b74fcfd 100644
+index c2e445e..1b1cafd 100644
 --- a/packages/kit/src/exports/vite/index.js
 +++ b/packages/kit/src/exports/vite/index.js
 @@ -673,12 +673,18 @@ Tips:
@@ -37,16 +37,15 @@ index 4885d00..b74fcfd 100644
 +								// manualChunks: split ? undefined : () => 'bundle',
 +								inlineDynamicImports: split ? false : true
  							},
--							preserveEntrySignatures: 'strict'
-+							preserveEntrySignatures: 'strict',
+ 							preserveEntrySignatures: 'strict',
 +							experimental: {
 +								// NOTE: so that inlineDynamicImports does not break the execution order
 +								strictExecutionOrder: split ? undefined : true
-+							}
- 						},
- 						ssrEmitAssets: true,
- 						target: ssr ? 'node18.13' : undefined
-@@ -690,6 +696,7 @@ Tips:
++							},
+ 							onwarn(warning, handler) {
+ 								if (
+ 									warning.code === 'MISSING_EXPORT' &&
+@@ -702,6 +708,7 @@ Tips:
  								entryFileNames: `${prefix}/workers/[name]-[hash].js`,
  								chunkFileNames: `${prefix}/workers/chunks/[hash].js`,
  								assetFileNames: `${prefix}/workers/assets/[name]-[hash][extname]`,
@@ -54,7 +53,7 @@ index 4885d00..b74fcfd 100644
  								hoistTransitiveImports: false
  							}
  						}
-@@ -738,6 +745,7 @@ Tips:
+@@ -750,6 +757,7 @@ Tips:
  			if (secondary_build_started) return;
  
  			if (is_build) {
@@ -62,7 +61,7 @@ index 4885d00..b74fcfd 100644
  				if (!vite_config.build.watch) {
  					rimraf(out);
  				}
-@@ -748,7 +756,7 @@ Tips:
+@@ -760,7 +768,7 @@ Tips:
  		renderChunk(code, chunk) {
  			if (code.includes('__SVELTEKIT_TRACK__')) {
  				return {
@@ -71,7 +70,7 @@ index 4885d00..b74fcfd 100644
  						(tracked_features[chunk.name + '.js'] ??= []).push(label);
  						// put extra whitespace at the end of the comment to preserve the source size and avoid interfering with source maps
  						return `/* track ${label}            */`;
-@@ -840,7 +848,7 @@ Tips:
+@@ -852,7 +860,7 @@ Tips:
  
  				secondary_build_started = true;
  

@@ -1,24 +1,23 @@
-From 8faf06394a880eecfda5f7ed1be3bbf0b8a35dd8 Mon Sep 17 00:00:00 2001
+From 4106acb0155674b175e4060064f36b65f5ed81cf Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Wed, 26 Mar 2025 17:09:07 +0900
+Date: Sat, 12 Apr 2025 19:39:37 +0900
 Subject: [PATCH] temporary commit
 
 ---
- packages-integrations/astro/src/index.ts      |  1 +
- .../vite/src/modes/chunk-build.ts             |  4 ++--
- .../vite/src/modes/global/build.ts            | 21 ++++++++++---------
- test/fixtures.test.ts                         |  6 ++++--
- 4 files changed, 18 insertions(+), 14 deletions(-)
+ packages-integrations/astro/src/index.ts            | 1 +
+ packages-integrations/vite/src/modes/chunk-build.ts | 4 ++--
+ test/fixtures.test.ts                               | 6 ++++--
+ 3 files changed, 7 insertions(+), 4 deletions(-)
 
 diff --git a/packages-integrations/astro/src/index.ts b/packages-integrations/astro/src/index.ts
-index 446d044..c582727 100644
+index 126cf30..85e4a4e 100644
 --- a/packages-integrations/astro/src/index.ts
 +++ b/packages-integrations/astro/src/index.ts
 @@ -101,6 +101,7 @@ export default function UnoCSSAstroIntegration<Theme extends object>(
            vite: {
              plugins: [AstroVitePlugin({
                injects,
-+            // @ts-expect-error rolldown type incompat
++              // @ts-expect-error rolldown type incompat
              }), ...VitePlugin(options, defaults)],
            },
          })
@@ -37,66 +36,6 @@ index 5d057fd..030d03b 100644
          renderedExports: [],
          renderedLength: 0,
        }
-diff --git a/packages-integrations/vite/src/modes/global/build.ts b/packages-integrations/vite/src/modes/global/build.ts
-index fc56593..f97a126 100644
---- a/packages-integrations/vite/src/modes/global/build.ts
-+++ b/packages-integrations/vite/src/modes/global/build.ts
-@@ -1,6 +1,5 @@
- import type { GenerateResult, UnocssPluginContext } from '@unocss/core'
--import type { NormalizedOutputOptions, PluginContext, RenderedChunk } from 'rollup'
--import type { Plugin, ResolvedConfig } from 'vite'
-+import type { Plugin, ResolvedConfig, Rollup } from 'vite'
- import type { VitePluginConfig } from '../../types'
- import { isAbsolute, resolve } from 'node:path'
- import { setupContentExtractor } from '#integration/content'
-@@ -19,11 +18,12 @@ import { applyTransformers } from '#integration/transformers'
- import { getPath, replaceAsync } from '#integration/utils'
- import { LAYER_IMPORTS, LAYER_PREFLIGHTS } from '@unocss/core'
- import { MESSAGE_UNOCSS_ENTRY_NOT_FOUND } from './shared'
-+type PluginContext = Rollup.PluginContext
- 
- // https://github.com/vitejs/vite/blob/main/packages/plugin-legacy/src/index.ts#L742-L744
--function isLegacyChunk(chunk: RenderedChunk, options: NormalizedOutputOptions) {
--  return options.format === 'system' && chunk.fileName.includes('-legacy')
--}
-+// function isLegacyChunk(chunk: RenderedChunk, options: NormalizedOutputOptions) {
-+//   return options.format === 'system' && chunk.fileName.includes('-legacy')
-+// }
- 
- export function GlobalModeBuildPlugin(ctx: UnocssPluginContext<VitePluginConfig>): Plugin[] {
-   const { ready, extract, tokens, filter, getConfig, tasks, flushTasks } = ctx
-@@ -158,7 +158,8 @@ export function GlobalModeBuildPlugin(ctx: UnocssPluginContext<VitePluginConfig>
-       // we inject a hash to chunk before the dist hash calculation to make sure
-       // the hash is different when unocss changes
-       async renderChunk(_, chunk, options) {
--        const isLegacy = isLegacyChunk(chunk, options)
-+        // NOTE: rolldown does not support legacy plugin
-+        const isLegacy = false; // isLegacyChunk(chunk, options)
- 
-         if (isLegacy && (!ctx.uno.config.legacy || ctx.uno.config.legacy.renderModernChunks))
-           return null
-@@ -190,8 +191,8 @@ export function GlobalModeBuildPlugin(ctx: UnocssPluginContext<VitePluginConfig>
-         // fool the css plugin to generate the css in corresponding chunk
-         chunk.modules[fakeCssId] = {
-           code: null,
--          originalLength: 0,
--          removedExports: [],
-+          // originalLength: 0,
-+          // removedExports: [],
-           renderedExports: [],
-           renderedLength: 0,
-         }
-@@ -213,8 +214,8 @@ export function GlobalModeBuildPlugin(ctx: UnocssPluginContext<VitePluginConfig>
-       name: 'unocss:global:build:generate',
-       apply: 'build',
-       async renderChunk(code, chunk, options) {
--        if (isLegacyChunk(chunk, options))
--          return null
-+        // if (isLegacyChunk(chunk, options))
-+        //   return null
- 
-         if (!Object.keys(chunk.modules).some(i => RESOLVED_ID_RE.test(i)))
-           return null
 diff --git a/test/fixtures.test.ts b/test/fixtures.test.ts
 index c353031..ca318b8 100644
 --- a/test/fixtures.test.ts

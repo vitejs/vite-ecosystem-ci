@@ -44,7 +44,7 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | react-router                              |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`, better to run with `CI=1` as some tests are flaky and setting that will retry them |
 | storybook                                 |    ✅ |                                                                                                                                  |
 | [sveltekit](#sveltekit)                   |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`                                                                                     |
-| [unocss](#unocss)                         |    ⚠️ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`, modifies `chunk.modules`, added workaround for now                                 |
+| [unocss](#unocss)                         |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`                                                                                     |
 | [vike](#vike)                             |    ⚠️ | uses advanced `manualChunks`                                                                                                     |
 | vite-environment-examples                 |    ✅ |                                                                                                                                  |
 | vite-plugin-cloudflare                    |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`                                                                                     |
@@ -101,8 +101,8 @@ better to run with `CI=1` as some tests are flaky and setting that will retry th
 
 ### unocss
 
-- ⚠️ `test/fixtures.test.ts > fixtures > vite client`/`test/fixtures.test.ts > fixtures > vite lib`/`test/fixtures.test.ts > fixtures > vite lib rollupOptions` fails
-  - UnoCSS modifies `chunk.modules` to fool the css plugin to generate the css in corresponding chunk ([unocss/unocss#4403](https://github.com/unocss/unocss/issues/4403))
+- ✅ Chunk mode modifies `chunk.modules` to fool the css plugin to generate the css in corresponding chunk ([unocss/unocss#4403](https://github.com/unocss/unocss/issues/4403))
+  - but chunk mode is experimental and likely to be removed
   - added a workaround for now
 
 ### vike
