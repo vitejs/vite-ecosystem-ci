@@ -10,6 +10,11 @@ fi
 
 REPO_NAME=$1
 
+if [ "${REPO_NAME#*/}" = "$REPO_NAME" ]; then
+  echo "Error: REPO_NAME must contain at least one '/'"
+  exit 1
+fi
+
 cd "$(dirname "$0")"
 cd ../workspace/"$REPO_NAME"
 
