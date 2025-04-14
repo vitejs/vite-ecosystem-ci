@@ -28,36 +28,36 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 
 ## Summary
 
-| suite                                     | state | description                                                                                                                      |
-| ----------------------------------------- | ----: | :------------------------------------------------------------------------------------------------------------------------------- |
-| analogjs                                  |    ✅ |                                                                                                                                  |
-| [astro](#astro)                           |    ❌ | CJS-ESM interop issue with JSON files, modifies `chunk.modules`, uses `manualChunks`                                             |
-| histoire                                  |    ❌ | uses `preserveModules: true`                                                                                                     |
-| ladle                                     |    ✅ |                                                                                                                                  |
-| laravel                                   |    ✅ |                                                                                                                                  |
-| marko                                     |    ✅ | passed by esbuild-rollup plugin conversion                                                                                       |
-| [nuxt](#nuxt)                             |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`                                                                                     |
-| previewjs                                 |    ⚠️ | fails locally but when running tests manually in playwright ui, it works. probably fine                                          |
-| quasar                                    |    ✅ |                                                                                                                                  |
-| [qwik](#qwik)                             |    ⚠️ | passes, but uses some missing features                                                                                           |
-| rakkas                                    |    ✅ | patched one plugin to return `moduleType: 'js'`                                                                                  |
-| react-router                              |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`, better to run with `CI=1` as some tests are flaky and setting that will retry them |
-| storybook                                 |    ✅ |                                                                                                                                  |
-| [sveltekit](#sveltekit)                   |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`                                                                                     |
-| [unocss](#unocss)                         |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`                                                                                     |
-| [vike](#vike)                             |    ⚠️ | uses advanced `manualChunks`                                                                                                     |
-| vite-environment-examples                 |    ✅ |                                                                                                                                  |
-| vite-plugin-cloudflare                    |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`                                                                                     |
-| vite-plugin-pwa                           |    ✅ | patched one place that was assigning to OutputBundle (https://github.com/vite-pwa/vite-plugin-pwa/pull/843)                      |
-| vite-plugin-react                         |    ✅ | See https://github.com/rolldown/vite-plugin-react/pull/1                                                                         |
-| vite-plugin-react-swc                     |    ✅ | added `oxc: false` to align with `esbuild: false`                                                                                |
-| [vite-plugin-svelte](#vite-plugin-svelte) |    ⚠️ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`, one test failing but not correctness failures                                      |
-| [vite-plugin-vue](#vite-plugin-vue)       |    ⚠️ | 2 tests failing but not correctness failures                                                                                     |
-| vite-setup-catalogue                      |    ✅ |                                                                                                                                  |
-| vitepress                                 |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`                                                                                     |
-| vitest                                    |    ✅ | tracking at https://github.com/vitest-dev/vitest/pull/7509                                                                       |
-| vuepress                                  |    ✅ |                                                                                                                                  |
-| [waku](#waku)                             |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`                                                                                     |
+| suite                                     | state | description                                                                                 |
+| ----------------------------------------- | ----: | :------------------------------------------------------------------------------------------ |
+| analogjs                                  |    ✅ |                                                                                             |
+| [astro](#astro)                           |    ❌ | CJS-ESM interop issue with JSON files, modifies `chunk.modules`, uses `manualChunks`        |
+| histoire                                  |    ❌ | uses `preserveModules: true`                                                                |
+| ladle                                     |    ✅ |                                                                                             |
+| laravel                                   |    ✅ |                                                                                             |
+| marko                                     |    ✅ | passed by esbuild-rollup plugin conversion                                                  |
+| [nuxt](#nuxt)                             |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`                                                |
+| previewjs                                 |    ⚠️ | fails locally but when running tests manually in playwright ui, it works. probably fine     |
+| quasar                                    |    ✅ |                                                                                             |
+| [qwik](#qwik)                             |    ⚠️ | passes, but uses some missing features                                                      |
+| rakkas                                    |    ✅ | patched one plugin to return `moduleType: 'js'`                                             |
+| react-router                              |    ✅ | better to run with `CI=1` as some tests are flaky and setting that will retry them          |
+| storybook                                 |    ✅ |                                                                                             |
+| [sveltekit](#sveltekit)                   |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`                                                |
+| [unocss](#unocss)                         |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`                                                |
+| [vike](#vike)                             |    ⚠️ | uses advanced `manualChunks`                                                                |
+| vite-environment-examples                 |    ✅ |                                                                                             |
+| vite-plugin-cloudflare                    |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`                                                |
+| vite-plugin-pwa                           |    ✅ |                                                                                             |
+| vite-plugin-react                         |    ✅ | See https://github.com/rolldown/vite-plugin-react/pull/1                                    |
+| vite-plugin-react-swc                     |    ✅ | added `oxc: false` to align with `esbuild: false`                                           |
+| [vite-plugin-svelte](#vite-plugin-svelte) |    ⚠️ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`, one test failing but not correctness failures |
+| [vite-plugin-vue](#vite-plugin-vue)       |    ⚠️ | 2 tests failing but not correctness failures                                                |
+| vite-setup-catalogue                      |    ✅ |                                                                                             |
+| vitepress                                 |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`                                                |
+| vitest                                    |    ✅ | tracking at https://github.com/vitest-dev/vitest/pull/7509                                  |
+| vuepress                                  |    ✅ |                                                                                             |
+| [waku](#waku)                             |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`                                                |
 
 ## Details
 
