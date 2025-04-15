@@ -49,8 +49,7 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | vite-environment-examples                 |    ✅ |                                                                                             |
 | vite-plugin-cloudflare                    |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`                                                |
 | vite-plugin-pwa                           |    ✅ |                                                                                             |
-| vite-plugin-react                         |    ✅ | See https://github.com/rolldown/vite-plugin-react/pull/1                                    |
-| vite-plugin-react-swc                     |    ✅ | added `oxc: false` to align with `esbuild: false`                                           |
+| vite-plugin-react                         |    ✅ |                                                                                             |
 | [vite-plugin-svelte](#vite-plugin-svelte) |    ⚠️ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`, one test failing but not correctness failures |
 | [vite-plugin-vue](#vite-plugin-vue)       |    ⚠️ | 2 tests failing but not correctness failures                                                |
 | vite-setup-catalogue                      |    ✅ |                                                                                             |
