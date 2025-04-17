@@ -65,7 +65,6 @@ on:
           - vite-plugin-pwa
           - vite-plugin-react
           - vite-plugin-react-pages
-          - vite-plugin-react-swc
           - vite-plugin-svelte
           - vite-plugin-vue
           - vite-plugin-cloudflare
