@@ -367,8 +367,8 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			...localOverrides,
 		}
 	}
-	await applyPackageOverrides(dir, pkg, overrides)
 	await applyPatches(dirBase, options)
+	await applyPackageOverrides(dir, pkg, overrides)
 	await beforeBuildCommand?.(pkg.scripts)
 	await buildCommand?.(pkg.scripts)
 	if (test) {

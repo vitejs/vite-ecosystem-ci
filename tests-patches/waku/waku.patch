@@ -1,6 +1,6 @@
-From 5e69e63753ab6c9f5601cf9a895e5d4253b1f871 Mon Sep 17 00:00:00 2001
+From bdf22a8de970a2816ff675789662a3987fbf774e Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Wed, 12 Feb 2025 19:27:27 +0900
+Date: Tue, 22 Apr 2025 17:04:07 +0900
 Subject: [PATCH] temporary commit
 
 ---
@@ -11,10 +11,10 @@ Subject: [PATCH] temporary commit
  4 files changed, 10 insertions(+), 6 deletions(-)
 
 diff --git a/e2e/utils.ts b/e2e/utils.ts
-index 9fad665..279fe3c 100644
+index 187ed45..ef19f7f 100644
 --- a/e2e/utils.ts
 +++ b/e2e/utils.ts
-@@ -184,7 +184,6 @@ export const prepareStandaloneSetup = (fixtureName: string) => {
+@@ -186,7 +186,6 @@ export const prepareStandaloneSetup = (fixtureName: string) => {
        });
        const wakuPackageTgz = join(standaloneDir, `waku-${version}.tgz`);
        const installScript = PACKAGE_INSTALL[packageManager](wakuPackageTgz);
@@ -22,7 +22,7 @@ index 9fad665..279fe3c 100644
        const pkg = JSON.parse(
          readFileSync(join(standaloneDir, 'package.json'), 'utf-8'),
        );
-@@ -194,7 +193,7 @@ export const prepareStandaloneSetup = (fixtureName: string) => {
+@@ -196,7 +195,7 @@ export const prepareStandaloneSetup = (fixtureName: string) => {
            'utf-8',
          ),
        );
@@ -31,7 +31,7 @@ index 9fad665..279fe3c 100644
        if (pnpmOverrides !== null && typeof pnpmOverrides === 'object') {
          switch (packageManager) {
            case 'npm': {
-@@ -224,6 +223,7 @@ export const prepareStandaloneSetup = (fixtureName: string) => {
+@@ -226,6 +225,7 @@ export const prepareStandaloneSetup = (fixtureName: string) => {
          JSON.stringify(pkg, null, 2),
          'utf-8',
        );
@@ -40,10 +40,10 @@ index 9fad665..279fe3c 100644
      if (mode !== 'DEV' && !built) {
        rmSync(`${join(standaloneDir, packageDir, 'dist')}`, {
 diff --git a/packages/waku/src/lib/builder/build.ts b/packages/waku/src/lib/builder/build.ts
-index cb5eadb..b7c3815 100644
+index 56bc16d..563b86a 100644
 --- a/packages/waku/src/lib/builder/build.ts
 +++ b/packages/waku/src/lib/builder/build.ts
-@@ -422,7 +422,8 @@ const buildClientBundle = async (
+@@ -427,7 +427,8 @@ const buildClientBundle = async (
              onwarn,
              // rollup will ouput the style files related to clientEntryFiles, but since it does not find any link to them in the index.html file, it will not inject them. They are only mentioned by the standalone `clientEntryFiles`
              input: clientEntryFiles,
@@ -54,20 +54,20 @@ index cb5eadb..b7c3815 100644
                entryFileNames: (chunkInfo: { name: string }) => {
                  if (clientEntryFiles[chunkInfo.name]) {
 diff --git a/packages/waku/src/lib/plugins/vite-plugin-rsc-entries.ts b/packages/waku/src/lib/plugins/vite-plugin-rsc-entries.ts
-index d55072e..595b6c8 100644
+index 0e69b47..c09e0ee 100644
 --- a/packages/waku/src/lib/plugins/vite-plugin-rsc-entries.ts
 +++ b/packages/waku/src/lib/plugins/vite-plugin-rsc-entries.ts
-@@ -26,7 +26,9 @@ globalThis.AsyncLocalStorage = require('node:async_hooks').AsyncLocalStorage;
- export function loadModule(id) {
-   switch (id) {
+@@ -45,7 +45,9 @@ export function loadModule(id) {
      ${Object.entries(opts.moduleMap)
--      .map(([k, v]) => `case '${k}': return import('' + '${v}');`)
-+      // NOTE: rolldown tries to resolve `import('' + 'static')`
-+      //       so replaced with `import(String('static'))`
-+      .map(([k, v]) => `case '${k}': return import(String('${v}'));`)
+       .map(
+         ([k, v]) =>
+-          `case '${k}': return import(${v.startsWith('./') ? "'' + " : ''}'${v}');`,
++          // NOTE: rolldown tries to resolve `import('' + 'static')`
++          //       so replaced with `import(String('static'))`
++          `case '${k}': return import(${v.startsWith('./') ? `String('${v}')` : `'${v}'`});`,
+       )
        .join('\n')}
      default: throw new Error('Cannot find module: ' + id);
-   }
 diff --git a/packages/waku/src/lib/plugins/vite-plugin-rsc-rsdw.ts b/packages/waku/src/lib/plugins/vite-plugin-rsc-rsdw.ts
 index 69e9c3e..68ccc3a 100644
 --- a/packages/waku/src/lib/plugins/vite-plugin-rsc-rsdw.ts

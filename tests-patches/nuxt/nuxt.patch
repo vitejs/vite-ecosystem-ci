@@ -1,6 +1,6 @@
-From c4c22b9296bee4bda371027ce6ac1b8d09515a4b Mon Sep 17 00:00:00 2001
+From 823eac5527179b8b5e320a3435903470fbeffef1 Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Wed, 26 Mar 2025 14:41:16 +0900
+Date: Tue, 22 Apr 2025 17:47:53 +0900
 Subject: [PATCH] temporary commit
 
 ---
@@ -8,9 +8,7 @@ Subject: [PATCH] temporary commit
  packages/vite/src/vite.ts                             | 4 ++++
  test/basic.test.ts                                    | 5 ++++-
  test/fixtures/basic/pages/experimental/decorators.vue | 2 +-
- test/fixtures/runtime-compiler/nuxt.config.ts         | 2 +-
- test/fixtures/suspense/nuxt.config.ts                 | 2 +-
- 6 files changed, 12 insertions(+), 7 deletions(-)
+ 4 files changed, 10 insertions(+), 5 deletions(-)
 
 diff --git a/packages/vite/src/plugins/ssr-styles.ts b/packages/vite/src/plugins/ssr-styles.ts
 index bfe227c..88bcb85 100644
@@ -35,10 +33,10 @@ index bfe227c..88bcb85 100644
                source: '',
              })
 diff --git a/packages/vite/src/vite.ts b/packages/vite/src/vite.ts
-index aef54a5..e4b93fe 100644
+index f8b39f3..cd78e63 100644
 --- a/packages/vite/src/vite.ts
 +++ b/packages/vite/src/vite.ts
-@@ -91,6 +91,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
+@@ -92,6 +92,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
                  : chunk => withoutLeadingSlash(join(nuxt.options.app.buildAssetsDir, `${sanitizeFilePath(filename(chunk.names[0]!))}.[hash].[ext]`)),
              },
            },
@@ -46,7 +44,7 @@ index aef54a5..e4b93fe 100644
            watch: {
              chokidar: { ...nuxt.options.watchers.chokidar, ignored: [isIgnored, /[\\/]node_modules[\\/]/] },
              exclude: nuxt.options.ignore,
-@@ -103,6 +104,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
+@@ -104,6 +105,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
              sourcemap: !!nuxt.options.sourcemap.server,
              baseURL: nuxt.options.app.baseURL,
            }),
@@ -54,7 +52,7 @@ index aef54a5..e4b93fe 100644
            replace({ preventAssignment: true, ...globalThisReplacements }),
          ],
          server: {
-@@ -120,6 +122,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
+@@ -121,6 +123,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
    // to detect whether to inject production or development code (such as HMR code)
    if (!nuxt.options.dev) {
      ctx.config.server!.watch = undefined
@@ -62,7 +60,7 @@ index aef54a5..e4b93fe 100644
      ctx.config.build!.watch = undefined
    }
  
-@@ -178,6 +181,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
+@@ -179,6 +182,7 @@ export const bundle: NuxtBuilder['bundle'] = async (nuxt) => {
        }
      }
  
@@ -71,10 +69,10 @@ index aef54a5..e4b93fe 100644
    })
  
 diff --git a/test/basic.test.ts b/test/basic.test.ts
-index 1a95d4b..028b673 100644
+index 7f23131..2976dd2 100644
 --- a/test/basic.test.ts
 +++ b/test/basic.test.ts
-@@ -1885,6 +1885,8 @@ describe.skipIf(isDev() || isWebpack)('inlining component styles', () => {
+@@ -1893,6 +1893,8 @@ describe.skipIf(isDev() || isWebpack)('inlining component styles', () => {
      for (const style of inlinedCSS) {
        // TODO: remove 'ambient global' CSS from generated CSS file
        if (style === '{--plugin:"plugin"}') { continue }
@@ -83,7 +81,7 @@ index 1a95d4b..028b673 100644
        expect.soft(css).not.toContain(style)
      }
  
-@@ -2796,7 +2798,8 @@ describe('teleports', () => {
+@@ -2800,7 +2802,8 @@ describe('teleports', () => {
  })
  
  describe('experimental', () => {
@@ -106,28 +104,6 @@ index dfe7a49..090920e 100644
    public someMethod () {
      return 'initial'
    }
-diff --git a/test/fixtures/runtime-compiler/nuxt.config.ts b/test/fixtures/runtime-compiler/nuxt.config.ts
-index b5a3318..f6c2c81 100644
---- a/test/fixtures/runtime-compiler/nuxt.config.ts
-+++ b/test/fixtures/runtime-compiler/nuxt.config.ts
-@@ -7,5 +7,5 @@ export default defineNuxtConfig({
-   experimental: {
-     externalVue: false,
-   },
--  compatibilityDate: '2024-06-28',
-+  compatibilityDate: '2024-06-28'
- })
-diff --git a/test/fixtures/suspense/nuxt.config.ts b/test/fixtures/suspense/nuxt.config.ts
-index b485e67..b36fe5a 100644
---- a/test/fixtures/suspense/nuxt.config.ts
-+++ b/test/fixtures/suspense/nuxt.config.ts
-@@ -11,5 +11,5 @@ export default defineNuxtConfig({
-   compatibilityDate: '2024-06-28',
-   nitro: {
-     output: { dir: fileURLToPath(new URL(testWithInlineVue ? './.output-inline' : './.output', import.meta.url)) },
--  },
-+  }
- })
 -- 
 2.48.1
 
