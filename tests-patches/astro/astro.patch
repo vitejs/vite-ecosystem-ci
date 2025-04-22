@@ -1,17 +1,17 @@
-From 79d4d34c382a059d851cdea75d8b90606be00de3 Mon Sep 17 00:00:00 2001
+From 7e728c88214b70cb3b2feed641c160378322c209 Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Thu, 6 Mar 2025 19:39:13 +0900
+Date: Tue, 22 Apr 2025 18:08:30 +0900
 Subject: [PATCH] temporary commit
 
 ---
- .../astro/src/assets/vite-plugin-assets.ts    | 85 +++++++++++--------
- .../src/core/build/plugins/plugin-css.ts      | 74 ++++++++--------
+ .../astro/src/assets/vite-plugin-assets.ts    |  5 +-
+ .../src/core/build/plugins/plugin-css.ts      | 74 +++++++++----------
  .../core/build/plugins/plugin-prerender.ts    |  6 ++
- .../astro/test/astro-css-bundling.test.js     | 15 ++--
+ .../astro/test/astro-css-bundling.test.js     |  5 +-
  .../astro/test/client-address-node.test.js    |  3 +-
  .../astro/test/config-vite-css-target.test.js |  3 +-
  packages/astro/test/core-image.test.js        |  2 +-
- packages/astro/test/css-order-import.test.js  |  8 +-
+ packages/astro/test/css-order-import.test.js  |  3 +-
  .../test/dynamic-route-collision.test.js      |  6 +-
  packages/astro/test/env-public.test.js        |  2 +-
  packages/astro/test/env-secret.test.js        |  3 +-
@@ -21,138 +21,48 @@ Subject: [PATCH] temporary commit
  .../test/reuse-injected-entrypoint.test.js    |  4 +-
  packages/astro/test/serializeManifest.test.js |  2 +-
  packages/astro/test/ssr-script.test.js        |  2 +-
- 17 files changed, 128 insertions(+), 97 deletions(-)
+ 17 files changed, 74 insertions(+), 56 deletions(-)
 
 diff --git a/packages/astro/src/assets/vite-plugin-assets.ts b/packages/astro/src/assets/vite-plugin-assets.ts
-index c3f37b8..81c6ed4 100644
+index e5cbfa9..c99b9bb 100644
 --- a/packages/astro/src/assets/vite-plugin-assets.ts
 +++ b/packages/astro/src/assets/vite-plugin-assets.ts
-@@ -117,32 +117,35 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
- 			},
- 			load(id) {
- 				if (id === resolvedVirtualModuleId) {
--					return /* ts */ `
--					export { getConfiguredImageService, isLocalService } from "astro/assets";
--					import { getImage as getImageInternal } from "astro/assets";
--					export { default as Image } from "astro/components/${imageComponentPrefix}Image.astro";
--					export { default as Picture } from "astro/components/${imageComponentPrefix}Picture.astro";
--					export { inferRemoteSize } from "astro/assets/utils/inferRemoteSize.js";
--
--					export const imageConfig = ${JSON.stringify({ ...settings.config.image, experimentalResponsiveImages: settings.config.experimental.responsiveImages })};
--					// This is used by the @astrojs/node integration to locate images.
--					// It's unused on other platforms, but on some platforms like Netlify (and presumably also Vercel)
--					// new URL("dist/...") is interpreted by the bundler as a signal to include that directory
--					// in the Lambda bundle, which would bloat the bundle with images.
--					// To prevent this, we mark the URL construction as pure,
--					// so that it's tree-shaken away for all platforms that don't need it.
--					export const outDir = /* #__PURE__ */ new URL(${JSON.stringify(
--						new URL(
--							settings.buildOutput === 'server'
--								? settings.config.build.client
--								: settings.config.outDir,
--						),
--					)});
--					export const assetsDir = /* #__PURE__ */ new URL(${JSON.stringify(
--						settings.config.build.assets,
--					)}, outDir);
--					export const getImage = async (options) => await getImageInternal(options, imageConfig);
--				`;
-+					return {
-+						code: /* ts */ `
-+							export { getConfiguredImageService, isLocalService } from "astro/assets";
-+							import { getImage as getImageInternal } from "astro/assets";
-+							export { default as Image } from "astro/components/${imageComponentPrefix}Image.astro";
-+							export { default as Picture } from "astro/components/${imageComponentPrefix}Picture.astro";
-+							export { inferRemoteSize } from "astro/assets/utils/inferRemoteSize.js";
-+
-+							export const imageConfig = ${JSON.stringify({ ...settings.config.image, experimentalResponsiveImages: settings.config.experimental.responsiveImages })};
-+							// This is used by the @astrojs/node integration to locate images.
-+							// It's unused on other platforms, but on some platforms like Netlify (and presumably also Vercel)
-+							// new URL("dist/...") is interpreted by the bundler as a signal to include that directory
-+							// in the Lambda bundle, which would bloat the bundle with images.
-+							// To prevent this, we mark the URL construction as pure,
-+							// so that it's tree-shaken away for all platforms that don't need it.
-+							export const outDir = /* #__PURE__ */ new URL(${JSON.stringify(
-+								new URL(
-+									settings.buildOutput === 'server'
-+										? settings.config.build.client
-+										: settings.config.outDir,
-+								),
-+							)});
-+							export const assetsDir = /* #__PURE__ */ new URL(${JSON.stringify(
-+								settings.config.build.assets,
-+							)}, outDir);
-+							export const getImage = async (options) => await getImageInternal(options, imageConfig);
-+						`,
+@@ -155,6 +155,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
+ 							)}, outDir);
+ 							export const getImage = async (options) => await getImageInternal(options, imageConfig);
+ 						`,
 +						moduleType: 'js',
-+					};
+ 					};
  				}
  			},
- 			buildStart() {
-@@ -151,7 +154,8 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
- 			},
- 			// In build, rewrite paths to ESM imported images in code to their final location
- 			async renderChunk(code) {
--				const assetUrlRE = /__ASTRO_ASSET_IMAGE__([\w$]{8})__(?:_(.*?)__)?/g;
-+				// NOTE: Rolldown generates a different length of referenceID
-+				const assetUrlRE = /__ASTRO_ASSET_IMAGE__([\w$]+)__(?:_(.*?)__)?/g;
- 
- 				let match;
- 				let s;
-@@ -205,7 +209,7 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
- 						return;
- 					}
- 
--					const emitFile = shouldEmitFile ? this.emitFile : undefined;
-+					const emitFile = shouldEmitFile ? this.emitFile.bind(this) : undefined;
- 					const imageMetadata = await emitESMImage(
- 						id,
- 						this.meta.watchMode,
-@@ -223,22 +227,31 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
- 					if (settings.config.experimental.svg && /\.svg$/.test(id)) {
- 						const { contents, ...metadata } = imageMetadata;
+@@ -236,7 +237,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
+ 					if (id.endsWith('.svg')) {
+ 						const contents = await fs.promises.readFile(imageMetadata.fsPath, { encoding: 'utf8' });
  						// We know that the contents are present, as we only emit this property for SVG files
--						return makeSvgComponent(metadata, contents!, {
--							mode: settings.config.experimental.svg.mode,
--						});
-+						return {
-+							code: makeSvgComponent(metadata, contents!, {
-+								mode: settings.config.experimental.svg.mode,
-+							}),
-+							moduleType: 'js',
-+						};
+-						return { code: makeSvgComponent(imageMetadata, contents) };
++						return { code: makeSvgComponent(imageMetadata, contents), moduleType: 'js' };
  					}
  
  					// We can only reliably determine if an image is used on the server, as we need to track its usage throughout the entire build.
- 					// Since you cannot use image optimization on the client anyway, it's safe to assume that if the user imported
- 					// an image on the client, it should be present in the final build.
- 					if (options?.ssr) {
--						return `export default ${getProxyCode(
--							imageMetadata,
--							settings.buildOutput === 'server',
--						)}`;
-+						return {
-+							code: `export default ${getProxyCode(
-+								imageMetadata,
-+								settings.buildOutput === 'server',
-+							)}`,
+@@ -248,11 +249,13 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
+ 								imageMetadata,
+ 								settings.buildOutput === 'server',
+ 							)}`,
 +							moduleType: 'js',
-+						};
+ 						};
  					} else {
  						globalThis.astroAsset.referencedImages.add(imageMetadata.fsPath);
--						return `export default ${JSON.stringify(imageMetadata)}`;
-+						return {
-+							code: `export default ${JSON.stringify(imageMetadata)}`,
+ 						return {
+ 							code: `export default ${JSON.stringify(imageMetadata)}`,
 +							moduleType: 'js',
-+						};
+ 						};
  					}
  				}
- 			},
 diff --git a/packages/astro/src/core/build/plugins/plugin-css.ts b/packages/astro/src/core/build/plugins/plugin-css.ts
-index d985a6a..ca95b10 100644
+index c39d4da..e30ea24 100644
 --- a/packages/astro/src/core/build/plugins/plugin-css.ts
 +++ b/packages/astro/src/core/build/plugins/plugin-css.ts
-@@ -62,44 +62,42 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
+@@ -63,44 +63,42 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
  		name: 'astro:rollup-plugin-build-css',
  
  		outputOptions(outputOptions) {
@@ -251,36 +161,10 @@ index f915c92..e2b64d2 100644
  
  	// From the `nonPrerenderedEntryChunks`, we crawl all the imports/dynamicImports to find all
 diff --git a/packages/astro/test/astro-css-bundling.test.js b/packages/astro/test/astro-css-bundling.test.js
-index 8319563..2466845 100644
+index 92aa6db..1539293 100644
 --- a/packages/astro/test/astro-css-bundling.test.js
 +++ b/packages/astro/test/astro-css-bundling.test.js
-@@ -63,9 +63,10 @@ describe('CSS Bundling', function () {
- 			}
- 		});
- 
--		it('there are 5 css files', async () => {
-+		// NOTE: rolldown does not split sideeffect free barrel files yet https://github.com/rolldown/rolldown/issues/3746
-+		it('there are 4 css files', async () => {
- 			const dir = await fixture.readdir('/_astro');
--			assert.equal(dir.length, 5);
-+			assert.equal(dir.length, 4);
- 		});
- 
- 		it('CSS includes hashes', async () => {
-@@ -96,9 +97,10 @@ describe('CSS Bundling', function () {
- 			await fixture.build({ mode: 'production' });
- 		});
- 
--		it('there are 5 css files', async () => {
-+		// NOTE: rolldown does not split sideeffect free barrel files yet https://github.com/rolldown/rolldown/issues/3746
-+		it('there are 4 css files', async () => {
- 			const dir = await fixture.readdir('/assets');
--			assert.equal(dir.length, 5);
-+			assert.equal(dir.length, 4);
- 		});
- 
- 		it('CSS does not include hashes', async () => {
-@@ -106,7 +108,10 @@ describe('CSS Bundling', function () {
+@@ -106,7 +106,10 @@ describe('CSS Bundling', function () {
  			assert.doesNotMatch(firstFound, /[a-z]+\.[\da-z]{8}\.css/);
  		});
  
@@ -334,7 +218,7 @@ index 10ca9b6..bc99d7d 100644
  			const data = await fixture.readFile(imageSrc, null);
  			assert.equal(data instanceof Buffer, true);
 diff --git a/packages/astro/test/css-order-import.test.js b/packages/astro/test/css-order-import.test.js
-index 9b67f15..eef5fc5 100644
+index f8a9cf5..54f1ae3 100644
 --- a/packages/astro/test/css-order-import.test.js
 +++ b/packages/astro/test/css-order-import.test.js
 @@ -107,7 +107,8 @@ describe('CSS ordering - import order', () => {
@@ -347,19 +231,6 @@ index 9b67f15..eef5fc5 100644
  		});
  
  		it('correctly chunks css import from framework components', async () => {
-@@ -147,9 +148,10 @@ describe('CSS ordering - import order', () => {
- 			const content = await Promise.all(
- 				getLinks(html).map((href) => getLinkContent(href, fixture)),
- 			);
--			let [link1, , link3] = content;
-+			// NOTE: rolldown chunking difference
-+			let [link1, link2] = content;
- 			assert.ok(link1.css.includes('f0f8ff')); // aliceblue minified
--			assert.ok(link3.css.includes('ff0')); // yellow minified
-+			assert.ok(link2.css.includes('ff0')); // yellow minified
- 		});
- 	});
- });
 diff --git a/packages/astro/test/dynamic-route-collision.test.js b/packages/astro/test/dynamic-route-collision.test.js
 index 20bd060..18d7db1 100644
 --- a/packages/astro/test/dynamic-route-collision.test.js
@@ -440,7 +311,7 @@ index 219b231..c213e52 100644
  		}
  
 diff --git a/packages/astro/test/i18n-routing.test.js b/packages/astro/test/i18n-routing.test.js
-index 473fc88..70c5611 100644
+index 9f8b5a4..19ac56b 100644
 --- a/packages/astro/test/i18n-routing.test.js
 +++ b/packages/astro/test/i18n-routing.test.js
 @@ -978,7 +978,7 @@ describe('[SSG] i18n routing', () => {
@@ -473,10 +344,10 @@ index d0b004a..d2862b7 100644
  	{
  		description: 'matches /dynamic-a/id-1 to [id].astro',
 diff --git a/packages/astro/test/serializeManifest.test.js b/packages/astro/test/serializeManifest.test.js
-index 6fb4903..2e31c25 100644
+index caaaea6..d02cfd4 100644
 --- a/packages/astro/test/serializeManifest.test.js
 +++ b/packages/astro/test/serializeManifest.test.js
-@@ -126,7 +126,7 @@ describe('astro:config/server', () => {
+@@ -104,7 +104,7 @@ describe('astro:config/server', () => {
  		});
  
  		it('should return an error when using inside a client script', async () => {

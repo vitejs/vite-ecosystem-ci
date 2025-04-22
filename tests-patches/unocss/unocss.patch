@@ -1,6 +1,6 @@
-From 4106acb0155674b175e4060064f36b65f5ed81cf Mon Sep 17 00:00:00 2001
+From cf77e3627e4baf302fca814d1e3eaebf1505748a Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Sat, 12 Apr 2025 19:39:37 +0900
+Date: Tue, 22 Apr 2025 15:43:19 +0900
 Subject: [PATCH] temporary commit
 
 ---
@@ -22,11 +22,11 @@ index 126cf30..85e4a4e 100644
            },
          })
 diff --git a/packages-integrations/vite/src/modes/chunk-build.ts b/packages-integrations/vite/src/modes/chunk-build.ts
-index 5d057fd..030d03b 100644
+index 657b409..6e326b6 100644
 --- a/packages-integrations/vite/src/modes/chunk-build.ts
 +++ b/packages-integrations/vite/src/modes/chunk-build.ts
-@@ -39,8 +39,8 @@ export function ChunkModeBuildPlugin(ctx: UnocssPluginContext): Plugin {
-       await cssPlugin!.transform(css, fakeCssId)
+@@ -42,8 +42,8 @@ export function ChunkModeBuildPlugin(ctx: UnocssPluginContext): Plugin {
+       await cssPostTransformHandler.call(this as Rollup.TransformPluginContext, css, fakeCssId)
        chunk.modules[fakeCssId] = {
          code: null,
 -        originalLength: 0,

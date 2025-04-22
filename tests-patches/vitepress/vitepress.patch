@@ -1,122 +1,191 @@
-From 21928aadd484c5952f4d909664fe8f9235fd8eeb Mon Sep 17 00:00:00 2001
+From f99376a60a9ca18da3147691dd4199f512ce7615 Mon Sep 17 00:00:00 2001
 From: sapphi-red <49056869+sapphi-red@users.noreply.github.com>
-Date: Wed, 26 Mar 2025 22:00:29 +0900
+Date: Tue, 22 Apr 2025 16:39:37 +0900
 Subject: [PATCH] temporary commit
 
 ---
- package.json     |  2 +-
- rollup.config.ts | 72 ++++++++++++++++++++++++------------------------
- 2 files changed, 37 insertions(+), 37 deletions(-)
+ src/node/build/buildMPAClient.ts |  4 +-
+ src/node/build/bundle.ts         | 82 ++++++++++++++++----------------
+ src/node/build/render.ts         |  4 +-
+ tsconfig.json                    |  2 +-
+ 4 files changed, 46 insertions(+), 46 deletions(-)
 
-diff --git a/package.json b/package.json
-index f44e3c2..b6fdb4b 100644
---- a/package.json
-+++ b/package.json
-@@ -60,7 +60,7 @@
-     "build": "pnpm build:prepare && pnpm build:client && pnpm build:node",
-     "build:prepare": "rimraf dist && node scripts/copyShared",
-     "build:client": "vue-tsc --noEmit -p src/client && tsc -p src/client && node scripts/copyClient",
--    "build:node": "tsc -p src/node --noEmit && rollup --config rollup.config.ts --configPlugin esbuild",
-+    "build:node": "rollup --config rollup.config.ts --configPlugin esbuild",
-     "test": "pnpm --aggregate-output --reporter=append-only '/^test:(unit|e2e|init)$/'",
-     "test:unit": "vitest run -r __tests__/unit",
-     "test:unit:watch": "vitest -r __tests__/unit",
-diff --git a/rollup.config.ts b/rollup.config.ts
-index 6bf7ff1..f0a9c0c 100644
---- a/rollup.config.ts
-+++ b/rollup.config.ts
-@@ -13,7 +13,7 @@ const require = createRequire(import.meta.url)
- const pkg = require('./package.json')
- 
- const DEV = !!process.env.DEV
--const PROD = !DEV
-+// const PROD = !DEV
- 
- const external = [
-   ...Object.keys(pkg.dependencies),
-@@ -53,12 +53,12 @@ const esmBuild: RollupOptions = {
-   }
+diff --git a/src/node/build/buildMPAClient.ts b/src/node/build/buildMPAClient.ts
+index e31bc9b..51f3e55 100644
+--- a/src/node/build/buildMPAClient.ts
++++ b/src/node/build/buildMPAClient.ts
+@@ -6,7 +6,7 @@ const virtualEntry = 'client.js'
+ export async function buildMPAClient(
+   js: Record<string, string>,
+   config: SiteConfig
+-): Promise<Rollup.RollupOutput> {
++): Promise<Rollup.RolldownOutput> {
+   const files = Object.keys(js)
+   const themeFiles = files.filter((f) => !f.endsWith('.md'))
+   const pages = files.filter((f) => f.endsWith('.md'))
+@@ -42,5 +42,5 @@ export async function buildMPAClient(
+         }
+       }
+     ]
+-  }) as Promise<Rollup.RollupOutput>
++  }) as Promise<Rollup.RolldownOutput>
  }
+diff --git a/src/node/build/bundle.ts b/src/node/build/bundle.ts
+index 662e959..22b2200 100644
+--- a/src/node/build/bundle.ts
++++ b/src/node/build/bundle.ts
+@@ -38,8 +38,8 @@ export async function bundle(
+   config: SiteConfig,
+   options: BuildOptions
+ ): Promise<{
+-  clientResult: Rollup.RollupOutput | null
+-  serverResult: Rollup.RollupOutput
++  clientResult: Rollup.RolldownOutput | null
++  serverResult: Rollup.RolldownOutput
+   pageToHashMap: Record<string, string>
+ }> {
+   const pageToHashMap = Object.create(null) as Record<string, string>
+@@ -100,7 +100,7 @@ export async function bundle(
+         },
+         // important so that each page chunk and the index export things for each
+         // other
+-        preserveEntrySignatures: 'allow-extension',
++        // preserveEntrySignatures: 'allow-extension',
+         output: {
+           sanitizeFileName,
+           ...rollupOptions?.output,
+@@ -118,41 +118,41 @@ export async function bundle(
+                     ? `${config.assetsDir}/chunks/ui-custom.[hash].js`
+                     : `${config.assetsDir}/chunks/[name].[hash].js`
+                 },
+-                manualChunks(id, ctx) {
+-                  // move known framework code into a stable chunk so that
+-                  // custom theme changes do not invalidate hash for all pages
+-                  if (id.startsWith('\0vite')) {
+-                    return 'framework'
+-                  }
+-                  if (id.includes('plugin-vue:export-helper')) {
+-                    return 'framework'
+-                  }
+-                  if (
+-                    id.includes(`${clientDir}/app`) &&
+-                    id !== `${clientDir}/app/index.js`
+-                  ) {
+-                    return 'framework'
+-                  }
+-                  if (
+-                    isEagerChunk(id, ctx.getModuleInfo) &&
+-                    /@vue\/(runtime|shared|reactivity)/.test(id)
+-                  ) {
+-                    return 'framework'
+-                  }
++                // manualChunks(id, ctx) {
++                //   // move known framework code into a stable chunk so that
++                //   // custom theme changes do not invalidate hash for all pages
++                //   if (id.startsWith('\0vite')) {
++                //     return 'framework'
++                //   }
++                //   if (id.includes('plugin-vue:export-helper')) {
++                //     return 'framework'
++                //   }
++                //   if (
++                //     id.includes(`${clientDir}/app`) &&
++                //     id !== `${clientDir}/app/index.js`
++                //   ) {
++                //     return 'framework'
++                //   }
++                //   if (
++                //     isEagerChunk(id, ctx.getModuleInfo) &&
++                //     /@vue\/(runtime|shared|reactivity)/.test(id)
++                //   ) {
++                //     return 'framework'
++                //   }
  
--const typesExternal = [
--  ...external,
--  /\/vitepress\/(?!(dist|node_modules)\/).*\.d\.ts$/,
--  'source-map-js',
--  'fast-glob'
--]
-+// const typesExternal = [
-+//   ...external,
-+//   /\/vitepress\/(?!(dist|node_modules)\/).*\.d\.ts$/,
-+//   'source-map-js',
-+//   'fast-glob'
-+// ]
+-                  if (
+-                    (id.startsWith(`${clientDir}/theme-default`) ||
+-                      !excludedModules.some((i) => id.includes(i))) &&
+-                    staticImportedByEntry(
+-                      id,
+-                      ctx.getModuleInfo,
+-                      cacheTheme,
+-                      themeEntryRE
+-                    )
+-                  ) {
+-                    return 'theme'
+-                  }
+-                }
++                //   if (
++                //     (id.startsWith(`${clientDir}/theme-default`) ||
++                //       !excludedModules.some((i) => id.includes(i))) &&
++                //     staticImportedByEntry(
++                //       id,
++                //       ctx.getModuleInfo,
++                //       cacheTheme,
++                //       themeEntryRE
++                //     )
++                //   ) {
++                //     return 'theme'
++                //   }
++                // }
+               })
+         }
+       }
+@@ -160,16 +160,16 @@ export async function bundle(
+     configFile: config.vite?.configFile
+   })
  
- const dtsNode = dts({
-   respectExternal: true,
-@@ -73,34 +73,34 @@ dtsNode.resolveId = async function (source, importer) {
-   return res
- }
+-  let clientResult!: Rollup.RollupOutput | null
+-  let serverResult!: Rollup.RollupOutput
++  let clientResult!: Rollup.RolldownOutput | null
++  let serverResult!: Rollup.RolldownOutput
  
--const nodeTypes: RollupOptions = {
--  input: 'src/node/index.ts',
--  output: {
--    format: 'esm',
--    file: 'dist/node/index.d.ts'
--  },
--  external: typesExternal,
--  plugins: [dtsNode]
--}
-+// const nodeTypes: RollupOptions = {
-+//   input: 'src/node/index.ts',
-+//   output: {
-+//     format: 'esm',
-+//     file: 'dist/node/index.d.ts'
-+//   },
-+//   external: typesExternal,
-+//   plugins: [dtsNode]
-+// }
+   await task('building client + server bundles', async () => {
+     clientResult = config.mpa
+       ? null
+-      : ((await build(await resolveViteConfig(false))) as Rollup.RollupOutput)
++      : ((await build(await resolveViteConfig(false))) as Rollup.RolldownOutput)
+     serverResult = (await build(
+       await resolveViteConfig(true)
+-    )) as Rollup.RollupOutput
++    )) as Rollup.RolldownOutput
+   })
  
--const clientTypes: RollupOptions = {
--  input: 'dist/client-types/index.d.ts',
--  output: {
--    format: 'esm',
--    file: 'dist/client/index.d.ts'
--  },
--  external: typesExternal,
--  plugins: [
--    dts({ respectExternal: true }),
--    {
--      name: 'cleanup',
--      async closeBundle() {
--        if (PROD) {
--          await fs.rm('dist/client-types', { recursive: true })
--        }
--      }
--    }
--  ]
--}
-+// const clientTypes: RollupOptions = {
-+//   input: 'dist/client-types/index.d.ts',
-+//   output: {
-+//     format: 'esm',
-+//     file: 'dist/client/index.d.ts'
-+//   },
-+//   external: typesExternal,
-+//   plugins: [
-+//     dts({ respectExternal: true }),
-+//     {
-+//       name: 'cleanup',
-+//       async closeBundle() {
-+//         if (PROD) {
-+//           await fs.rm('dist/client-types', { recursive: true })
-+//         }
-+//       }
-+//     }
-+//   ]
-+// }
- 
--export default defineConfig([esmBuild, nodeTypes, clientTypes])
-+export default defineConfig([esmBuild /*, nodeTypes, clientTypes */])
+   if (config.mpa) {
+diff --git a/src/node/build/render.ts b/src/node/build/render.ts
+index 2b616b2..1b55336 100644
+--- a/src/node/build/render.ts
++++ b/src/node/build/render.ts
+@@ -23,7 +23,7 @@ export async function renderPage(
+   render: (path: string) => Promise<SSGContext>,
+   config: SiteConfig,
+   page: string, // foo.md
+-  result: Rollup.RollupOutput | null,
++  result: Rollup.RolldownOutput | null,
+   appChunk: Rollup.OutputChunk | null,
+   cssChunk: Rollup.OutputAsset | null,
+   assets: string[],
+@@ -207,7 +207,7 @@ export async function renderPage(
+ function resolvePageImports(
+   config: SiteConfig,
+   page: string,
+-  result: Rollup.RollupOutput,
++  result: Rollup.RolldownOutput,
+   appChunk: Rollup.OutputChunk
+ ) {
+   page = config.rewrites.inv[page] || page
+diff --git a/tsconfig.json b/tsconfig.json
+index 6d6abf8..ed37348 100644
+--- a/tsconfig.json
++++ b/tsconfig.json
+@@ -6,7 +6,7 @@
+     "esModuleInterop": true,
+     "strict": true,
+     "skipLibCheck": true,
+-    "noUnusedLocals": true,
++    // "noUnusedLocals": true,
+     "resolveJsonModule": true,
+     "verbatimModuleSyntax": true,
+     "jsx": "preserve",
 -- 
 2.48.1
 
