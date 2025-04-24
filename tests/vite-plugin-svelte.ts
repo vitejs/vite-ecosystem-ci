@@ -8,5 +8,9 @@ export async function test(options: RunOptions) {
 		branch: 'main',
 		beforeTest: 'pnpm playwright install chromium',
 		test: ['check:lint', 'check:types', 'test'],
+		overrides: {
+			'svelte-check': true,
+			'@sveltejs/kit': true,
+		},
 	})
 }

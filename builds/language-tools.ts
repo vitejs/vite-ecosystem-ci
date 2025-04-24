@@ -7,7 +7,7 @@ export async function build(options: RunOptions) {
 		repo: 'sveltejs/language-tools',
 		branch: 'master',
 		beforeBuild: 'bootstrap',
-		build: 'build',
+		build: ['build', 'pnpm --dir packages/svelte-check build'],
 	})
 }
 

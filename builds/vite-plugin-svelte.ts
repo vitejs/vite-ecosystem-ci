@@ -6,6 +6,12 @@ export async function build(options: RunOptions) {
 		...options,
 		repo: 'sveltejs/vite-plugin-svelte',
 		branch: 'main',
+		overrides: {
+			'svelte-check': false,
+			'@sveltejs/vite-plugin-svelte': false,
+			'@sveltejs/vite-plugin-svelte-inspector': false,
+			'@sveltejs/kit': false,
+		},
 	})
 }
 
