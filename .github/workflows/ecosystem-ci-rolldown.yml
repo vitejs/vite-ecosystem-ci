@@ -108,8 +108,8 @@ jobs:
         env:
           WORKFLOW_NAME: ci
           REF_TYPE: ${{ inputs.refType || github.event.client_payload.refType || 'branch' }}
-          REF: ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
-          REPO: ${{ inputs.repo || github.event.client_payload.repo || 'vitejs/vite' }}
+          REF: ${{ inputs.ref || github.event.client_payload.ref || 'rolldown-vite' }}
+          REPO: ${{ inputs.repo || github.event.client_payload.repo || 'vitejs/rolldown-vite' }}
           SUITE: ${{ matrix.suite }}
           STATUS: ${{ job.status }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL_ROLLDOWN_VITE }}
