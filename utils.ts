@@ -282,10 +282,10 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			const viteManifest = await pacote.manifest(`vite@${options.release}`, {
 				retry: {
 					// enable retry with same options with pnpm (https://pnpm.io/settings#fetchretries)
-					fetchRetries: 2,
-					fetchRetryFactor: 10,
-					fetchRetryMintimeout: 10 * 1000,
-					fetchRetryMaxtimeout: 60 * 1000,
+					retries: 2,
+					factor: 10,
+					minTimeout: 10 * 1000,
+					maxTimeout: 60 * 1000,
 				},
 			})
 
