@@ -415,8 +415,8 @@ packages:
   '@types/npm-package-arg@6.1.4':
     resolution: {integrity: sha512-vDgdbMy2QXHnAruzlv68pUtXCjmqUk3WrBAsRboRovsOmxbfn/WiYCjmecyKjGztnMps5dWp4Uq2prp+Ilo17Q==}
 
-  '@types/npm-registry-fetch@8.0.7':
-    resolution: {integrity: sha512-db9iBh7kDDg4lRT4k4XZ6IiecTEgFCID4qk+VDVPbtzU855q3KZLCn08ATr4H27ntRJVhulQ7GWjl24H42x96w==}
+  '@types/npm-registry-fetch@8.0.8':
+    resolution: {integrity: sha512-VL/chssZawBkaQ5gFD5njblJce/ny9OICBlWAG9X6/m/ypPNJMWYiM22SY2mhLIGoknd4AyEJyi+FGyrBnsr+A==}
 
   '@types/npmlog@7.0.0':
     resolution: {integrity: sha512-hJWbrKFvxKyWwSUXjZMYTINsSOY6IclhvGOZ97M8ac2tmR9hMwmTnYaMdpGhvju9ctWLTPhCS+eLfQNluiEjQQ==}
@@ -1822,7 +1822,7 @@ snapshots:
 
   '@types/npm-package-arg@6.1.4': {}
 
-  '@types/npm-registry-fetch@8.0.7':
+  '@types/npm-registry-fetch@8.0.8':
     dependencies:
       '@types/node': 22.13.10
       '@types/node-fetch': 2.6.12
@@ -1837,7 +1837,7 @@ snapshots:
   '@types/pacote@11.1.8':
     dependencies:
       '@types/node': 22.13.10
-      '@types/npm-registry-fetch': 8.0.7
+      '@types/npm-registry-fetch': 8.0.8
       '@types/npmlog': 7.0.0
       '@types/ssri': 7.1.5
 
