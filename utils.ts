@@ -18,6 +18,8 @@ import pacote from 'pacote'
 
 const isGitHubActions = !!process.env.GITHUB_ACTIONS
 
+const temporaryVitestOverrideVersion = '^3.2.0'
+
 let vitePath: string
 let cwd: string
 let env: ProcessEnv
@@ -313,7 +315,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 
 			// skip if `overrides.vitest` is `false`
 			if (overrides.vitest !== false) {
-				overrides.vitest = viteManifest.devDependencies!.vitest
+				overrides.vitest = temporaryVitestOverrideVersion
 			}
 		}
 	} else {
@@ -340,11 +342,8 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		}
 
 		// skip if `overrides.vitest` is `false`
-		if (
-			vitePackageInfo.devDependencies.vitest?.version &&
-			overrides.vitest !== false
-		) {
-			overrides.vitest = vitePackageInfo.devDependencies.vitest.version
+		if (overrides.vitest !== false) {
+			overrides.vitest = temporaryVitestOverrideVersion
 		}
 
 		// build and apply local overrides
