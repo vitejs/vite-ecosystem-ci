@@ -339,6 +339,14 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			overrides.esbuild = vitePackageInfo.dependencies.esbuild.version
 		}
 
+		// skip if `overrides.vitest` is `false`
+		if (
+			vitePackageInfo.devDependencies.vitest?.version &&
+			overrides.vitest !== false
+		) {
+			overrides.vitest = vitePackageInfo.devDependencies.vitest.version
+		}
+
 		// build and apply local overrides
 		const localOverrides = await buildOverrides(pkg, options, overrides)
 		cd(dir) // buildOverrides changed dir, change it back
