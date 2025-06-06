@@ -286,7 +286,11 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			overrides.vite = options.release
 		}
 
-		if (overrides.rollup !== false || overrides.esbuild === true) {
+		if (
+			overrides.rollup !== false ||
+			overrides.esbuild === true ||
+			overrides.vitest !== false
+		) {
 			const viteManifest = await pacote.manifest(`vite@${options.release}`, {
 				retry: {
 					// enable retry with same options with pnpm (https://pnpm.io/settings#fetchretries)
@@ -305,6 +309,11 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			// apply if `overrides.esbuild` is `true`
 			if (overrides.esbuild === true) {
 				overrides.esbuild = viteManifest.dependencies!.esbuild
+			}
+
+			// skip if `overrides.vitest` is `false`
+			if (overrides.vitest !== false) {
+				overrides['vitest@~3.1.0||~3.2.0>vite'] = '^6.3.5'
 			}
 		}
 	} else {
@@ -328,6 +337,11 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			overrides.esbuild === true
 		) {
 			overrides.esbuild = vitePackageInfo.dependencies.esbuild.version
+		}
+
+		// skip if `overrides.vitest` is `false`
+		if (overrides.vitest !== false) {
+			overrides['vitest@~3.1.0||~3.2.0>vite'] = '^6.3.5'
 		}
 
 		// build and apply local overrides
