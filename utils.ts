@@ -312,11 +312,11 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			}
 
 			// skip if `overrides.vitest` is `false`
-			if (overrides.vitest !== false) {
+			if (overrides.vitest !== false && agent === 'pnpm') {
 				overrides['vitest@<3.2.0>vite'] = '^6.3.5'
 			}
 			// skip if `overrides['vite-node']` is `false`
-			if (overrides['vite-node'] !== false) {
+			if (overrides['vite-node'] !== false && agent === 'pnpm') {
 				overrides['vite-node@<3.2.0>vite'] = '^6.3.5'
 			}
 		}
@@ -344,11 +344,11 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		}
 
 		// skip if `overrides.vitest` is `false`
-		if (overrides.vitest !== false) {
+		if (overrides.vitest !== false && agent === 'pnpm') {
 			overrides['vitest@<3.2.0>vite'] = '^6.3.5'
 		}
 		// skip if `overrides['vite-node']` is `false`
-		if (overrides['vite-node'] !== false) {
+		if (overrides['vite-node'] !== false && agent === 'pnpm') {
 			overrides['vite-node@<3.2.0>vite'] = '^6.3.5'
 		}
 
