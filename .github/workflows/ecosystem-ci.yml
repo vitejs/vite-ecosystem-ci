@@ -37,6 +37,9 @@ on:
         required: true
         type: string
         default: "vitejs/vite"
+      sendDiscordReport:
+        description: "send results to discord"
+        type: boolean
   repository_dispatch:
     types: [ecosystem-ci]
 jobs:
@@ -102,7 +105,7 @@ jobs:
           --repo ${{ inputs.repo || github.event.client_payload.repo || 'vitejs/vite' }}
           ${{ matrix.suite }}
         id: ecosystem-ci-run
-      - if: always()
+      - if: inputs.sendDiscordReport || github.event_name != 'workflow_dispatch'
         run: pnpm tsx discord-webhook.ts
         env:
           WORKFLOW_NAME: ci
