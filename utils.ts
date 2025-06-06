@@ -313,7 +313,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 
 			// skip if `overrides.vitest` is `false`
 			if (overrides.vitest !== false) {
-				overrides['vitest@~3.1.0||~3.2.0>vite'] = '^6.3.5'
+				overrides['vitest@~3.0.0||~3.1.0>vite'] = '^6.3.5'
 			}
 		}
 	} else {
@@ -341,7 +341,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 
 		// skip if `overrides.vitest` is `false`
 		if (overrides.vitest !== false) {
-			overrides['vitest@~3.1.0||~3.2.0>vite'] = '^6.3.5'
+			overrides['vitest@~3.0.0||~3.1.0>vite'] = '^6.3.5'
 		}
 
 		// build and apply local overrides
