@@ -315,6 +315,10 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			if (overrides.vitest !== false) {
 				overrides['vitest@<3.2.0>vite'] = '^6.3.5'
 			}
+			// skip if `overrides['vite-node']` is `false`
+			if (overrides['vite-node'] !== false) {
+				overrides['vite-node@<3.2.0>vite'] = '^6.3.5'
+			}
 		}
 	} else {
 		overrides.vite ||= `${options.vitePath}/packages/vite`
@@ -342,6 +346,10 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		// skip if `overrides.vitest` is `false`
 		if (overrides.vitest !== false) {
 			overrides['vitest@<3.2.0>vite'] = '^6.3.5'
+		}
+		// skip if `overrides['vite-node']` is `false`
+		if (overrides['vite-node'] !== false) {
+			overrides['vite-node@<3.2.0>vite'] = '^6.3.5'
 		}
 
 		// build and apply local overrides
