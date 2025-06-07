@@ -60,7 +60,6 @@ jobs:
           - nuxt
           - one
           # - nx # disabled temporarily
-          - previewjs
           - quasar
           - qwik
           - rakkas
