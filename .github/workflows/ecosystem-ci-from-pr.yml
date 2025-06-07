@@ -114,10 +114,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ^22.14.0
-      - uses: denoland/setup-deno@11b63cf76cfcafb4e43f97b6cad24d8e8438f62d #v1.5.2
-        with:
-          deno-version: v1.x
-        continue-on-error: true
       - run: corepack enable
       - run: pnpm --version
       - run: pnpm i --frozen-lockfile
@@ -184,10 +180,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ^22.14.0
-      - uses: denoland/setup-deno@11b63cf76cfcafb4e43f97b6cad24d8e8438f62d #v1.5.2
-        with:
-          deno-version: v1.x
-        continue-on-error: true
       - run: corepack enable
       - run: pnpm --version
       - run: pnpm i --frozen-lockfile
