@@ -51,7 +51,6 @@ on:
           - nuxt
           - nx
           - one
-          - previewjs
           - quasar
           - qwik
           - rakkas

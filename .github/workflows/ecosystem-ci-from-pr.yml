@@ -49,7 +49,6 @@ on:
           - nuxt
           - nx
           - one
-          - previewjs
           - quasar
           - qwik
           - rakkas
@@ -152,7 +151,6 @@ jobs:
           - marko
           - nuxt
           # - nx # disabled temporarily
-          - previewjs
           - quasar
           - qwik
           - rakkas
