@@ -10,3 +10,7 @@ export async function test(options: RunOptions) {
 		test: 'test.vite',
 	})
 }
+
+export const rolldownViteExpectedFailureReason = `
+needs to be updated on qwik side (manualChunks, types) and rolldown side (https://github.com/rolldown/rolldown/issues/3500)
+`

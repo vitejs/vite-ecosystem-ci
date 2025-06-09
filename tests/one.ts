@@ -11,3 +11,7 @@ export async function test(options: RunOptions) {
 		test: 'test:vite-ecosystem-ci',
 	})
 }
+
+export const rolldownViteExpectedFailureReason = `
+needs to be updated on one side (manualChunks)
+`

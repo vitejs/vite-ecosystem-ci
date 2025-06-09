@@ -10,3 +10,7 @@ export async function test(options: RunOptions) {
 		test: ['check:lint', 'check:types', 'test'],
 	})
 }
+
+export const rolldownViteExpectedFailureReason = `
+needs to be updated on vite-plugin-svelte side (tests) and rolldown side (https://github.com/rolldown/rolldown/issues/3403)
+`

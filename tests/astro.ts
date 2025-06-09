@@ -10,3 +10,7 @@ export async function test(options: RunOptions) {
 		test: 'test:vite-ci',
 	})
 }
+
+export const rolldownViteExpectedFailureReason = `
+needs to be updated on astro side (manualChunks) and rolldown side (https://github.com/rolldown/rolldown/issues/3640)
+`

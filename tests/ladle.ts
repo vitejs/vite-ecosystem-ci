@@ -11,3 +11,7 @@ export async function test(options: RunOptions) {
 		test: 'test',
 	})
 }
+
+export const rolldownViteExpectedFailureReason = `
+needs to be updated on ladle side (transformWithEsbuild)
+`

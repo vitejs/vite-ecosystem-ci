@@ -13,3 +13,7 @@ export async function test(options: RunOptions) {
 		test: ['test:fixtures', 'test:fixtures:dev', 'test:types'],
 	})
 }
+
+export const rolldownViteExpectedFailureReason = `
+needs to be updated on rolldown side (different chunking behavior, probably will be solved by https://github.com/rolldown/rolldown/issues/3500)
+`
