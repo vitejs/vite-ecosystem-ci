@@ -10,6 +10,8 @@ export async function test(options: RunOptions) {
 		beforeTest: 'pnpm playwright install chromium',
 		test: 'test-vite-ecosystem-ci',
 		overrides: {
+			// For Vite 7 support
+			'vite-node': '^3.2.2',
 			// It uses Vitest 3.2+ so we don't need to inject the overrides.
 			// If we inject overrides, the following error happens due to how waku sets overrides for the test.
 			//
