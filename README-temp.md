@@ -1,29 +1,3 @@
-# temporary commands
-
-## Run against rolldown-vite
-
-```sh
-# with pkg.pr.new binaries
-pnpm tsx ecosystem-ci.ts vitepress --release https://pkg.pr.new/rolldown/vite@3fc2ac5
-# with local builds
-pnpm tsx ecosystem-ci.ts vitepress --repo vitejs/rolldown-vite --branch rolldown-vite
-```
-
-## Create patches to bypass errors
-
-These commands are written in sh.
-
-```sh
-# run it before editing
-tests-patches/pre-create-patch vite-plugin-vue/vite-plugin-vue
-# run it after editing
-tests-patches/create-patch vite-plugin-vue/vite-plugin-vue
-# not need to run, but you can run this to check the applied state
-tests-patches/apply-patch vite-plugin-vue/vite-plugin-vue
-```
-
-The created patches will be applied automatically when running `pnpm tsx ecosystem-ci.ts`
-
 # Current status
 
 ## Summary
@@ -32,17 +6,17 @@ The created patches will be applied automatically when running `pnpm tsx ecosyst
 | ----------------------------------------- | ----: | :------------------------------------------------------------------------------------------ |
 | analogjs                                  |    ✅ |                                                                                             |
 | [astro](#astro)                           |    ❌ | CJS-ESM interop issue with JSON files, modifies `chunk.modules`, uses `manualChunks`        |
-| histoire                                  |    ❌ | uses `preserveModules: true`                                                                |
-| ladle                                     |    ✅ |                                                                                             |
+| histoire                                  |    ❌ | uses `manualChunks`                                                                         |
+| ladle                                     |    ✅ | (ecosystem-ci failing due to `transformWithEsbuild` usage)                                  |
 | laravel                                   |    ✅ |                                                                                             |
 | marko                                     |    ✅ | passed by esbuild-rollup plugin conversion                                                  |
-| [nuxt](#nuxt)                             |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`                                                |
-| previewjs                                 |    ⚠️ | fails locally but when running tests manually in playwright ui, it works. probably fine     |
+| [nuxt](#nuxt)                             |    ✅ |                                                                                             |
+| one                                       |    ❓ | unknown as it was added after the investigations                                            |
 | quasar                                    |    ✅ |                                                                                             |
 | [qwik](#qwik)                             |    ⚠️ | passes, but uses some missing features                                                      |
 | rakkas                                    |    ✅ | patched one plugin to return `moduleType: 'js'`                                             |
 | react-router                              |    ✅ | better to run with `CI=1` as some tests are flaky and setting that will retry them          |
-| storybook                                 |    ✅ |                                                                                             |
+| [storybook](#storybook)                   |    ⚠️ | see [vitejs/rolldown-vite#182](https://github.com/vitejs/rolldown-vite/issues/182)          |
 | [sveltekit](#sveltekit)                   |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`                                                |
 | [unocss](#unocss)                         |    ✅ | requires `ROLLDOWN_OPTIONS_VALIDATION=loose`                                                |
 | [vike](#vike)                             |    ⚠️ | uses advanced `manualChunks`                                                                |
@@ -138,3 +112,29 @@ make sure to run with `BROWSER=chromium` if you have a different value set to `B
 
 - ⚠️ uses `preserveEntrySignatures: 'exports-only'`
   - [rolldown/rolldown#3500](https://github.com/rolldown/rolldown/issues/3500)
+
+# temporary commands
+
+## Run against rolldown-vite
+
+```sh
+# with pkg.pr.new binaries
+pnpm tsx ecosystem-ci.ts vitepress --release https://pkg.pr.new/rolldown/vite@3fc2ac5
+# with local builds
+pnpm tsx ecosystem-ci.ts vitepress --repo vitejs/rolldown-vite --branch rolldown-vite
+```
+
+## Create patches to bypass errors
+
+These commands are written in sh.
+
+```sh
+# run it before editing
+tests-patches/pre-create-patch vite-plugin-vue/vite-plugin-vue
+# run it after editing
+tests-patches/create-patch vite-plugin-vue/vite-plugin-vue
+# not need to run, but you can run this to check the applied state
+tests-patches/apply-patch vite-plugin-vue/vite-plugin-vue
+```
+
+The created patches will be applied automatically when running `pnpm tsx ecosystem-ci.ts`
