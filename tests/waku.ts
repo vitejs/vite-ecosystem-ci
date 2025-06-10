@@ -23,5 +23,5 @@ export async function test(options: RunOptions) {
 }
 
 export const rolldownViteExpectedFailureReason = `
-needs to be updated on rolldown side (will be solved by https://github.com/rolldown/rolldown/issues/3500)
+needs to be updated on waku side and rolldown side (https://github.com/rolldown/rolldown/issues/3500)
 `
