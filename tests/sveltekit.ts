@@ -20,5 +20,5 @@ export async function test(options: RunOptions) {
 }
 
 export const rolldownViteExpectedFailureReason = `
-needs to be updated on sveltekit side and rolldown side (https://github.com/rolldown/rolldown/issues/3500)
+needs to be updated on sveltekit side
 `
