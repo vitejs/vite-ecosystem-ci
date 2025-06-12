@@ -107,3 +107,4 @@ jobs:
           STATUS: ${{ job.status }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL_ROLLDOWN_VITE }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IS_ROLLDOWN_VITE: "1"

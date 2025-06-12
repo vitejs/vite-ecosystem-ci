@@ -10,3 +10,7 @@ export async function test(options: RunOptions) {
 		test: ['test', 'test:examples'],
 	})
 }
+
+export const rolldownViteExpectedFailureReason = `
+needs to be updated on histoire side (manualChunks)
+`
