@@ -151,6 +151,7 @@ jobs:
           - marko
           - nuxt
           # - nx # disabled temporarily
+          - one
           - quasar
           - qwik
           - rakkas
