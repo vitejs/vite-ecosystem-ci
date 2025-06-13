@@ -52,6 +52,7 @@ on:
           - quasar
           - qwik
           - rakkas
+          - react-router
           # - redwoodjs # disabled temporarily
           - storybook
           - sveltekit
@@ -152,6 +153,7 @@ jobs:
           - marko
           - nuxt
           # - nx # disabled temporarily
+          - one
           - quasar
           - qwik
           - rakkas
