@@ -9,9 +9,5 @@ export async function test(options: RunOptions) {
 		build: 'vite-ecosystem-ci:build',
 		beforeTest: 'vite-ecosystem-ci:before-test',
 		test: 'vite-ecosystem-ci:test',
-		overrides: {
-			// For Vite 7 support
-			'vite-node': '^3.2.2',
-		},
 	})
 }
