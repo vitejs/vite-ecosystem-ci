@@ -12,5 +12,5 @@ export async function test(options: RunOptions) {
 }
 
 export const rolldownViteExpectedFailureReason = `
-needs to be updated on astro side (manualChunks) and rolldown side (https://github.com/rolldown/rolldown/issues/3640)
+needs to be updated on astro side (manualChunks)
 `

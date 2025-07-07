@@ -15,5 +15,5 @@ export async function test(options: RunOptions) {
 }
 
 export const rolldownViteExpectedFailureReason = `
-needs to be updated on rolldown side (different chunking behavior, also https://github.com/oxc-project/oxc/issues/9170)
+needs to be updated on nuxt side (tests) and rolldown side (https://github.com/oxc-project/oxc/issues/9170)
 `
