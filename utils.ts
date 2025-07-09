@@ -555,7 +555,7 @@ export async function applyPackageOverrides(
 		const overridesWithoutSpecialSyntax = Object.fromEntries(
 			Object.entries(overrides)
 				//eslint-disable-next-line @typescript-eslint/no-unused-vars
-				.filter(([key, value]) => (value as string).includes('>')),
+				.filter(([key, value]) => !key.includes('>')),
 		)
 
 		if (!pkg.devDependencies) {
