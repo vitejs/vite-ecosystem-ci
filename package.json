@@ -25,7 +25,7 @@
       "eslint --fix"
     ]
   },
-  "packageManager": "pnpm@10.2.1",
+  "packageManager": "pnpm@10.6.3",
   "type": "module",
   "engines": {
     "node": ">=22",
@@ -63,8 +63,7 @@
   },
   "pnpm": {
     "overrides": {
-      "braces@<3.0.3": "^3.0.3",
-      "cross-spawn@>=7.0.0 <7.0.5": "^7.0.5"
+      "cross-spawn@>=7.0.0 <7.0.5": "^7.0.6"
     },
     "onlyBuiltDependencies": [
       "esbuild",

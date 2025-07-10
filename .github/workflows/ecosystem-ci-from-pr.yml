@@ -9,9 +9,9 @@ env:
   COREPACK_DEFAULT_TO_LATEST: 0
   COREPACK_ENABLE_AUTO_PIN: 0
   COREPACK_ENABLE_STRICT: 1
-  # see https://github.com/nodejs/corepack/issues/612#issuecomment-2631462297
-  COREPACK_INTEGRITY_KEYS: '{"npm":[{"expires":"2025-01-29T00:00:00.000Z","keyid":"SHA256:jl3bwswu80PjjokCgh0o2w5c2U4LhQAE57gj9cz1kzA","keytype":"ecdsa-sha2-nistp256","scheme":"ecdsa-sha2-nistp256","key":"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE1Olb3zMAFFxXKHiIkQO5cJ3Yhl5i6UPp+IhuteBJbuHcA5UogKo0EWtlWwW6KSaKoTNEYL7JlCQiVnkhBktUgg=="},{"expires":null,"keyid":"SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U","keytype":"ecdsa-sha2-nistp256","scheme":"ecdsa-sha2-nistp256","key":"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEY6Ya7W++7aUPzvMTrezH6Ycx3c+HOKYCcNGybJZSCJq/fd7Qa8uuAKtdIkUQtQiEKERhAmE5lMMJhP8OkDOa2g=="}]}'
-
+  # see https://turbo.build/repo/docs/telemetry#how-do-i-opt-out
+  TURBO_TELEMETRY_DISABLED: 1
+  DO_NOT_TRACK: 1
 on:
   workflow_dispatch:
     inputs:
@@ -29,6 +29,9 @@ on:
         required: true
         type: string
         default: "sveltejs/svelte"
+      commit:
+        description: "svelte commit sha to use"
+        type: string
       suite:
         description: "testsuite to run. runs all testsuits when `-`."
         required: false
@@ -53,15 +56,16 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       comment-id: ${{ steps.create-comment.outputs.result }}
+    permissions: {}
     steps:
       - id: generate-token
-        uses: tibdex/github-app-token@32691ba7c9e7063bd457bd8f2a5703138591fa58 #v1.9.0
+        uses: actions/create-github-app-token@v2
         with:
-          app_id: ${{ secrets.ECOSYSTEM_CI_GITHUB_APP_ID }}
-          private_key: ${{ secrets.ECOSYSTEM_CI_GITHUB_APP_PRIVATE_KEY }}
-          repository: "${{ github.repository_owner }}/svelte"
+          app-id: ${{ secrets.ECOSYSTEM_CI_GITHUB_APP_ID }}
+          private-key: ${{ secrets.ECOSYSTEM_CI_GITHUB_APP_PRIVATE_KEY }}
+          repositories: svelte
       - id: create-comment
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           result-encoding: string
@@ -82,15 +86,15 @@ jobs:
     runs-on: ubuntu-latest
     needs: init
     if: "inputs.suite != '-'"
+    outputs:
+      ref: ${{ steps.get-ref.outputs.ref }}
+    permissions:
+      contents: read # to clone the repo
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-      - uses: denoland/setup-deno@11b63cf76cfcafb4e43f97b6cad24d8e8438f62d #v1.5.2
-        with:
-          deno-version: v1.x
-        continue-on-error: true
+          node-version: ^22.14.0
       - run: corepack enable
       - run: pnpm --version
       - run: pnpm i --frozen-lockfile
@@ -98,13 +102,24 @@ jobs:
           pnpm tsx ecosystem-ci.ts
           --branch ${{ inputs.branchName }}
           --repo ${{ inputs.repo }}
+          ${{ inputs.commit && format('--commit {0}', inputs.commit) }}
           ${{ inputs.suite }}
+      - id: get-ref
+        if: always()
+        run: |
+          ref=${{ inputs.commit || '$(git log -1 --pretty=format:%H)' }}
+          echo "ref=$ref" >> $GITHUB_OUTPUT
+        working-directory: ${{ inputs.commit && '.' || 'workspace/svelte' }}
 
   execute-all:
     timeout-minutes: 30
     runs-on: ubuntu-latest
     needs: init
     if: "inputs.suite == '-'"
+    outputs:
+      ref: ${{ steps.get-ref.outputs.ref }}
+    permissions:
+      contents: read # to clone the repo
     strategy:
       matrix:
         suite:
@@ -126,11 +141,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-      - uses: denoland/setup-deno@11b63cf76cfcafb4e43f97b6cad24d8e8438f62d #v1.5.2
-        with:
-          deno-version: v1.x
-        continue-on-error: true
+          node-version: ^22.14.0
       - run: corepack enable
       - run: pnpm --version
       - run: pnpm i --frozen-lockfile
@@ -138,23 +149,37 @@ jobs:
           pnpm tsx ecosystem-ci.ts
           --branch ${{ inputs.branchName }}
           --repo ${{ inputs.repo }}
+          ${{ inputs.commit && format('--commit {0}', inputs.commit) }}
           ${{ matrix.suite }}
+      - id: get-ref
+        if: always()
+        run: |
+          ref=${{ inputs.commit || '$(git log -1 --pretty=format:%H)' }}
+          echo "ref=$ref" >> $GITHUB_OUTPUT
+        working-directory: ${{ inputs.commit && '.' || 'workspace/svelte' }}
 
   update-comment:
     runs-on: ubuntu-latest
     needs: [init, execute-selected-suite, execute-all]
     if: always()
+    permissions: {}
     steps:
       - id: generate-token
-        uses: tibdex/github-app-token@32691ba7c9e7063bd457bd8f2a5703138591fa58 #v1.9.0
+        uses: actions/create-github-app-token@v2
         with:
-          app_id: ${{ secrets.ECOSYSTEM_CI_GITHUB_APP_ID }}
-          private_key: ${{ secrets.ECOSYSTEM_CI_GITHUB_APP_PRIVATE_KEY }}
-          repository: "${{ github.repository_owner }}/svelte"
-      - uses: actions/github-script@v6
+          app-id: ${{ secrets.PR_GITHUB_APP_ID }}
+          private-key: ${{ secrets.PR_GITHUB_APP_PRIVATE_KEY }}
+          repositories: |
+            svelte
+            svelte-ecosystem-ci
+      - uses: actions/github-script@v7
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
+            const mainRepoName = 'svelte'
+            const ref = "${{ needs.execute-all.outputs.ref }}" || "${{ needs.execute-selected-suite.outputs.ref }}"
+            const refLink = `[\`${ref.slice(0, 7)}\`](${context.serverUrl}/${context.repo.owner}/${mainRepoName}/pull/${context.payload.inputs.prNumber}/commits/${ref})`
+
             const { data: { jobs } } = await github.rest.actions.listJobsForWorkflowRun({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -163,12 +188,12 @@ jobs:
             });
 
             const selectedSuite = context.payload.inputs.suite
-            let result
+            let results
             if (selectedSuite !== "-") {
               const { conclusion, html_url } = jobs.find(job => job.name === "execute-selected-suite")
-              result = [{ suite: selectedSuite, conclusion, link: html_url }]
+              results = [{ suite: selectedSuite, conclusion, link: html_url }]
             } else {
-              result = jobs
+              results = jobs
                 .filter(job => job.name.startsWith('execute-all '))
                 .map(job => {
                   const suite = job.name.replace(/^execute-all \(([^)]+)\)$/, "$1")
@@ -176,7 +201,7 @@ jobs:
                 })
             }
 
-            const url = `${context.serverUrl}//${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            const url = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
             const urlLink = `[Open](${url})`
 
             const conclusionEmoji = {
@@ -185,17 +210,74 @@ jobs:
               cancelled: ":stop_button:"
             }
 
-            const body = `
-            📝 Ran ecosystem CI: ${urlLink}
+            // check for previous ecosystem-ci runs against the main branch
 
-            | suite | result |
-            |-------|--------|
-            ${result.map(r => `| [${r.suite}](${r.link}) | ${conclusionEmoji[r.conclusion]} ${r.conclusion} |`).join("\n")}
-            `
-
-            await github.rest.issues.updateComment({
+            // first, list workflow runs for ecosystem-ci.yml
+            const { data: { workflow_runs } } = await github.rest.actions.listWorkflowRuns({
               owner: context.repo.owner,
-              repo: 'svelte',
-              comment_id: ${{ needs.init.outputs.comment-id }},
+              repo: context.repo.repo,
+              workflow_id: 'ecosystem-ci.yml'
+            });
+
+            // for simplity, we only take the latest completed scheduled run
+            // otherwise we would have to check the inputs for every maunally triggerred runs, which is an overkill
+            const latestScheduledRun = workflow_runs.find(run => run.event === "schedule" && run.status === "completed")
+
+            // get the jobs for the latest scheduled run
+            const { data: { jobs: scheduledJobs } } = await github.rest.actions.listJobsForWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: latestScheduledRun.id
+            });
+            const scheduledResults = scheduledJobs
+              .filter(job => job.name.startsWith('test-ecosystem '))
+              .map(job => {
+                const suite = job.name.replace(/^test-ecosystem \(([^)]+)\)$/, "$1")
+                return { suite, conclusion: job.conclusion, link: job.html_url }
+              })
+
+            const rows = []
+            const successfulSuitesWithoutChanges = []
+            results.forEach(current => {
+              const latest = scheduledResults.find(s => s.suite === current.suite) || {} // in case a new suite is added after latest scheduled
+
+              if (current.conclusion === "success" && latest.conclusion === "success") {
+                successfulSuitesWithoutChanges.push(`[${current.suite}](${current.link})`)
+              }
+              else {
+                const firstColumn = current.suite
+                const secondColumn = `${conclusionEmoji[current.conclusion]} [${current.conclusion}](${current.link})`
+                const thirdColumn = `${conclusionEmoji[latest.conclusion]} [${latest.conclusion}](${latest.link})`
+
+                rows.push(`| ${firstColumn} | ${secondColumn} | ${thirdColumn} |`)
+              }
+            })
+
+            let body = `
+            📝 Ran ecosystem CI on ${refLink}: ${urlLink}
+
+            `
+            if (rows.length > 0) {
+              body += `| suite | result | [latest scheduled](${latestScheduledRun.html_url}) |
+            |-------|--------|----------------|
+            ${rows.join("\n")}
+
+            ${conclusionEmoji.success} ${successfulSuitesWithoutChanges.join(", ")}
+            `
+            } else {
+              body += `${conclusionEmoji.success} ${successfulSuitesWithoutChanges.join(", ")}
+            `
+            }
+
+            await github.rest.issues.createComment({
+              issue_number: context.payload.inputs.prNumber,
+              owner: context.repo.owner,
+              repo: mainRepoName,
               body
+            })
+
+            await github.rest.issues.deleteComment({
+              owner: context.repo.owner,
+              repo: mainRepoName,
+              comment_id: ${{ needs.init.outputs.comment-id }}
             })

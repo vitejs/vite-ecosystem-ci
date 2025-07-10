@@ -77,6 +77,8 @@ export async function setupEnvironment(): Promise<EnvironmentData> {
 		YARN_ENABLE_IMMUTABLE_INSTALLS: 'false', // to avoid errors with mutated lockfile due to overrides
 		NODE_OPTIONS: '--max-old-space-size=6144', // GITHUB CI has 7GB max, stay below
 		ECOSYSTEM_CI: 'true', // flag for tests, can be used to conditionally skip irrelevant tests.
+		TURBO_TELEMETRY_DISABLED: '1', //   # see https://turbo.build/repo/docs/telemetry#how-do-i-opt-out
+		DO_NOT_TRACK: '1',
 	}
 	initWorkspace(workspace)
 	return { root, workspace, sveltePath, cwd, env }
@@ -126,11 +128,16 @@ export async function setupRepo(options: RepoOptions) {
 		} catch {
 			// when not a git repo
 		}
+		if (repo === currentClonedRepo) {
+			const isShallow =
+				(await $`git rev-parse --is-shallow-repository`).trim() === 'true'
+			if (isShallow === shallow) {
+				needClone = false
+			}
+		}
 		cd(_cwd)
 
-		if (repo === currentClonedRepo) {
-			needClone = false
-		} else {
+		if (needClone) {
 			fs.rmSync(dir, { recursive: true, force: true })
 		}
 	}
@@ -142,6 +149,9 @@ export async function setupRepo(options: RepoOptions) {
 	}
 	cd(dir)
 	await $`git clean -fdxq`
+	if (!needClone && shallow && !commit) {
+		await $`git remote set-branches origin ${branch}`
+	}
 	await $`git fetch ${shallow ? '--depth=1 --no-tags' : '--tags'} origin ${
 		tag ? `tag ${tag}` : `${commit || branch}`
 	}`
@@ -485,12 +495,18 @@ export async function applyPackageOverrides(
 	await overridePackageManagerVersion(pkg, pm)
 
 	if (pm === 'pnpm') {
+		const overridesWithoutSpecialSyntax = Object.fromEntries(
+			Object.entries(overrides)
+				//eslint-disable-next-line @typescript-eslint/no-unused-vars
+				.filter(([key, value]) => !key.includes('>')),
+		)
+
 		if (!pkg.devDependencies) {
 			pkg.devDependencies = {}
 		}
 		pkg.devDependencies = {
 			...pkg.devDependencies,
-			...overrides, // overrides must be present in devDependencies or dependencies otherwise they may not work
+			...overridesWithoutSpecialSyntax, // overrides must be present in devDependencies or dependencies otherwise they may not work
 		}
 		if (!pkg.pnpm) {
 			pkg.pnpm = {}

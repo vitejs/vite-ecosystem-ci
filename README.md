@@ -6,7 +6,7 @@ This repository is used to run integration tests for svelte ecosystem projects
 
 ### scheduled
 
-Workflows are sheduled to run automatically every Monday, Wednesday and Friday
+Workflows are scheduled to run automatically every Monday, Wednesday and Friday
 
 ### manually
 
@@ -28,12 +28,19 @@ If you pass `--release 2.7.13`, svelte build will be skipped and svelte is fetch
 
 The repositories are checked out into `workspace` subdirectory as shallow clones
 
+## via comment on PR
+
+- comment `/ecosystem-ci run` on a PR
+- or `/ecosystem-ci run <suitename>` to select a suite
+
+Users with triage permission to sveltejs/svelte repository can only use this.
+
+See [docs/pr-comment-setup.md](./docs/pr-comment-setup.md) for how to setup this feature.
+
 # how to add a new integration test
 
 - check out the existing [tests](./tests) and add one yourself. Thanks to some utilities it is really easy
-- once you are confidente the suite works, add it to the lists of suites in the [workflows](../../actions/)
-
-> the current utilities focus on pnpm based projects. Consider switching to pnpm or contribute utilities for other pms
+- once you are confident the suite works, add it to the lists of suites in the [workflows](../../actions/)
 
 # reporting results
 

@@ -11,12 +11,17 @@ type Env = {
 	SUITE?: string
 	STATUS?: Status
 	DISCORD_WEBHOOK_URL?: string
+	IS_ROLLDOWN_VITE?: '1'
 }
 
 const statusConfig = {
 	success: {
 		color: parseInt('57ab5a', 16),
 		emoji: ':white_check_mark:',
+	},
+	expectedFailure: {
+		color: parseInt('c69026', 16),
+		emoji: ':construction:',
 	},
 	failure: {
 		color: parseInt('e5534b', 16),
@@ -53,6 +58,14 @@ async function run() {
 	assertEnv('SUITE', env.SUITE)
 	assertEnv('STATUS', env.STATUS)
 	assertEnv('DISCORD_WEBHOOK_URL', env.DISCORD_WEBHOOK_URL)
+	const isRolldownVite = !!env.IS_ROLLDOWN_VITE
+	const expectedFailureReason = isRolldownVite
+		? await loadExpectedFailureReason(env.SUITE)
+		: undefined
+	const status =
+		env.STATUS === 'failure' && expectedFailureReason
+			? 'expectedFailure'
+			: env.STATUS
 
 	await setupEnvironment()
 
@@ -67,9 +80,13 @@ async function run() {
 		avatar_url: 'https://github.com/sveltejs.png',
 		embeds: [
 			{
-				title: `${statusConfig[env.STATUS].emoji}  ${env.SUITE}`,
-				description: await createDescription(env.SUITE, targetText),
-				color: statusConfig[env.STATUS].color,
+				title: `${statusConfig[status].emoji}  ${env.SUITE}`,
+				description: await createDescription(
+					env.SUITE,
+					targetText,
+					expectedFailureReason,
+				),
+				color: statusConfig[status].color,
 			},
 		],
 	}
@@ -95,6 +112,12 @@ function assertEnv<T>(
 	if (!value) {
 		throw new Error(`process.env.${name} is empty or does not exist.`)
 	}
+}
+
+async function loadExpectedFailureReason(suite: string) {
+	const module = await import(`./tests/${suite}.ts`)
+	const reason: string | undefined = module.rolldownViteExpectedFailureReason
+	return reason?.trim()
 }
 
 async function createRunUrl(suite: string) {
@@ -151,13 +174,24 @@ async function fetchJobs() {
 	}
 }
 
-async function createDescription(suite: string, targetText: string) {
+async function createDescription(
+	suite: string,
+	targetText: string,
+	expectedFailureReason: string | undefined,
+) {
 	const runUrl = await createRunUrl(suite)
 	const open = runUrl === undefined ? 'Null' : `[Open](${runUrl})`
-
-	return `
+	let message = `
 :scroll:\u00a0\u00a0${open}\u3000\u3000:zap:\u00a0\u00a0${targetText}
 `.trim()
+	if (expectedFailureReason) {
+		message +=
+			'\n' +
+			`
+:bulb:\u00a0\u00a0${expectedFailureReason}
+`.trim()
+	}
+	return message
 }
 
 function createTargetText(
