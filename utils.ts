@@ -572,6 +572,28 @@ export async function applyPackageOverrides(
 			...pkg.pnpm.overrides,
 			...overrides,
 		}
+		// check `overrides` in pnpm-workspace.yaml
+		const pnpmWorkspaceFile = path.join(dir, 'pnpm-workspace.yaml')
+		if (fs.existsSync(pnpmWorkspaceFile)) {
+			const pnpmWorkspaceContent = await fs.promises.readFile(
+				pnpmWorkspaceFile,
+				'utf-8',
+			)
+			if (/^overrides:/m.test(pnpmWorkspaceContent)) {
+				delete pkg.pnpm.overrides
+				const newContent = pnpmWorkspaceContent.replace(
+					/^overrides:\n/m,
+					() =>
+						`overrides:\n${Object.entries(overrides)
+							.map(
+								([name, version]) =>
+									`  ${JSON.stringify(name)}: ${JSON.stringify(version)}\n`,
+							)
+							.join('')}`,
+				)
+				await fs.promises.writeFile(pnpmWorkspaceFile, newContent, 'utf-8')
+			}
+		}
 	} else if (pm === 'yarn') {
 		pkg.resolutions = {
 			...pkg.resolutions,
