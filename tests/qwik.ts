@@ -12,5 +12,5 @@ export async function test(options: RunOptions) {
 }
 
 export const rolldownViteExpectedFailureReason = `
-needs to be updated on qwik side (manualChunks, types)
+needs to be updated on qwik side (type incompatibility)
 `

@@ -15,5 +15,5 @@ export async function test(options: RunOptions) {
 }
 
 export const rolldownViteExpectedFailureReason = `
-needs to be updated on plugin-rsc / vite-plugin-cloudflare side (https://github.com/cloudflare/workers-sdk/issues/9609)
+needs to be updated on vite-plugin-cloudflare side (https://github.com/cloudflare/workers-sdk/issues/9609)
 `

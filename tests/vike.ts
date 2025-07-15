@@ -17,5 +17,5 @@ export async function test(options: RunOptions) {
 }
 
 export const rolldownViteExpectedFailureReason = `
-needs to be update on vike side (manualChunks)
+needs to be update on vike side (type incompatibility)
 `
