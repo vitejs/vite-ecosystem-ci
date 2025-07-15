@@ -580,7 +580,7 @@ export async function applyPackageOverrides(
 				'utf-8',
 			)
 			if (/^overrides:/m.test(pnpmWorkspaceContent)) {
-				delete pkg.pnpm.overrides
+				delete pkg.pnpm.overrides // remove pnpm.overrides from package.json so that pnpm-workspace.yaml's one is used
 				const newContent = pnpmWorkspaceContent.replace(
 					/^overrides:\n/m,
 					() =>
