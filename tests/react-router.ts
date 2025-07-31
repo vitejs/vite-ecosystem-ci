@@ -9,5 +9,8 @@ export async function test(options: RunOptions) {
 		build: 'vite-ecosystem-ci:build',
 		beforeTest: 'vite-ecosystem-ci:before-test',
 		test: 'vite-ecosystem-ci:test',
+		overrides: {
+			'@vitejs/plugin-rsc': true,
+		},
 	})
 }
