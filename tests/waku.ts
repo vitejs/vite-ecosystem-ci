@@ -20,7 +20,3 @@ export async function test(options: RunOptions) {
 		},
 	})
 }
-
-export const rolldownViteExpectedFailureReason = `
-needs to be updated on waku side
-`
