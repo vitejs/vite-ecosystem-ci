@@ -36,7 +36,7 @@ on:
         type: string
         default: "vitejs/vite"
       vite_plugin_react_ref:
-        description: "vite-plguin-react ref to use"
+        description: "vite-plugin-react ref to use"
         type: string
       vite_plugin_react_repo:
         description: "vite-plugin-react repository to use"
