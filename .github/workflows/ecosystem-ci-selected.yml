@@ -35,6 +35,12 @@ on:
         required: true
         type: string
         default: "vitejs/vite"
+      vite_plugin_react_ref:
+        description: "vite-plugin-react ref to use"
+        type: string
+      vite_plugin_react_repo:
+        description: "vite-plugin-react repository to use"
+        type: string
       suite:
         description: "testsuite to run"
         required: true
@@ -97,6 +103,9 @@ jobs:
           --repo ${{ inputs.repo }}
           ${{ inputs.suite }}
         id: ecosystem-ci-run
+        env:
+          VITE_PLUGIN_REACT_REF: ${{ inputs.vite_plugin_react_ref }}
+          VITE_PLUGIN_REACT_REPO: ${{ inputs.vite_plugin_react_repo }}
       - if: always() && (inputs.sendDiscordReport || github.event_name != 'workflow_dispatch')
         run: pnpm tsx discord-webhook.ts
         env:
