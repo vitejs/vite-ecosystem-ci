@@ -581,10 +581,15 @@ export async function applyPackageOverrides(
 			)
 			if (/^overrides:/m.test(pnpmWorkspaceContent)) {
 				delete pkg.pnpm.overrides // remove pnpm.overrides from package.json so that pnpm-workspace.yaml's one is used
+				// merge with existing overrides
+				const output = await $`pnpm config list --json --location project`
+				const currentOverrides = JSON.parse(output).overrides
+				const mergedOverrides = { ...currentOverrides, ...overrides }
+				// replace all indented lines in `overrides` section
 				const newContent = pnpmWorkspaceContent.replace(
-					/^overrides:\n/m,
+					/^overrides:\n((?:[ \t]+.+\n)*)/m,
 					() =>
-						`overrides:\n${Object.entries(overrides)
+						`overrides:\n${Object.entries(mergedOverrides)
 							.map(
 								([name, version]) =>
 									`  ${JSON.stringify(name)}: ${JSON.stringify(version)}\n`,
