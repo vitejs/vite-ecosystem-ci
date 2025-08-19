@@ -11,7 +11,3 @@ export async function test(options: RunOptions) {
 		test: 'vite-ecosystem-ci:test',
 	})
 }
-
-export const rolldownViteExpectedFailureReason = `
-needs to be updated on rolldown side (https://github.com/vitejs/rolldown-vite/issues/182)
-`
