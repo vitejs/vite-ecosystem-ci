@@ -99,11 +99,15 @@ jobs:
       - run: pnpm i --frozen-lockfile
       - run: >-
           pnpm tsx ecosystem-ci.ts
-          --${{ inputs.refType }} ${{ inputs.ref }}
-          --repo ${{ inputs.repo }}
-          ${{ inputs.suite }}
+          "--$REF_TYPE" "$REF"
+          --repo "$REPO"
+          "$SUITE"
         id: ecosystem-ci-run
         env:
+          REF_TYPE: ${{ inputs.refType }}
+          REF: ${{ inputs.ref }}
+          REPO: ${{ inputs.repo }}
+          SUITE: ${{ inputs.suite }}
           VITE_PLUGIN_REACT_REF: ${{ inputs.vite_plugin_react_ref }}
           VITE_PLUGIN_REACT_REPO: ${{ inputs.vite_plugin_react_repo }}
       - if: always() && (inputs.sendDiscordReport || github.event_name != 'workflow_dispatch')
