@@ -46,8 +46,8 @@ jobs:
       - name: typecheck
         run: pnpm run typecheck
       - name: audit
-        if: (${{ success() }} || ${{ failure() }})
+        if: success() || failure()
         run: pnpm audit --prod --audit-level moderate
       - name: test
-        if: (${{ success() }} || ${{ failure() }})
+        if: success() || failure()
         run: pnpm test:self
