@@ -120,15 +120,22 @@ jobs:
       - run: pnpm i --frozen-lockfile
       - run: >-
           pnpm tsx ecosystem-ci.ts
-          --branch ${{ inputs.branchName }}
-          --repo ${{ inputs.repo }}
-          ${{ inputs.commit && format('--commit {0}', inputs.commit) }}
-          ${{ inputs.suite }}
+          --branch "$BRANCH_NAME"
+          --repo "$REPO"
+          "$COMMIT"
+          "$SUITE"
+        env:
+          BRANCH_NAME: ${{ inputs.branchName }}
+          REPO: ${{ inputs.repo }}
+          COMMIT: ${{ inputs.commit && format('--commit {0}', inputs.commit) }}
+          SUITE: ${{ inputs.suite }}
       - id: get-ref
         if: always()
         run: |
-          ref=${{ inputs.commit || '$(git log -1 --pretty=format:%H)' }}
-          echo "ref=$ref" >> $GITHUB_OUTPUT
+          REF="${REF:-"$(git log -1 --pretty=format:%H)"}"
+          echo "ref=$REF" >> $GITHUB_OUTPUT
+        env:
+          COMMIT: ${{ inputs.commit }}
         working-directory: ${{ inputs.commit && '.' || 'workspace/vite' }}
 
   execute-all:
@@ -187,15 +194,22 @@ jobs:
       - run: pnpm i --frozen-lockfile
       - run: >-
           pnpm tsx ecosystem-ci.ts
-          --branch ${{ inputs.branchName }}
-          --repo ${{ inputs.repo }}
-          ${{ inputs.commit && format('--commit {0}', inputs.commit) }}
-          ${{ matrix.suite }}
+          --branch "$BRANCH_NAME"
+          --repo "$REPO"
+          "$COMMIT"
+          "$SUITE"
+        env:
+          BRANCH_NAME: ${{ inputs.branchName }}
+          REPO: ${{ inputs.repo }}
+          COMMIT: ${{ inputs.commit && format('--commit {0}', inputs.commit) }}
+          SUITE: ${{ matrix.suite }}
       - id: get-ref
         if: always()
         run: |
-          ref=${{ inputs.commit || '$(git log -1 --pretty=format:%H)' }}
-          echo "ref=$ref" >> $GITHUB_OUTPUT
+          REF="${REF:-"$(git log -1 --pretty=format:%H)"}"
+          echo "ref=$REF" >> $GITHUB_OUTPUT
+        env:
+          COMMIT: ${{ inputs.commit }}
         working-directory: ${{ inputs.commit && '.' || 'workspace/vite' }}
 
   update-comment:
@@ -217,7 +231,7 @@ jobs:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
             const mainRepoName = 'vite'
-            const ref = "${{ needs.execute-all.outputs.ref }}" || "${{ needs.execute-selected-suite.outputs.ref }}"
+            const ref = process.env.REF
             const refLink = `[\`${ref.slice(0, 7)}\`](${context.serverUrl}/${context.repo.owner}/${mainRepoName}/pull/${context.payload.inputs.prNumber}/commits/${ref})`
 
             const { data: { jobs } } = await github.rest.actions.listJobsForWorkflowRun({
@@ -319,5 +333,8 @@ jobs:
             await github.rest.issues.deleteComment({
               owner: context.repo.owner,
               repo: mainRepoName,
-              comment_id: ${{ needs.init.outputs.comment-id }}
+              comment_id: +process.env.COMMENT_ID
             })
+        env:
+          REF: ${{ needs.execute-all.outputs.ref || needs.execute-selected-suite.outputs.ref }}
+          COMMENT_ID: ${{ needs.init.outputs.comment-id }}

@@ -96,10 +96,15 @@ jobs:
       - run: pnpm i --frozen-lockfile
       - run: >-
           pnpm tsx ecosystem-ci.ts
-          --${{ inputs.refType || github.event.client_payload.refType || 'branch' }} ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
-          --repo ${{ inputs.repo || github.event.client_payload.repo || 'vitejs/vite' }}
-          ${{ matrix.suite }}
+          "--$REF_TYPE" "$REF"
+          --repo "$REPO"
+          "$SUITE"
         id: ecosystem-ci-run
+        env:
+          REF_TYPE: ${{ inputs.refType || github.event.client_payload.refType || 'branch' }}
+          REF: ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
+          REPO: ${{ inputs.repo || github.event.client_payload.repo || 'vitejs/vite' }}
+          SUITE: ${{ matrix.suite }}
       - if: always() && (inputs.sendDiscordReport || github.event_name != 'workflow_dispatch')
         run: pnpm tsx discord-webhook.ts
         env:
