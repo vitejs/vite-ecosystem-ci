@@ -122,7 +122,7 @@ jobs:
           pnpm tsx ecosystem-ci.ts
           --branch "$BRANCH_NAME"
           --repo "$REPO"
-          "$(if [ -n "$COMMIT" ] ; then echo "--commit $COMMIT"; fi)"
+          $(if [ -n "$COMMIT" ] ; then echo "--commit $COMMIT"; fi)
           "$SUITE"
         env:
           BRANCH_NAME: ${{ inputs.branchName }}
@@ -196,7 +196,7 @@ jobs:
           pnpm tsx ecosystem-ci.ts
           --branch "$BRANCH_NAME"
           --repo "$REPO"
-          "$(if [ -n "$COMMIT" ] ; then echo "--commit $COMMIT"; fi)"
+          $(if [ -n "$COMMIT" ] ; then echo "--commit $COMMIT"; fi)
           "$SUITE"
         env:
           BRANCH_NAME: ${{ inputs.branchName }}
