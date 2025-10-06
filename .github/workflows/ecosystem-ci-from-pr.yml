@@ -122,12 +122,12 @@ jobs:
           pnpm tsx ecosystem-ci.ts
           --branch "$BRANCH_NAME"
           --repo "$REPO"
-          "$COMMIT"
+          "$(if [ -n "$COMMIT" ] ; then echo "--commit $COMMIT"; fi)"
           "$SUITE"
         env:
           BRANCH_NAME: ${{ inputs.branchName }}
           REPO: ${{ inputs.repo }}
-          COMMIT: ${{ inputs.commit && format('--commit {0}', inputs.commit) }}
+          COMMIT: ${{ inputs.commit }}
           SUITE: ${{ inputs.suite }}
       - id: get-ref
         if: always()
@@ -196,12 +196,12 @@ jobs:
           pnpm tsx ecosystem-ci.ts
           --branch "$BRANCH_NAME"
           --repo "$REPO"
-          "$COMMIT"
+          "$(if [ -n "$COMMIT" ] ; then echo "--commit $COMMIT"; fi)"
           "$SUITE"
         env:
           BRANCH_NAME: ${{ inputs.branchName }}
           REPO: ${{ inputs.repo }}
-          COMMIT: ${{ inputs.commit && format('--commit {0}', inputs.commit) }}
+          COMMIT: ${{ inputs.commit }}
           SUITE: ${{ matrix.suite }}
       - id: get-ref
         if: always()
