@@ -352,7 +352,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			...localOverrides,
 		}
 	}
-	await applyPackageOverrides(dir, pkg, overrides)
+	await applyPackageOverrides(agent, dir, pkg, overrides)
 	await beforeBuildCommand?.(pkg.scripts)
 	await buildCommand?.(pkg.scripts)
 	if (test) {
@@ -525,6 +525,7 @@ async function overridePackageManagerVersion(
 }
 
 export async function applyPackageOverrides(
+	agent: (typeof AGENTS)[number],
 	dir: string,
 	pkg: any,
 	overrides: Overrides = {},
@@ -540,10 +541,6 @@ export async function applyPackageOverrides(
 	)
 	await $`git clean -fdxq` // remove current install
 
-	const agent = await detect({ cwd: dir, autoInstall: false })
-	if (!agent) {
-		throw new Error(`failed to detect packageManager in ${dir}`)
-	}
 	// Remove version from agent string:
 	// yarn@berry => yarn
 	// pnpm@6, pnpm@7 => pnpm
