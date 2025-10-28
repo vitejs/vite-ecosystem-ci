@@ -14,21 +14,25 @@ export async function test(options: RunOptions) {
 		async beforeTest() {
 			const dir = path.resolve(options.workspace, 'vite-plugin')
 			const vitestConfigFile = path.join(dir, 'vitest.config.ts')
-			fs.writeFileSync(vitestConfigFile, vitestConfig, 'utf-8')
+			fs.writeFileSync(
+				vitestConfigFile,
+				getVitestConfig(options.vitePath),
+				'utf-8',
+			)
 		},
 		test: 'test',
 		agent: 'npm',
 	})
 }
 
-const vitestConfig = /* ts */ `
+const getVitestConfig = (viteRepoPath: string) => /* ts */ `
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
     test: {
         deps: {
             moduleDirectories: [
-                "/home/green/workspace/vite-ecosystem-ci/workspace/vite/packages",
+                ${JSON.stringify(path.resolve(viteRepoPath, 'packages'))},
             ],
         },
     },
