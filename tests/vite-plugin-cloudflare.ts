@@ -4,7 +4,8 @@ import type { RunOptions } from '../types.js'
 export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
-		repo: 'cloudflare/workers-sdk',
+		repo: 'sapphi-red/workers-sdk',
+		branch: 'fix/vite-plugin-cloudflare-allow-invoke-other-than-fetchmodule',
 		test: 'pnpm test:ci -F @vite-plugin-cloudflare/playground',
 	})
 }
