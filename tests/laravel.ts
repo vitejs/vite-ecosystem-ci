@@ -12,6 +12,9 @@ export async function test(options: RunOptions) {
 		branch: '2.x',
 		build: 'build',
 		async beforeTest() {
+			// Add `vitest.config.ts` to exclude Vite from inlined by Vitest.
+			// Otherwise the mock here doesn't work.
+			// https://github.com/laravel/vite-plugin/blob/3f7bf9eddc69580796c26890c99065d7259c785e/tests/index.test.ts#L7-L22
 			const dir = path.resolve(options.workspace, 'vite-plugin')
 			const vitestConfigFile = path.join(dir, 'vitest.config.ts')
 			fs.writeFileSync(
