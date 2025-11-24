@@ -83,7 +83,7 @@ jobs:
     permissions:
       contents: read # to clone the repo
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
           node-version: ^22.14.0
