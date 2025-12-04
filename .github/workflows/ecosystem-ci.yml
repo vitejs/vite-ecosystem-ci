@@ -31,7 +31,7 @@ on:
         description: "vite ref to use"
         required: true
         type: string
-        default: "main"
+        default: "v7"
       repo:
         description: "vite repository to use"
         required: true
@@ -102,7 +102,7 @@ jobs:
         id: ecosystem-ci-run
         env:
           REF_TYPE: ${{ inputs.refType || github.event.client_payload.refType || 'branch' }}
-          REF: ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
+          REF: ${{ inputs.ref || github.event.client_payload.ref || 'v7' }}
           REPO: ${{ inputs.repo || github.event.client_payload.repo || 'vitejs/vite' }}
           SUITE: ${{ matrix.suite }}
       - if: always() && (inputs.sendDiscordReport || github.event_name != 'workflow_dispatch')
@@ -110,7 +110,7 @@ jobs:
         env:
           WORKFLOW_NAME: ci
           REF_TYPE: ${{ inputs.refType || github.event.client_payload.refType || 'branch' }}
-          REF: ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
+          REF: ${{ inputs.ref || github.event.client_payload.ref || 'v7' }}
           REPO: ${{ inputs.repo || github.event.client_payload.repo || 'vitejs/vite' }}
           SUITE: ${{ matrix.suite }}
           STATUS: ${{ job.status }}
