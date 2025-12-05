@@ -5,12 +5,8 @@ export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
 		repo: 'withastro/astro',
-		branch: 'main',
+		branch: 'next',
 		build: 'build:ci',
 		test: 'test:vite-ci',
 	})
 }
-
-export const rolldownViteExpectedFailureReason = `
-needs to be updated on astro side (manualChunks)
-`
