@@ -61,7 +61,6 @@ on:
           - vite-environment-examples
           - vite-plugin-pwa
           - vite-plugin-react
-          - vite-plugin-react-pages
           - vite-plugin-svelte
           - vite-plugin-vue
           - vite-plugin-cloudflare
@@ -173,7 +172,6 @@ jobs:
           - vite-environment-examples
           - vite-plugin-pwa
           - vite-plugin-react
-          # - vite-plugin-react-pages # # disabled until its install setup is fixed
           - vite-plugin-svelte
           - vite-plugin-vue
           - vite-plugin-cloudflare
