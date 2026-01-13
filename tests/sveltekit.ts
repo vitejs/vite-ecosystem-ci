@@ -18,7 +18,3 @@ export async function test(options: RunOptions) {
 		],
 	})
 }
-
-export const rolldownViteExpectedFailureReason = `
-needs to be updated on rolldown side (https://github.com/rolldown/rolldown/issues/5197)
-`

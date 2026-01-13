@@ -8,7 +8,3 @@ export async function test(options: RunOptions) {
 		test: 'pnpm test:ci -F @vite-plugin-cloudflare/playground',
 	})
 }
-
-export const rolldownViteExpectedFailureReason = `
-needs to be updated on vite-plugin-cloudflare side (tests)
-`

@@ -15,5 +15,5 @@ export async function test(options: RunOptions) {
 }
 
 export const rolldownViteExpectedFailureReason = `
-needs to be updated on rolldown side (https://github.com/rolldown/rolldown/issues/5726, https://github.com/oxc-project/oxc/issues/9170)
+needs to be updated on rolldown side (https://github.com/rolldown/rolldown/issues/5726)
 `
