@@ -7,6 +7,7 @@ export async function test(options: RunOptions) {
 		repo: 'analogjs/analog',
 		branch: 'beta',
 		build: 'build:vite-ci',
+		beforeTest: 'pnpm playwright install chromium',
 		test: 'test:vite-ci',
 	})
 }
