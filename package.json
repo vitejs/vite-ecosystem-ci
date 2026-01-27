@@ -41,7 +41,7 @@
   },
   "homepage": "https://github.com/vitejs/vite-ecosystem-ci#readme",
   "dependencies": {
-    "@actions/core": "^1.11.1",
+    "@actions/core": "^2.0.3",
     "cac": "^6.7.14",
     "execa": "^9.5.2",
     "node-fetch": "^3.3.2"
