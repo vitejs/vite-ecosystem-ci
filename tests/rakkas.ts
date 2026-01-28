@@ -23,3 +23,7 @@ export async function test(options: RunOptions) {
 		test: 'vite-ecosystem-ci',
 	})
 }
+
+export const rolldownViteExpectedFailureReason = `
+needs to be updated on rakkas side ("moduleResolution" should be "bundler" or "nodenext")
+`
