@@ -4,8 +4,8 @@ import type { RunOptions } from '../types.d.ts'
 export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
-		repo: 'withastro/astro',
-		branch: 'next',
+		repo: 'sapphi-red/astro',
+		branch: 'fix/astro-ensure-req-url-has-a-starting-slash',
 		build: 'build:ci',
 		test: 'test:vite-ci',
 	})
