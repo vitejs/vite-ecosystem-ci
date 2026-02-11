@@ -113,7 +113,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
-          node-version: ^22.14.0
+          node-version: ^24.13.1
       - run: corepack enable
       - run: pnpm --version
       - run: pnpm i --frozen-lockfile
@@ -186,7 +186,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
-          node-version: ^22.14.0
+          node-version: ^24.13.1
       - run: corepack enable
       - run: pnpm --version
       - run: pnpm i --frozen-lockfile

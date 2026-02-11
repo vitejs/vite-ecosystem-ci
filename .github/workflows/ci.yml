@@ -29,12 +29,12 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
-          node-version: ^22.14.0
+          node-version: ^24.13.1
       - run: corepack enable
       - run: pnpm --version
       - uses: actions/setup-node@v6
         with:
-          node-version: ^22.14.0
+          node-version: ^24.13.1
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
       - name: install
