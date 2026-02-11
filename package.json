@@ -25,7 +25,7 @@
       "eslint --fix"
     ]
   },
-  "packageManager": "pnpm@10.6.3",
+  "packageManager": "pnpm@10.29.3",
   "type": "module",
   "engines": {
     "node": ">=18",
@@ -43,24 +43,24 @@
   "dependencies": {
     "@actions/core": "^1.11.1",
     "cac": "^6.7.14",
-    "execa": "^9.5.2",
+    "execa": "^9.6.1",
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
-    "@antfu/ni": "^28.1.0",
-    "@eslint/js": "^9.22.0",
-    "@types/node": "^22.13.10",
+    "@antfu/ni": "^28.2.0",
+    "@eslint/js": "^9.39.2",
+    "@types/node": "^22.19.11",
     "@types/pacote": "^11.1.8",
-    "@types/semver": "^7.5.8",
-    "eslint": "^9.22.0",
-    "eslint-plugin-n": "^17.16.2",
-    "lint-staged": "^15.5.0",
-    "pacote": "^21.0.0",
-    "prettier": "^3.5.3",
-    "semver": "^7.7.1",
-    "simple-git-hooks": "^2.11.1",
-    "tsx": "^4.19.3",
-    "typescript": "^5.8.2",
-    "typescript-eslint": "^8.26.1"
+    "@types/semver": "^7.7.1",
+    "eslint": "^9.39.2",
+    "eslint-plugin-n": "^17.23.2",
+    "lint-staged": "^15.5.2",
+    "pacote": "^21.3.1",
+    "prettier": "^3.8.1",
+    "semver": "^7.7.4",
+    "simple-git-hooks": "^2.13.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.55.0"
   }
 }
