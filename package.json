@@ -54,7 +54,7 @@
     "@types/semver": "^7.5.8",
     "eslint": "^9.22.0",
     "eslint-plugin-n": "^17.16.2",
-    "lint-staged": "^15.5.0",
+    "lint-staged": "^16.2.7",
     "pacote": "^21.0.0",
     "prettier": "^3.5.3",
     "semver": "^7.7.1",
