@@ -64,6 +64,7 @@ jobs:
           # - redwoodjs # disabled temporarily
           - storybook
           - sveltekit
+          - tanstack-start
           - unocss
           - vike
           - vite-environment-examples
