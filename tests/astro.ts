@@ -5,7 +5,7 @@ export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
 		repo: 'withastro/astro',
-		branch: 'next',
+		branch: 'main',
 		build: 'build:ci',
 		test: 'test:vite-ci',
 	})
