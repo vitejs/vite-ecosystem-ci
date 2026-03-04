@@ -51,7 +51,7 @@ on:
           - one
           - quasar
           - qwik
-          - rakkas
+          # - rakkas # disabled temporarily
           - react-router
           # - redwoodjs # disabled temporarily
           - storybook
@@ -163,7 +163,7 @@ jobs:
           - one
           - quasar
           - qwik
-          - rakkas
+          # - rakkas # disabled temporarily
           - react-router
           # - redwoodjs # disabled temporarily
           - storybook
