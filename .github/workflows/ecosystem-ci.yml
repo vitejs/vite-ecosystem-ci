@@ -91,7 +91,6 @@ jobs:
         with:
           node-version: ^22.14.0
         id: setup-node
-      - uses: oven-sh/setup-bun@v2
       - run: corepack enable
       - run: pnpm --version
       - run: pnpm i --frozen-lockfile
