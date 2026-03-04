@@ -7,7 +7,7 @@ export async function test(options: RunOptions) {
 		repo: 'onejs/one',
 		branch: 'main',
 		build: ['clean:build', 'build'],
-		beforeTest: 'yarn playwright install chromium',
+		beforeTest: 'bunx playwright install chromium',
 		test: 'test:vite-ecosystem-ci',
 	})
 }

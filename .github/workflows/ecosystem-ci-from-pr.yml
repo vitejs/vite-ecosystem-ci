@@ -115,6 +115,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: ^22.14.0
+      - uses: oven-sh/setup-bun@v2
       - run: corepack enable
       - run: pnpm --version
       - run: pnpm i --frozen-lockfile
@@ -189,6 +190,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: ^22.14.0
+      - uses: oven-sh/setup-bun@v2
       - run: corepack enable
       - run: pnpm --version
       - run: pnpm i --frozen-lockfile

@@ -624,6 +624,20 @@ export async function applyPackageOverrides(
 				pkg.devDependencies[name] = version
 			}
 		}
+	} else if (pm === 'bun') {
+		pkg.overrides = {
+			...pkg.overrides,
+			...overrides,
+		}
+		// bun does not allow overriding direct dependencies, force it by updating the blocks themselves
+		for (const [name, version] of Object.entries(overrides)) {
+			if (pkg.dependencies?.[name]) {
+				pkg.dependencies[name] = version
+			}
+			if (pkg.devDependencies?.[name]) {
+				pkg.devDependencies[name] = version
+			}
+		}
 	} else {
 		throw new Error(`unsupported package manager detected: ${pm}`)
 	}
@@ -637,6 +651,8 @@ export async function applyPackageOverrides(
 		await $`yarn install`
 	} else if (pm === 'npm') {
 		await $`npm install`
+	} else if (pm === 'bun') {
+		await $`bun install`
 	}
 }
 
