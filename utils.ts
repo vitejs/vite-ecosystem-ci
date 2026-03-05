@@ -170,6 +170,52 @@ export async function setupRepo(options: RepoOptions) {
 	}
 }
 
+async function ensureAgentIsInstalled(agent: string, pkg: any) {
+	if (['pnpm', 'yarn', 'npm'].includes(agent)) {
+		return // managed by corepack
+	}
+	let wantedAgent: string
+	let currentVersion: string
+	let wantedVersion: string
+
+	if (pkg.packageManager) {
+		;[wantedAgent, wantedVersion] = pkg.packageManager.split(/[@+]/, 2) // foo@1.2.4+sha
+	} else {
+		wantedAgent = agent
+		wantedVersion = 'latest'
+	}
+	if (agent !== wantedAgent) {
+		throw new Error(
+			`Invalid configuration: package.json asks for ${wantedAgent}@${wantedVersion} but ${agent} is configured in ecosystem-ci test`,
+		)
+	}
+	try {
+		currentVersion = await $`${agent} --version`
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	} catch (e) {
+		// agent is not installed
+		const installCommand = `npm i -g "${agent}@${wantedVersion}"`
+		if (isGitHubActions) {
+			await $`${installCommand}`
+			try {
+				currentVersion = await $`${agent} --version`
+			} catch (e) {
+				throw new Error(
+					`Failed to install package manager with "${installCommand}"`,
+					{ cause: e },
+				)
+			}
+			console.log(`Installed ${agent}@${currentVersion} globally`)
+			return
+		} else {
+			// local run, ask user to provide manager
+			throw new Error(
+				`Test requires ${agent} but it is not installed. Please install it, e.g. with "${installCommand}"`,
+			)
+		}
+	}
+}
+
 function toCommand(
 	task: Task | Task[] | void,
 	agent: (typeof AGENTS)[number],
@@ -256,15 +302,15 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			`Invalid agent ${options.agent}. Allowed values: ${AGENTS.join(', ')}`,
 		)
 	}
+	const pkgFile = path.join(dir, 'package.json')
+	const pkg = JSON.parse(await fs.promises.readFile(pkgFile, 'utf-8'))
 	const agent = options.agent
+	await ensureAgentIsInstalled(agent, pkg)
 	const beforeInstallCommand = toCommand(beforeInstall, agent)
 	const beforeBuildCommand = toCommand(beforeBuild, agent)
 	const beforeTestCommand = toCommand(beforeTest, agent)
 	const buildCommand = toCommand(build, agent)
 	const testCommand = toCommand(test, agent)
-
-	const pkgFile = path.join(dir, 'package.json')
-	const pkg = JSON.parse(await fs.promises.readFile(pkgFile, 'utf-8'))
 
 	await beforeInstallCommand?.(pkg.scripts)
 
