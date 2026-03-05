@@ -8,6 +8,7 @@ export async function test(options: RunOptions) {
 		branch: 'main',
 		overrides: {
 			'@vitejs/plugin-react': true,
+			'@vitejs/plugin-react-swc': true,
 			'@vitejs/plugin-vue': true,
 		},
 		build: 'build',

@@ -12,5 +12,6 @@ export async function build(options: RunOptions) {
 
 export const packages = {
 	'@vitejs/plugin-react': 'packages/plugin-react',
+	'@vitejs/plugin-react-swc': 'packages/plugin-react-swc/dist',
 	'@vitejs/plugin-rsc': 'packages/plugin-rsc',
 }
