@@ -185,7 +185,7 @@ async function ensureAgentIsInstalled(pkg: any) {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	} catch (e) {
 		// agent is not installed
-		const installCommand = `npm i -g "${agent}@${version}"`
+		const installCommand = `npm i -g --ignore-scripts ${agent}@${version}`
 		if (isGitHubActions) {
 			await $`${installCommand}`
 			try {
