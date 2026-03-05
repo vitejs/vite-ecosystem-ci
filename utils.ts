@@ -170,31 +170,22 @@ export async function setupRepo(options: RepoOptions) {
 	}
 }
 
-async function ensureAgentIsInstalled(agent: string, pkg: any) {
+async function ensureAgentIsInstalled(pkg: any) {
+	if (!pkg.packageManager) {
+		return
+	}
+	const [agent, version] = pkg.packageManager.split(/[@+]/, 2) // foo@1.2.4+sha
+
 	if (['pnpm', 'yarn', 'npm'].includes(agent)) {
 		return // managed by corepack
 	}
-	let wantedAgent: string
 	let currentVersion: string
-	let wantedVersion: string
-
-	if (pkg.packageManager) {
-		;[wantedAgent, wantedVersion] = pkg.packageManager.split(/[@+]/, 2) // foo@1.2.4+sha
-	} else {
-		wantedAgent = agent
-		wantedVersion = 'latest'
-	}
-	if (agent !== wantedAgent) {
-		throw new Error(
-			`Invalid configuration: package.json asks for ${wantedAgent}@${wantedVersion} but ${agent} is configured in ecosystem-ci test`,
-		)
-	}
 	try {
 		currentVersion = await $`${agent} --version`
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	} catch (e) {
 		// agent is not installed
-		const installCommand = `npm i -g "${agent}@${wantedVersion}"`
+		const installCommand = `npm i -g "${agent}@${version}"`
 		if (isGitHubActions) {
 			await $`${installCommand}`
 			try {
@@ -290,6 +281,10 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	} else {
 		cd(dir)
 	}
+	const pkgFile = path.join(dir, 'package.json')
+	const pkg = JSON.parse(await fs.promises.readFile(pkgFile, 'utf-8'))
+	await ensureAgentIsInstalled(pkg) // has to be called before ni.detect
+
 	if (options.agent == null) {
 		const detectedAgent = await detect({ cwd: dir, autoInstall: false })
 		if (detectedAgent == null) {
@@ -302,10 +297,9 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			`Invalid agent ${options.agent}. Allowed values: ${AGENTS.join(', ')}`,
 		)
 	}
-	const pkgFile = path.join(dir, 'package.json')
-	const pkg = JSON.parse(await fs.promises.readFile(pkgFile, 'utf-8'))
+
 	const agent = options.agent
-	await ensureAgentIsInstalled(agent, pkg)
+
 	const beforeInstallCommand = toCommand(beforeInstall, agent)
 	const beforeBuildCommand = toCommand(beforeBuild, agent)
 	const beforeTestCommand = toCommand(beforeTest, agent)
