@@ -593,7 +593,7 @@ export async function applyPackageOverrides(
 	const pm = agent?.split('@')[0]
 
 	await overridePackageManagerVersion(pkg, pm)
-
+	const useNpmOverrideSyntax = ['npm', 'bun', 'deno'].includes(pm)
 	if (pm === 'pnpm') {
 		const overridesWithoutSpecialSyntax = Object.fromEntries(
 			Object.entries(overrides)
@@ -656,7 +656,7 @@ export async function applyPackageOverrides(
 			...pkg.resolutions,
 			...overrides,
 		}
-	} else if (pm === 'npm') {
+	} else if (useNpmOverrideSyntax) {
 		pkg.overrides = {
 			...pkg.overrides,
 			...overrides,
@@ -679,10 +679,8 @@ export async function applyPackageOverrides(
 	// use of `ni` command here could cause lockfile violation errors so fall back to native commands that avoid these
 	if (pm === 'pnpm') {
 		await $`pnpm install --prefer-frozen-lockfile --strict-peer-dependencies false`
-	} else if (pm === 'yarn') {
-		await $`yarn install`
-	} else if (pm === 'npm') {
-		await $`npm install`
+	} else {
+		await $`${pm} install`
 	}
 }
 
