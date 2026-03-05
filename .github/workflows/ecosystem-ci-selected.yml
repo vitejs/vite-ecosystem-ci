@@ -54,6 +54,7 @@ on:
           - ladle
           - laravel
           - marko
+          - netlify-vite-plugin
           - nuxt
           - nx
           - one

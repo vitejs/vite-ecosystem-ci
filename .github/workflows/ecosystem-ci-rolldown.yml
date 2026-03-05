@@ -54,6 +54,7 @@ jobs:
           - ladle
           - laravel
           - marko
+          - netlify-vite-plugin
           - nuxt
           - one
           # - nx # disabled temporarily
