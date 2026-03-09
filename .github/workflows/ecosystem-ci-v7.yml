@@ -1,5 +1,5 @@
 # integration tests for vite ecosystem projects - scheduled or manual run for all suites
-name: vite-ecosystem-ci (vite-8 beta)
+name: vite-ecosystem-ci (vite-7)
 
 env:
   # 7 GiB by default on GitHub, setting to 6 GiB
@@ -13,8 +13,6 @@ env:
   TURBO_TELEMETRY_DISABLED: 1
   DO_NOT_TRACK: 1
 on:
-  schedule:
-    - cron: "0 5 * * 2,4" # tuesday,thursday 5AM
   workflow_dispatch:
     inputs:
       refType:
@@ -31,12 +29,15 @@ on:
         description: "vite ref to use"
         required: true
         type: string
-        default: "main"
+        default: "v7"
       repo:
         description: "vite repository to use"
         required: true
         type: string
         default: "vitejs/vite"
+      sendDiscordReport:
+        description: "send results to discord"
+        type: boolean
   repository_dispatch:
     types: [ecosystem-ci]
 jobs:
@@ -99,18 +100,17 @@ jobs:
         id: ecosystem-ci-run
         env:
           REF_TYPE: ${{ inputs.refType || github.event.client_payload.refType || 'branch' }}
-          REF: ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
+          REF: ${{ inputs.ref || github.event.client_payload.ref || 'v7' }}
           REPO: ${{ inputs.repo || github.event.client_payload.repo || 'vitejs/vite' }}
           SUITE: ${{ matrix.suite }}
-      - if: always()
+      - if: always() && (inputs.sendDiscordReport || github.event_name != 'workflow_dispatch')
         run: pnpm tsx discord-webhook.ts
         env:
           WORKFLOW_NAME: ci
           REF_TYPE: ${{ inputs.refType || github.event.client_payload.refType || 'branch' }}
-          REF: ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
+          REF: ${{ inputs.ref || github.event.client_payload.ref || 'v7' }}
           REPO: ${{ inputs.repo || github.event.client_payload.repo || 'vitejs/vite' }}
           SUITE: ${{ matrix.suite }}
           STATUS: ${{ job.status }}
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL_ROLLDOWN_VITE }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          IS_ROLLDOWN_VITE: "1"
