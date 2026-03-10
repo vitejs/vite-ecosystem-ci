@@ -59,9 +59,9 @@ on:
           - one
           - quasar
           - qwik
-          # - rakkas # disabled temporarily
+          - rakkas
           - react-router
-          # - redwoodjs # disabled temporarily
+          - redwoodjs
           - storybook
           - sveltekit
           - tanstack-start
