@@ -11,7 +11,3 @@ export async function test(options: RunOptions) {
 		test: 'vite-ecosystem-ci:test',
 	})
 }
-
-export const rolldownViteExpectedFailureReason = `
-needs to be updated on storybook side ("yarn install" errors with peer dep errors)
-`
