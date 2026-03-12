@@ -14,7 +14,7 @@ env:
   DO_NOT_TRACK: 1
 on:
   schedule:
-    - cron: "0 5 * * 1,3,5" # monday,wednesday,friday 5AM
+    - cron: "0 5 * * 1-5" # Monday-Friday 5AM
   workflow_dispatch:
     inputs:
       refType:
@@ -31,7 +31,7 @@ on:
         description: "vite ref to use"
         required: true
         type: string
-        default: "v7"
+        default: "main"
       repo:
         description: "vite repository to use"
         required: true
@@ -102,7 +102,7 @@ jobs:
         id: ecosystem-ci-run
         env:
           REF_TYPE: ${{ inputs.refType || github.event.client_payload.refType || 'branch' }}
-          REF: ${{ inputs.ref || github.event.client_payload.ref || 'v7' }}
+          REF: ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
           REPO: ${{ inputs.repo || github.event.client_payload.repo || 'vitejs/vite' }}
           SUITE: ${{ matrix.suite }}
       - if: always() && (inputs.sendDiscordReport || github.event_name != 'workflow_dispatch')
@@ -110,9 +110,10 @@ jobs:
         env:
           WORKFLOW_NAME: ci
           REF_TYPE: ${{ inputs.refType || github.event.client_payload.refType || 'branch' }}
-          REF: ${{ inputs.ref || github.event.client_payload.ref || 'v7' }}
+          REF: ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
           REPO: ${{ inputs.repo || github.event.client_payload.repo || 'vitejs/vite' }}
           SUITE: ${{ matrix.suite }}
           STATUS: ${{ job.status }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IS_ROLLDOWN_VITE: "1"
