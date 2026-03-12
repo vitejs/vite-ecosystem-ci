@@ -160,7 +160,7 @@ jobs:
           - marko
           - nuxt
           # - nx # disabled temporarily
-          - one
+          # - one # disabled until we figured out how to support bun
           - quasar
           - qwik
           # - rakkas # disabled temporarily

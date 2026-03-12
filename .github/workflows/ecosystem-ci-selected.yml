@@ -56,7 +56,7 @@ on:
           - marko
           - nuxt
           - nx
-          - one
+          # - one # disabled until we figured out how to support bun
           - quasar
           - qwik
           - rakkas
