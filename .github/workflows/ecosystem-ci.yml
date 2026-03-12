@@ -114,6 +114,6 @@ jobs:
           REPO: ${{ inputs.repo || github.event.client_payload.repo || 'vitejs/vite' }}
           SUITE: ${{ matrix.suite }}
           STATUS: ${{ job.status }}
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL_ROLLDOWN_VITE }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           IS_ROLLDOWN_VITE: "1"
