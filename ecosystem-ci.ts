@@ -22,10 +22,13 @@ cli
 	.option('--tag <tag>', 'vite tag to use')
 	.option('--commit <commit>', 'vite commit sha to use')
 	.option('--release <version>', 'vite release to use from npm registry')
+	.option(
+		'--rolldown-ref <commit>',
+		'rolldown commit sha to use from pkg.pr.new',
+	)
 	.action(async (suites, options: CommandOptions) => {
 		if (options.commit) {
 			const url = `https://pkg.pr.new/vite@${options.commit}`
-			//eslint-disable-next-line n/no-unsupported-features/node-builtins
 			const { status } = await fetch(url)
 			if (status === 200) {
 				options.release = url
@@ -34,12 +37,25 @@ cli
 				console.log(`continuous release available on ${url}`)
 			}
 		}
+		let rolldownRelease: string | undefined
+		if (options.rolldownRef) {
+			const url = `https://pkg.pr.new/rolldown@${options.rolldownRef}`
+			const { status } = await fetch(url)
+			if (status === 200) {
+				rolldownRelease = url
+				console.log(`rolldown continuous release available on ${url}`)
+			} else {
+				throw new Error(
+					`rolldown continuous release not found for ref ${options.rolldownRef} (HTTP ${status}): ${url}`,
+				)
+			}
+		}
 		const { root, vitePath, workspace } = await setupEnvironment()
 		const suitesToRun = getSuitesToRun(suites, root)
 		let viteMajor
 		if (!options.release) {
 			await setupViteRepo(options)
-			await buildVite({ verify: options.verify })
+			await buildVite({ verify: options.verify, rolldownRelease })
 			viteMajor = parseViteMajor(vitePath)
 		} else {
 			viteMajor = parseMajorVersion(options.release)
@@ -50,6 +66,7 @@ cli
 			viteMajor,
 			workspace,
 			release: options.release,
+			rolldownRelease,
 			verify: options.verify,
 			skipGit: false,
 		}

@@ -15,6 +15,7 @@ export interface RunOptions {
 	verify?: boolean
 	skipGit?: boolean
 	release?: string
+	rolldownRelease?: string
 	agent?: (typeof AGENTS)[number]
 	build?: Task | Task[]
 	test?: Task | Task[]
@@ -34,6 +35,7 @@ export interface CommandOptions {
 	release?: string
 	verify?: boolean
 	skipGit?: boolean
+	rolldownRef?: string
 }
 
 export interface RepoOptions {

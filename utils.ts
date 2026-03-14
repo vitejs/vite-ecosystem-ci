@@ -352,6 +352,9 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			...localOverrides,
 		}
 	}
+	if (options.rolldownRelease) {
+		overrides.rolldown = options.rolldownRelease
+	}
 	await applyPackageOverrides(agent, dir, pkg, overrides)
 	await beforeBuildCommand?.(pkg.scripts)
 	await buildCommand?.(pkg.scripts)
@@ -414,12 +417,41 @@ export async function getPermanentRef() {
 	}
 }
 
-export async function buildVite({ verify = false }) {
+export async function buildVite({
+	verify = false,
+	rolldownRelease,
+}: { verify?: boolean; rolldownRelease?: string } = {}) {
 	cd(vitePath)
+
 	const frozenInstall = getCommand('pnpm', 'frozen')
 	const runBuild = getCommand('pnpm', 'run', ['build'])
 	const runTest = getCommand('pnpm', 'run', ['test'])
-	await $`${serializeCommand(frozenInstall)}`
+
+	if (rolldownRelease) {
+		// Override rolldown in vite's monorepo so it builds against the specified version
+		const pnpmWorkspaceFile = path.join(vitePath, 'pnpm-workspace.yaml')
+		if (!fs.existsSync(pnpmWorkspaceFile)) {
+			throw new Error(
+				`pnpm-workspace.yaml not found in vite repo, expected at ${pnpmWorkspaceFile}`,
+			)
+		}
+		let content = await fs.promises.readFile(pnpmWorkspaceFile, 'utf-8')
+		// Replace existing rolldown override value
+		const rolldownPattern = /^(\s+rolldown:\s+).+$/m
+		if (!rolldownPattern.test(content)) {
+			throw new Error(`rolldown override not found in ${pnpmWorkspaceFile}`)
+		}
+		content = content.replace(
+			rolldownPattern,
+			`$1${JSON.stringify(rolldownRelease)}`,
+		)
+		await fs.promises.writeFile(pnpmWorkspaceFile, content, 'utf-8')
+		console.log(`overriding rolldown in vite repo with ${rolldownRelease}`)
+
+		await $`pnpm install --no-frozen-lockfile`
+	} else {
+		await $`${serializeCommand(frozenInstall)}`
+	}
 	await $`${serializeCommand(runBuild)}`
 	if (verify) {
 		await $`${serializeCommand(runTest)}`
