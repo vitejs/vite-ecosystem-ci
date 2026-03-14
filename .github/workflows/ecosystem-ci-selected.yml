@@ -41,6 +41,9 @@ on:
       vite_plugin_react_repo:
         description: "vite-plugin-react repository to use"
         type: string
+      rolldownRef:
+        description: "rolldown commit sha to use from pkg.pr.new"
+        type: string
       suite:
         description: "testsuite to run"
         required: true
@@ -101,12 +104,14 @@ jobs:
           pnpm tsx ecosystem-ci.ts
           "--$REF_TYPE" "$REF"
           --repo "$REPO"
+          ${ROLLDOWN_REF:+--rolldown-ref "$ROLLDOWN_REF"}
           "$SUITE"
         id: ecosystem-ci-run
         env:
           REF_TYPE: ${{ inputs.refType }}
           REF: ${{ inputs.ref }}
           REPO: ${{ inputs.repo }}
+          ROLLDOWN_REF: ${{ inputs.rolldownRef }}
           SUITE: ${{ inputs.suite }}
           VITE_PLUGIN_REACT_REF: ${{ inputs.vite_plugin_react_ref }}
           VITE_PLUGIN_REACT_REPO: ${{ inputs.vite_plugin_react_repo }}
