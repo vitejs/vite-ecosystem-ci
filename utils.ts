@@ -12,7 +12,7 @@ import type {
 	Task,
 } from './types.d.ts'
 import { detect, AGENTS, getCommand, serializeCommand } from '@antfu/ni'
-import actionsCore from '@actions/core'
+import * as actionsCore from '@actions/core'
 import * as semver from 'semver'
 import pacote from 'pacote'
 
