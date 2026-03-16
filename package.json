@@ -46,7 +46,7 @@
     "execa": "^9.6.1"
   },
   "devDependencies": {
-    "@antfu/ni": "^28.3.0",
+    "@antfu/ni": "^29.0.0",
     "@eslint/js": "^9.39.4",
     "@types/node": "^22.19.15",
     "@types/pacote": "^11.1.8",
