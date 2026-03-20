@@ -47,11 +47,11 @@
   },
   "devDependencies": {
     "@antfu/ni": "^28.3.0",
-    "@eslint/js": "^9.39.4",
+    "@eslint/js": "^10.0.1",
     "@types/node": "^22.19.15",
     "@types/pacote": "^11.1.8",
     "@types/semver": "^7.7.1",
-    "eslint": "^9.39.4",
+    "eslint": "^10.1.0",
     "eslint-plugin-n": "^17.24.0",
     "lint-staged": "^15.5.2",
     "pacote": "^21.5.0",
