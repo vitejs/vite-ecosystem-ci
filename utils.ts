@@ -428,27 +428,13 @@ export async function buildVite({
 	const runTest = getCommand('pnpm', 'run', ['test'])
 
 	if (rolldownRelease) {
+		const pkgFile = path.join(vitePath, 'package.json')
+		const pkg = JSON.parse(await fs.promises.readFile(pkgFile, 'utf-8'))
 		// Override rolldown in vite's monorepo so it builds against the specified version
-		const pnpmWorkspaceFile = path.join(vitePath, 'pnpm-workspace.yaml')
-		if (!fs.existsSync(pnpmWorkspaceFile)) {
-			throw new Error(
-				`pnpm-workspace.yaml not found in vite repo, expected at ${pnpmWorkspaceFile}`,
-			)
-		}
-		let content = await fs.promises.readFile(pnpmWorkspaceFile, 'utf-8')
-		// Replace existing rolldown override value
-		const rolldownPattern = /^(\s+rolldown:\s+).+$/m
-		if (!rolldownPattern.test(content)) {
-			throw new Error(`rolldown override not found in ${pnpmWorkspaceFile}`)
-		}
-		content = content.replace(
-			rolldownPattern,
-			`$1${JSON.stringify(rolldownRelease)}`,
-		)
-		await fs.promises.writeFile(pnpmWorkspaceFile, content, 'utf-8')
-		console.log(`overriding rolldown in vite repo with ${rolldownRelease}`)
-
-		await $`pnpm install --no-frozen-lockfile`
+		await applyPackageOverrides('pnpm', vitePath, pkg, {
+			rolldown: rolldownRelease,
+		})
+		console.log(`overridden rolldown in vite repo with ${rolldownRelease}`)
 	} else {
 		await $`${serializeCommand(frozenInstall)}`
 	}
