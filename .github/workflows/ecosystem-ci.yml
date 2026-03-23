@@ -58,7 +58,7 @@ jobs:
           - laravel
           - marko
           - nuxt
-          - one
+          # - one # disabled until we figured out how to support bun
           # - nx # disabled temporarily
           - quasar
           - qwik
