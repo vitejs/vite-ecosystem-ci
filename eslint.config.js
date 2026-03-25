@@ -1,27 +1,21 @@
 // @ts-check
 import eslint from '@eslint/js'
-import pluginN from 'eslint-plugin-n'
+import n from 'eslint-plugin-n'
 import tseslint from 'typescript-eslint'
+import prettierConfig from 'eslint-config-prettier/flat'
 
-export default tseslint.config(
+export default tseslint.config([
 	{
+		name: 'local/ignores',
 		ignores: ['workspace/**'],
 	},
 	eslint.configs.recommended,
-	...tseslint.configs.recommended,
+	tseslint.configs.recommended,
+	n.configs['flat/recommended-module'],
+	prettierConfig,
 	{
-		name: 'main',
-		languageOptions: {
-			parser: tseslint.parser,
-			parserOptions: {
-				sourceType: 'module',
-				ecmaVersion: 2022,
-				project: true,
-			},
-		},
-		plugins: {
-			n: pluginN,
-		},
+		name: 'local/rules',
+		files: ['**/*.{js,ts}'],
 		rules: {
 			eqeqeq: ['warn', 'always', { null: 'never' }],
 			'no-debugger': ['error'],
@@ -34,9 +28,8 @@ export default tseslint.config(
 					destructuring: 'all',
 				},
 			],
-			'n/no-missing-import': 'off', // doesn't like ts imports
 			'n/no-process-exit': 'off',
 			'@typescript-eslint/no-explicit-any': 'off', // we use any in some places
 		},
 	},
-)
+])

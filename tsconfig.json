@@ -3,8 +3,8 @@
 	"exclude": ["**/node_modules/**", "./workspace/**"],
 	"compilerOptions": {
 		"target": "esnext",
-		"module": "nodenext",
-		"moduleResolution": "nodenext",
+		"module": "esnext",
+		"moduleResolution": "bundler",
 		"allowImportingTsExtensions": true,
 		"noEmit": true,
 		"skipLibCheck": true,
@@ -16,6 +16,8 @@
 		"useUnknownInCatchVariables": false,
 		"allowSyntheticDefaultImports": true,
 		"lib": ["esnext"],
-		"sourceMap": true
+		"sourceMap": true,
+		"erasableSyntaxOnly": true,
+		"verbatimModuleSyntax": true
 	}
 }
