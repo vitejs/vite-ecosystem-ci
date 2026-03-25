@@ -352,6 +352,9 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			...localOverrides,
 		}
 	}
+	if (options.rolldownRelease) {
+		overrides.rolldown = options.rolldownRelease
+	}
 	await applyPackageOverrides(agent, dir, pkg, overrides)
 	await beforeBuildCommand?.(pkg.scripts)
 	await buildCommand?.(pkg.scripts)
@@ -414,12 +417,27 @@ export async function getPermanentRef() {
 	}
 }
 
-export async function buildVite({ verify = false }) {
+export async function buildVite({
+	verify = false,
+	rolldownRelease,
+}: { verify?: boolean; rolldownRelease?: string } = {}) {
 	cd(vitePath)
+
 	const frozenInstall = getCommand('pnpm', 'frozen')
 	const runBuild = getCommand('pnpm', 'run', ['build'])
 	const runTest = getCommand('pnpm', 'run', ['test'])
-	await $`${serializeCommand(frozenInstall)}`
+
+	if (rolldownRelease) {
+		const pkgFile = path.join(vitePath, 'package.json')
+		const pkg = JSON.parse(await fs.promises.readFile(pkgFile, 'utf-8'))
+		// Override rolldown in vite's monorepo so it builds against the specified version
+		await applyPackageOverrides('pnpm', vitePath, pkg, {
+			rolldown: rolldownRelease,
+		})
+		console.log(`overridden rolldown in vite repo with ${rolldownRelease}`)
+	} else {
+		await $`${serializeCommand(frozenInstall)}`
+	}
 	await $`${serializeCommand(runBuild)}`
 	if (verify) {
 		await $`${serializeCommand(runTest)}`

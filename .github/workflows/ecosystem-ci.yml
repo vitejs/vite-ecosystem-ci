@@ -37,6 +37,9 @@ on:
         required: true
         type: string
         default: "vitejs/vite"
+      rolldownRef:
+        description: "rolldown commit sha to use from pkg.pr.new"
+        type: string
       sendDiscordReport:
         description: "send results to discord"
         type: boolean
@@ -98,12 +101,14 @@ jobs:
           pnpm tsx ecosystem-ci.ts
           "--$REF_TYPE" "$REF"
           --repo "$REPO"
+          ${ROLLDOWN_REF:+--rolldown-ref "$ROLLDOWN_REF"}
           "$SUITE"
         id: ecosystem-ci-run
         env:
           REF_TYPE: ${{ inputs.refType || github.event.client_payload.refType || 'branch' }}
           REF: ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
           REPO: ${{ inputs.repo || github.event.client_payload.repo || 'vitejs/vite' }}
+          ROLLDOWN_REF: ${{ inputs.rolldownRef || github.event.client_payload.rolldownRef }}
           SUITE: ${{ matrix.suite }}
       - if: always() && (inputs.sendDiscordReport || github.event_name != 'workflow_dispatch')
         run: pnpm tsx discord-webhook.ts
