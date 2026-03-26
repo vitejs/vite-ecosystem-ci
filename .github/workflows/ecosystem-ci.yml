@@ -111,7 +111,7 @@ jobs:
           ROLLDOWN_REF: ${{ inputs.rolldownRef || github.event.client_payload.rolldownRef }}
           SUITE: ${{ matrix.suite }}
       - if: always() && (inputs.sendDiscordReport || github.event_name != 'workflow_dispatch')
-        run: pnpm tsx discord-webhook.ts
+        run: node discord-webhook.ts
         env:
           WORKFLOW_NAME: ci
           REF_TYPE: ${{ inputs.refType || github.event.client_payload.refType || 'branch' }}
