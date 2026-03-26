@@ -5,14 +5,14 @@
   "description": "Vite Ecosystem CI",
   "scripts": {
     "prepare": "pnpm exec simple-git-hooks",
-    "lint": "eslint '**/*.ts'",
+    "lint": "eslint --cache '**/*.{js,ts}'",
     "lint:fix": "pnpm lint --fix",
     "typecheck": "tsc",
     "format": "prettier --ignore-path .gitignore --check .",
     "format:fix": "pnpm format --write",
-    "test:self": "tsx ecosystem-ci.ts _selftest",
-    "test": "tsx ecosystem-ci.ts",
-    "bisect": "tsx ecosystem-ci.ts bisect"
+    "test:self": "node ecosystem-ci.ts _selftest",
+    "test": "node ecosystem-ci.ts",
+    "bisect": "node ecosystem-ci.ts bisect"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm exec lint-staged --concurrent false"
@@ -21,14 +21,14 @@
     "*": [
       "prettier --write --ignore-unknown"
     ],
-    "*.ts": [
+    "*.{js,ts}": [
       "eslint --fix"
     ]
   },
   "packageManager": "pnpm@10.32.1",
   "type": "module",
   "engines": {
-    "node": ">=18",
+    "node": ">=24",
     "pnpm": "^10.0.0"
   },
   "repository": {
@@ -42,24 +42,24 @@
   "homepage": "https://github.com/vitejs/vite-ecosystem-ci#readme",
   "dependencies": {
     "@actions/core": "^3.0.0",
-    "cac": "^6.7.14",
+    "cac": "^7.0.0",
     "execa": "^9.6.1"
   },
   "devDependencies": {
-    "@antfu/ni": "^28.3.0",
-    "@eslint/js": "^9.39.4",
-    "@types/node": "^22.19.15",
+    "@antfu/ni": "^30.0.0",
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^25.5.0",
     "@types/pacote": "^11.1.8",
     "@types/semver": "^7.7.1",
-    "eslint": "^9.39.4",
+    "eslint": "^10.1.0",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-n": "^17.24.0",
-    "lint-staged": "^15.5.2",
+    "lint-staged": "^16.4.0",
     "pacote": "^21.5.0",
     "prettier": "^3.8.1",
     "semver": "^7.7.4",
     "simple-git-hooks": "^2.13.1",
-    "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.57.0"
+    "typescript-eslint": "^8.57.2"
   }
 }
