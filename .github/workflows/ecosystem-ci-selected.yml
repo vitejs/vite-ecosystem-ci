@@ -115,6 +115,12 @@ jobs:
           SUITE: ${{ inputs.suite }}
           VITE_PLUGIN_REACT_REF: ${{ inputs.vite_plugin_react_ref }}
           VITE_PLUGIN_REACT_REPO: ${{ inputs.vite_plugin_react_repo }}
+      - if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: debug-artifacts
+          path: |
+            workspace/tanstack-start/router/e2e/vue-start/basic/dist
       - if: always() && (inputs.sendDiscordReport || github.event_name != 'workflow_dispatch')
         run: node discord-webhook.ts
         env:
