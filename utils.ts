@@ -619,6 +619,14 @@ export async function applyPackageOverrides(
 				)
 				modified = true
 			}
+			if (content.includes('blockExoticSubdeps:')) {
+				// disable with comment to avoid error on installation if ecosystem-ci overrides pull in tarball URLs
+				content = content.replace(
+					/^([ \t]*blockExoticSubdeps[ \t]*:[ \t]*\w+[^\r\n]*)$/m,
+					'# $1 -- disabled by ecosystem-ci',
+				)
+				modified = true
+			}
 			if (modified) {
 				await fs.promises.writeFile(pnpmWorkspaceFile, content, 'utf-8')
 			}
