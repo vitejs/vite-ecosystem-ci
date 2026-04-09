@@ -8,8 +8,5 @@ export async function test(options: RunOptions) {
 		build: 'build',
 		beforeTest: 'pnpm playwright install chromium',
 		test: ['test', 'typecheck'],
-		overrides: {
-			'@vitejs/plugin-react-oxc>vite': 'catalog:rolldown-vite',
-		},
 	})
 }
