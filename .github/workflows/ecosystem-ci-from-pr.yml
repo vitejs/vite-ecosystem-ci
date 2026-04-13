@@ -43,7 +43,7 @@ on:
           # - histoire # disabled temporarily
           - hydrogen
           - iles
-          - ladle
+          # - ladle # disabled until its CI is fixed
           - laravel
           - marko
           - nuxt
@@ -155,7 +155,7 @@ jobs:
           # - histoire # disabled temporarily
           # - hydrogen # disabled until they complete they migration back to Vite
           # - iles # disabled until its CI is fixed
-          - ladle
+          # - ladle # disabled until its CI is fixed
           - laravel
           - marko
           - nuxt
