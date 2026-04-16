@@ -5,6 +5,8 @@ export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
 		repo: 'module-federation/vite',
-		test: 'pnpm test',
+		build: 'build',
+		beforeTest: 'pnpm playwright install chromium',
+		test: ['test', 'e2e'],
 	})
 }

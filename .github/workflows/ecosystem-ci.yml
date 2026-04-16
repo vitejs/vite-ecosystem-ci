@@ -60,6 +60,7 @@ jobs:
           # - ladle # disabled until its CI is fixed
           - laravel
           - marko
+          - module-federation
           - nuxt
           # - one # disabled until we figured out how to support bun
           # - nx # disabled temporarily
