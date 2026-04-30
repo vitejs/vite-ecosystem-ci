@@ -6,6 +6,6 @@ export async function test(options: RunOptions) {
 		...options,
 		repo: 'module-federation/vite',
 		build: 'build',
-		test: ['test', 'e2e'],
+		test: ['test', 'test:integration'],
 	})
 }
