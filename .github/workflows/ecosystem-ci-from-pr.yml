@@ -46,6 +46,7 @@ on:
           # - ladle # disabled until its CI is fixed
           - laravel
           - marko
+          - module-federation
           - nuxt
           - nx
           - one
@@ -158,6 +159,7 @@ jobs:
           # - ladle # disabled until its CI is fixed
           - laravel
           - marko
+          - module-federation
           - nuxt
           # - nx # disabled temporarily
           # - one # disabled until we figured out how to support bun

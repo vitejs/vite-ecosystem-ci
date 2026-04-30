@@ -57,6 +57,7 @@ on:
           - ladle
           - laravel
           - marko
+          - module-federation
           - nuxt
           - nx
           # - one # disabled until we figured out how to support bun
