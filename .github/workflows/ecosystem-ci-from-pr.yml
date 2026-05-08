@@ -86,7 +86,7 @@ jobs:
           private-key: ${{ secrets.PR_GITHUB_APP_PRIVATE_KEY }}
           repositories: vite
       - id: create-comment
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           result-encoding: string
@@ -228,7 +228,7 @@ jobs:
           repositories: |
             vite
             vite-ecosystem-ci
-      - uses: actions/github-script@v8
+      - uses: actions/github-script@v9
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
