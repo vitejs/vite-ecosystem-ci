@@ -9,7 +9,7 @@ export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
 		repo: 'laravel/vite-plugin',
-		branch: '2.x',
+		branch: options.viteMajor < 8 ? '2.x' : '3.x',
 		build: 'build',
 		async beforeTest() {
 			// Add `vitest.config.ts` to exclude Vite from inlined by Vitest.
