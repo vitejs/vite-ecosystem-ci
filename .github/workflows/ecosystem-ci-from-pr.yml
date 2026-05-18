@@ -40,6 +40,7 @@ on:
           - "-"
           - analogjs
           - astro
+          - ember
           # - histoire # disabled temporarily
           - hydrogen
           - iles
@@ -153,6 +154,7 @@ jobs:
         suite:
           - analogjs
           - astro
+          - ember
           # - histoire # disabled temporarily
           # - hydrogen # disabled until they complete they migration back to Vite
           # - iles # disabled until its CI is fixed
