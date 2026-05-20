@@ -9,6 +9,10 @@
 			"depTypeList": ["peerDependencies", "engines"],
 			"enabled": false,
 		},
+		{
+			"matchDepTypes": ["action"],
+			"pinDigests": true,
+		},
 	],
 	"ignoreDeps": [],
 }
