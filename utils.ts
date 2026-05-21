@@ -614,16 +614,16 @@ export async function applyPackageOverrides(
 			if (content.includes('minimumReleaseAge:')) {
 				// disable with comment to avoid error on installation if ecosystem-ci overrides pull in violating updates
 				content = content.replace(
-					/^([ \t]*minimumReleaseAge[ \t]*:[ \t]*\d+[^\r\n]*)$/m,
-					'# $1 -- disabled by ecosystem-ci',
+					/^([ \t]*minimumReleaseAge[ \t]*:)[ \t]*\d+[^\r\n]*$/m,
+					'$1 0 # disabled by ecosystem-ci',
 				)
 				modified = true
 			}
 			if (content.includes('blockExoticSubdeps:')) {
 				// disable with comment to avoid error on installation if ecosystem-ci overrides pull in tarball URLs
 				content = content.replace(
-					/^([ \t]*blockExoticSubdeps[ \t]*:[ \t]*\w+[^\r\n]*)$/m,
-					'# $1 -- disabled by ecosystem-ci',
+					/^([ \t]*blockExoticSubdeps[ \t]*:)[ \t]*\w+[^\r\n]*$/m,
+					'$1 false # disabled by ecosystem-ci',
 				)
 				modified = true
 			}
