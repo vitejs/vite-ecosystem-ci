@@ -591,8 +591,9 @@ export async function applyPackageOverrides(
 		const pnpmWorkspaceFile = path.join(dir, 'pnpm-workspace.yaml')
 		if (fs.existsSync(pnpmWorkspaceFile)) {
 			let content = await fs.promises.readFile(pnpmWorkspaceFile, 'utf-8')
+
+			delete pkg.pnpm.overrides // remove pnpm.overrides from package.json so that pnpm-workspace.yaml's one is used
 			if (/^overrides:/m.test(content)) {
-				delete pkg.pnpm.overrides // remove pnpm.overrides from package.json so that pnpm-workspace.yaml's one is used
 				// merge with existing overrides
 				const output = await $`pnpm config list --json --location project`
 				const currentOverrides = JSON.parse(output).overrides
@@ -608,7 +609,15 @@ export async function applyPackageOverrides(
 							)
 							.join('')}`,
 				)
+			} else {
+				content += `\noverrides:\n${Object.entries(overrides)
+					.map(
+						([name, version]) =>
+							`  ${JSON.stringify(name)}: ${JSON.stringify(version)}\n`,
+					)
+					.join('')}`
 			}
+
 			if (content.includes('minimumReleaseAge:')) {
 				// disable with comment to avoid error on installation if ecosystem-ci overrides pull in violating updates
 				content = content.replace(
