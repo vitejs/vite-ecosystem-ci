@@ -591,7 +591,6 @@ export async function applyPackageOverrides(
 		const pnpmWorkspaceFile = path.join(dir, 'pnpm-workspace.yaml')
 		if (fs.existsSync(pnpmWorkspaceFile)) {
 			let content = await fs.promises.readFile(pnpmWorkspaceFile, 'utf-8')
-			let modified = false
 			if (/^overrides:/m.test(content)) {
 				delete pkg.pnpm.overrides // remove pnpm.overrides from package.json so that pnpm-workspace.yaml's one is used
 				// merge with existing overrides
@@ -609,7 +608,6 @@ export async function applyPackageOverrides(
 							)
 							.join('')}`,
 				)
-				modified = true
 			}
 			if (content.includes('minimumReleaseAge:')) {
 				// disable with comment to avoid error on installation if ecosystem-ci overrides pull in violating updates
@@ -617,7 +615,8 @@ export async function applyPackageOverrides(
 					/^([ \t]*minimumReleaseAge[ \t]*:)[ \t]*\d+[^\r\n]*$/m,
 					'$1 0 # disabled by ecosystem-ci',
 				)
-				modified = true
+			} else {
+				content += '\nminimumReleaseAge: 0 # added by ecosystem-ci'
 			}
 			if (content.includes('blockExoticSubdeps:')) {
 				// disable with comment to avoid error on installation if ecosystem-ci overrides pull in tarball URLs
@@ -625,11 +624,11 @@ export async function applyPackageOverrides(
 					/^([ \t]*blockExoticSubdeps[ \t]*:)[ \t]*\w+[^\r\n]*$/m,
 					'$1 false # disabled by ecosystem-ci',
 				)
-				modified = true
+			} else {
+				content += '\nblockExoticSubdeps: false # added by ecosystem-ci'
 			}
-			if (modified) {
-				await fs.promises.writeFile(pnpmWorkspaceFile, content, 'utf-8')
-			}
+			content += '\nstrictDepBuilds: false # added by ecosystem-ci'
+			await fs.promises.writeFile(pnpmWorkspaceFile, content, 'utf-8')
 		}
 	} else if (pm === 'yarn') {
 		pkg.resolutions = {
