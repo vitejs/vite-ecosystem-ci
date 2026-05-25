@@ -5,7 +5,7 @@ export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
 		repo: 'sveltejs/rollup-plugin-svelte',
-		branch: 'master',
+		branch: 'main',
 		test: 'test',
 	})
 }

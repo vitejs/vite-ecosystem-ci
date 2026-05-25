@@ -5,7 +5,7 @@ export async function build(options: RunOptions) {
 	return runInRepo({
 		...options,
 		repo: 'sveltejs/rollup-plugin-svelte',
-		branch: 'master',
+		branch: 'main',
 	})
 }
 
