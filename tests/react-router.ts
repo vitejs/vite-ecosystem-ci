@@ -14,7 +14,3 @@ export async function test(options: RunOptions) {
 		},
 	})
 }
-
-export const rolldownViteExpectedFailureReason = `
-needs to be updated on react-router side (incorrect tests)
-`
