@@ -9,7 +9,6 @@ export async function build(options: RunOptions) {
 		overrides: {
 			'svelte-check': false,
 			'@sveltejs/vite-plugin-svelte': false,
-			'@sveltejs/vite-plugin-svelte-inspector': false,
 			'@sveltejs/kit': false,
 		},
 	})
@@ -17,6 +16,4 @@ export async function build(options: RunOptions) {
 
 export const packages = {
 	'@sveltejs/vite-plugin-svelte': 'packages/vite-plugin-svelte',
-	'@sveltejs/vite-plugin-svelte-inspector':
-		'packages/vite-plugin-svelte-inspector',
 }
