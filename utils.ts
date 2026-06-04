@@ -294,6 +294,12 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			...localOverrides,
 		}
 	}
+	const stringOverrides = Object.fromEntries(
+		Object.entries(overrides).filter(
+			(entry): entry is [string, string] => typeof entry[1] === 'string',
+		),
+	)
+	await patchLinkedPackageWorkspaceDeps(stringOverrides)
 	await applyPackageOverrides(dir, pkg, overrides)
 	await beforeBuildCommand?.(pkg.scripts)
 	await buildCommand?.(pkg.scripts)
@@ -423,6 +429,80 @@ function isLocalOverride(v: string): boolean {
 			throw e
 		}
 		return false
+	}
+}
+
+const PACKAGE_DEP_FIELDS = [
+	'dependencies',
+	'devDependencies',
+	'peerDependencies',
+	'optionalDependencies',
+] as const
+
+/**
+ * When a local package is linked into another repo, its `workspace:*` deps must
+ * also be linked (or patched) — otherwise pnpm resolves them in the consumer workspace.
+ */
+function expandWorkspaceSiblingOverrides(
+	overrides: Record<string, string>,
+	dir: string,
+	packages: Record<string, string>,
+) {
+	let added = true
+	while (added) {
+		added = false
+		for (const [name, relPath] of Object.entries(packages)) {
+			if (!(name in overrides)) continue
+			const pkgFile = path.join(dir, relPath, 'package.json')
+			const pkg = JSON.parse(fs.readFileSync(pkgFile, 'utf-8'))
+			for (const field of PACKAGE_DEP_FIELDS) {
+				for (const [dep, version] of Object.entries(pkg[field] ?? {})) {
+					if (
+						typeof version === 'string' &&
+						version.startsWith('workspace:') &&
+						dep in packages &&
+						!(dep in overrides)
+					) {
+						overrides[dep] = `${dir}/${packages[dep]}`
+						added = true
+					}
+				}
+			}
+		}
+	}
+}
+
+/** Rewrite `workspace:*` in linked packages to `file:` paths pnpm can install. */
+async function patchLinkedPackageWorkspaceDeps(
+	overrides: Record<string, string>,
+) {
+	for (const localPath of Object.values(overrides)) {
+		if (!isLocalOverride(localPath)) continue
+		const pkgFile = path.join(localPath, 'package.json')
+		const pkg = JSON.parse(await fs.promises.readFile(pkgFile, 'utf-8'))
+		let modified = false
+		for (const field of PACKAGE_DEP_FIELDS) {
+			const deps = pkg[field]
+			if (!deps) continue
+			for (const [dep, version] of Object.entries(deps)) {
+				if (
+					typeof version === 'string' &&
+					version.startsWith('workspace:') &&
+					dep in overrides &&
+					isLocalOverride(overrides[dep])
+				) {
+					deps[dep] = `file:${path.resolve(overrides[dep])}`
+					modified = true
+				}
+			}
+		}
+		if (modified) {
+			await fs.promises.writeFile(
+				pkgFile,
+				JSON.stringify(pkg, null, 2),
+				'utf-8',
+			)
+		}
 	}
 }
 
@@ -627,6 +707,11 @@ async function buildOverrides(
 				overrides[name] = `${dir}/${path}`
 			}
 		}
+		expandWorkspaceSiblingOverrides(
+			overrides as Record<string, string>,
+			dir,
+			buildDef.packages,
+		)
 	}
 	return overrides
 }
