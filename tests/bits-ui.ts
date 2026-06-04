@@ -12,6 +12,7 @@ export async function test(options: RunOptions) {
 			'@sveltejs/vite-plugin-svelte': false, // bits-ui uses older Vite version which our newest v-p-s isn't compabitle with
 			'@sveltejs/vite-plugin-svelte-inspector': false,
 			'@sveltejs/kit': true,
+			'@sveltejs/load-config': true,
 			'svelte-check': true,
 		},
 	})

@@ -12,5 +12,6 @@ export async function build(options: RunOptions) {
 }
 
 export const packages = {
+	'@sveltejs/load-config': 'packages/load-config',
 	'svelte-check': 'packages/svelte-check',
 }

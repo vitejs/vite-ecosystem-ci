@@ -11,6 +11,7 @@ export async function test(options: RunOptions) {
 			'@sveltejs/vite-plugin-svelte': true,
 			'@sveltejs/vite-plugin-svelte-inspector': true,
 			'@sveltejs/kit': true,
+			'@sveltejs/load-config': true,
 			'svelte-check': true,
 		},
 	})
