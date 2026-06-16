@@ -5,7 +5,7 @@ export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
 		repo: 'remix-run/react-router',
-		branch: 'dev',
+		branch: 'main',
 		build: 'vite-ecosystem-ci:build',
 		beforeTest: 'vite-ecosystem-ci:before-test',
 		test: 'vite-ecosystem-ci:test',
