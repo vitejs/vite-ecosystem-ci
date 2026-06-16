@@ -1,45 +1,29 @@
 {
   "name": "vite-ecosystem-ci",
-  "private": true,
   "version": "0.0.1",
+  "private": true,
   "description": "Vite Ecosystem CI",
+  "homepage": "https://github.com/vitejs/vite-ecosystem-ci#readme",
+  "bugs": {
+    "url": "https://github.com/vitejs/vite-ecosystem-ci/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitejs/vite-ecosystem-ci.git"
+  },
+  "type": "module",
   "scripts": {
     "prepare": "pnpm exec simple-git-hooks",
     "lint": "eslint --cache '**/*.{js,ts}'",
     "lint:fix": "pnpm lint --fix",
     "typecheck": "tsc",
-    "format": "prettier --ignore-path .gitignore --check .",
-    "format:fix": "pnpm format --write",
+    "format": "oxfmt --check",
+    "format:fix": "oxfmt --write",
     "test:self": "node ecosystem-ci.ts _selftest",
     "test": "node ecosystem-ci.ts",
     "bisect": "node ecosystem-ci.ts bisect"
   },
-  "simple-git-hooks": {
-    "pre-commit": "pnpm exec lint-staged --concurrent false"
-  },
-  "lint-staged": {
-    "*": [
-      "prettier --write --ignore-unknown"
-    ],
-    "*.{js,ts}": [
-      "eslint --fix"
-    ]
-  },
-  "packageManager": "pnpm@10.34.3",
-  "type": "module",
-  "engines": {
-    "node": ">=24",
-    "pnpm": "^10.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/vitejs/vite-ecosystem-ci.git"
-  },
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/vitejs/vite-ecosystem-ci/issues"
-  },
-  "homepage": "https://github.com/vitejs/vite-ecosystem-ci#readme",
   "dependencies": {
     "@actions/core": "^3.0.1",
     "cac": "^7.0.0",
@@ -55,11 +39,27 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-n": "^18.1.0",
     "lint-staged": "^17.0.7",
+    "oxfmt": "^0.55.0",
     "pacote": "^21.5.1",
-    "prettier": "^3.8.4",
     "semver": "^7.8.4",
     "simple-git-hooks": "^2.13.1",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.61.1"
-  }
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm exec lint-staged --concurrent false"
+  },
+  "lint-staged": {
+    "*": [
+      "oxfmt --no-error-on-unmatched-pattern"
+    ],
+    "*.{js,ts}": [
+      "eslint --fix"
+    ]
+  },
+  "engines": {
+    "node": ">=24",
+    "pnpm": "^10.0.0"
+  },
+  "packageManager": "pnpm@10.34.3"
 }

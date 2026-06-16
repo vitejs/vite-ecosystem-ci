@@ -7,12 +7,12 @@
 	"packageRules": [
 		{
 			"depTypeList": ["peerDependencies", "engines"],
-			"enabled": false,
+			"enabled": false
 		},
 		{
 			"matchDepTypes": ["action"],
-			"pinDigests": true,
-		},
+			"pinDigests": true
+		}
 	],
-	"ignoreDeps": [],
+	"ignoreDeps": []
 }
