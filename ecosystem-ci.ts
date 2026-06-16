@@ -22,10 +22,7 @@ cli
 	.option('--tag <tag>', 'vite tag to use')
 	.option('--commit <commit>', 'vite commit sha to use')
 	.option('--release <version>', 'vite release to use from npm registry')
-	.option(
-		'--rolldown-ref <commit>',
-		'rolldown commit sha to use from pkg.pr.new',
-	)
+	.option('--rolldown-ref <commit>', 'rolldown commit sha to use from pkg.pr.new')
 	.action(async (suites, options: CommandOptions) => {
 		if (options.commit) {
 			const url = `https://pkg.pr.new/vite@${options.commit}`
@@ -92,11 +89,9 @@ cli
 
 cli
 	.command('run-suites [...suites]', 'run single suite with pre-built vite')
-	.option(
-		'--verify',
-		'verify checkout by running tests before using local vite',
-		{ default: false },
-	)
+	.option('--verify', 'verify checkout by running tests before using local vite', {
+		default: false,
+	})
 	.option('--repo <repo>', 'vite repository to use', { default: 'vitejs/vite' })
 	.option('--release <version>', 'vite release to use from npm registry')
 	.action(async (suites, options: CommandOptions) => {
@@ -115,10 +110,7 @@ cli
 	})
 
 cli
-	.command(
-		'bisect [...suites]',
-		'use git bisect to find a commit in vite that broke suites',
-	)
+	.command('bisect [...suites]', 'use git bisect to find a commit in vite that broke suites')
 	.option('--good <ref>', 'last known good ref, e.g. a previous tag. REQUIRED!')
 	.option('--verify', 'verify checkouts by running tests', { default: false })
 	.option('--repo <repo>', 'vite repository to use', { default: 'vitejs/vite' })
@@ -127,9 +119,7 @@ cli
 	.option('--commit <commit>', 'vite commit sha to use')
 	.action(async (suites, options: CommandOptions & { good: string }) => {
 		if (!options.good) {
-			console.log(
-				'you have to specify a known good version with `--good <commit|tag>`',
-			)
+			console.log('you have to specify a known good version with `--good <commit|tag>`')
 			process.exit(1)
 		}
 		const { root, vitePath, workspace } = await setupEnvironment()

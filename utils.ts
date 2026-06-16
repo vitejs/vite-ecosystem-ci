@@ -28,8 +28,7 @@ function cd(dir: string) {
 
 export async function $(literals: TemplateStringsArray, ...values: any[]) {
 	const cmd = literals.reduce(
-		(result, current, i) =>
-			result + current + (values?.[i] != null ? `${values[i]}` : ''),
+		(result, current, i) => result + current + (values?.[i] != null ? `${values[i]}` : ''),
 		'',
 	)
 
@@ -131,8 +130,7 @@ export async function setupRepo(options: RepoOptions) {
 			// when not a git repo
 		}
 		if (repo === currentClonedRepo) {
-			const isShallow =
-				(await $`git rev-parse --is-shallow-repository`).trim() === 'true'
+			const isShallow = (await $`git rev-parse --is-shallow-repository`).trim() === 'true'
 			if (isShallow === shallow) {
 				needClone = false
 			}
@@ -190,20 +188,13 @@ function toCommand(
 				await task()
 			} else if (task?.script) {
 				if (scripts[task.script] != null) {
-					const runTaskWithAgent = getCommand(agent, 'run', [
-						task.script,
-						...(task.args ?? []),
-					])
+					const runTaskWithAgent = getCommand(agent, 'run', [task.script, ...(task.args ?? [])])
 					await $`${serializeCommand(runTaskWithAgent)}`
 				} else {
-					throw new Error(
-						`invalid task, script "${task.script}" does not exist in package.json`,
-					)
+					throw new Error(`invalid task, script "${task.script}" does not exist in package.json`)
 				}
 			} else {
-				throw new Error(
-					`invalid task, expected string or function but got ${typeof task}: ${task}`,
-				)
+				throw new Error(`invalid task, expected string or function but got ${typeof task}: ${task}`)
 			}
 		}
 	}
@@ -252,9 +243,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		options.agent = detectedAgent
 	}
 	if (!AGENTS.includes(options.agent)) {
-		throw new Error(
-			`Invalid agent ${options.agent}. Allowed values: ${AGENTS.join(', ')}`,
-		)
+		throw new Error(`Invalid agent ${options.agent}. Allowed values: ${AGENTS.join(', ')}`)
 	}
 	const agent = options.agent
 	const beforeInstallCommand = toCommand(beforeInstall, agent)
@@ -286,11 +275,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			overrides.vite = options.release
 		}
 
-		if (
-			overrides.rollup !== false ||
-			overrides.esbuild === true ||
-			overrides.vitest !== false
-		) {
+		if (overrides.rollup !== false || overrides.esbuild === true || overrides.vitest !== false) {
 			const viteManifest = await pacote.manifest(`vite@${options.release}`, {
 				retry: {
 					// enable retry with same options with pnpm (https://pnpm.io/settings#fetchretries)
@@ -319,23 +304,16 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 	} else {
 		overrides.vite ||= `${options.vitePath}/packages/vite`
 
-		overrides[`@vitejs/plugin-legacy`] ||=
-			`${options.vitePath}/packages/plugin-legacy`
+		overrides[`@vitejs/plugin-legacy`] ||= `${options.vitePath}/packages/plugin-legacy`
 
 		const vitePackageInfo = await getVitePackageInfo(options.vitePath)
 		// skip if `overrides.rollup` is `false`
-		if (
-			vitePackageInfo.dependencies.rollup?.version &&
-			overrides.rollup !== false
-		) {
+		if (vitePackageInfo.dependencies.rollup?.version && overrides.rollup !== false) {
 			overrides.rollup = vitePackageInfo.dependencies.rollup.version
 		}
 
 		// apply if `overrides.esbuild` is `true`
-		if (
-			vitePackageInfo.dependencies.esbuild?.version &&
-			overrides.esbuild === true
-		) {
+		if (vitePackageInfo.dependencies.esbuild?.version && overrides.esbuild === true) {
 			overrides.esbuild = vitePackageInfo.dependencies.esbuild.version
 		}
 
@@ -377,9 +355,7 @@ export async function setupViteRepo(options: Partial<RepoOptions>) {
 
 	try {
 		const rootPackageJsonFile = path.join(vitePath, 'package.json')
-		const rootPackageJson = JSON.parse(
-			await fs.promises.readFile(rootPackageJsonFile, 'utf-8'),
-		)
+		const rootPackageJson = JSON.parse(await fs.promises.readFile(rootPackageJsonFile, 'utf-8'))
 		const viteMonoRepoNames = ['@vitejs/vite-monorepo', 'vite-monorepo']
 		const { name } = rootPackageJson
 		if (!viteMonoRepoNames.includes(name)) {
@@ -387,16 +363,9 @@ export async function setupViteRepo(options: Partial<RepoOptions>) {
 				`expected  "name" field of ${repo}/package.json to indicate vite monorepo, but got ${name}.`,
 			)
 		}
-		const needsWrite = await overridePackageManagerVersion(
-			rootPackageJson,
-			'pnpm',
-		)
+		const needsWrite = await overridePackageManagerVersion(rootPackageJson, 'pnpm')
 		if (needsWrite) {
-			fs.writeFileSync(
-				rootPackageJsonFile,
-				JSON.stringify(rootPackageJson, null, 2),
-				'utf-8',
-			)
+			fs.writeFileSync(rootPackageJsonFile, JSON.stringify(rootPackageJson, null, 2), 'utf-8')
 			if (rootPackageJson.devDependencies?.pnpm) {
 				await $`pnpm install -Dw pnpm --lockfile-only`
 			}
@@ -444,10 +413,7 @@ export async function buildVite({
 	}
 }
 
-export async function bisectVite(
-	good: string,
-	runSuite: () => Promise<Error | void>,
-) {
+export async function bisectVite(good: string, runSuite: () => Promise<Error | void>) {
 	// sometimes vite build modifies files in git, e.g. LICENSE.md
 	// this would stop bisect, so to reset those changes
 	const resetChanges = async () => $`git reset --hard HEAD`
@@ -548,8 +514,7 @@ export async function applyPackageOverrides(
 	pkg: any,
 	overrides: Overrides = {},
 ) {
-	const useFileProtocol = (v: string) =>
-		isLocalOverride(v) ? `file:${path.resolve(v)}` : v
+	const useFileProtocol = (v: string) => (isLocalOverride(v) ? `file:${path.resolve(v)}` : v)
 	// remove boolean flags
 	overrides = Object.fromEntries(
 		Object.entries(overrides)
@@ -603,18 +568,12 @@ export async function applyPackageOverrides(
 					/^overrides:\n((?:[ \t]+.+\n)*)/m,
 					() =>
 						`overrides:\n${Object.entries(mergedOverrides)
-							.map(
-								([name, version]) =>
-									`  ${JSON.stringify(name)}: ${JSON.stringify(version)}\n`,
-							)
+							.map(([name, version]) => `  ${JSON.stringify(name)}: ${JSON.stringify(version)}\n`)
 							.join('')}`,
 				)
 			} else {
 				content += `\noverrides:\n${Object.entries(overrides)
-					.map(
-						([name, version]) =>
-							`  ${JSON.stringify(name)}: ${JSON.stringify(version)}\n`,
-					)
+					.map(([name, version]) => `  ${JSON.stringify(name)}: ${JSON.stringify(version)}\n`)
 					.join('')}`
 			}
 
@@ -686,10 +645,7 @@ export function dirnameFrom(url: string) {
 }
 
 export function parseViteMajor(vitePath: string): number {
-	const content = fs.readFileSync(
-		path.join(vitePath, 'packages', 'vite', 'package.json'),
-		'utf-8',
-	)
+	const content = fs.readFileSync(path.join(vitePath, 'packages', 'vite', 'package.json'), 'utf-8')
 	const pkg = JSON.parse(content)
 	return parseMajorVersion(pkg.version)
 }
@@ -698,11 +654,7 @@ export function parseMajorVersion(version: string) {
 	return parseInt(version.split('.', 1)[0], 10)
 }
 
-async function buildOverrides(
-	pkg: any,
-	options: RunOptions,
-	repoOverrides: Overrides,
-) {
+async function buildOverrides(pkg: any, options: RunOptions, repoOverrides: Overrides) {
 	const { root } = options
 	const buildsPath = path.join(root, 'builds')
 	const buildFiles: string[] = fs

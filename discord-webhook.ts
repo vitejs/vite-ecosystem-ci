@@ -37,15 +37,11 @@ async function run() {
 		throw new Error('This script can only run on GitHub Actions.')
 	}
 	if (!process.env.DISCORD_WEBHOOK_URL) {
-		console.warn(
-			"Skipped beacuse process.env.DISCORD_WEBHOOK_URL was empty or didn't exist",
-		)
+		console.warn("Skipped beacuse process.env.DISCORD_WEBHOOK_URL was empty or didn't exist")
 		return
 	}
 	if (!process.env.GITHUB_TOKEN) {
-		console.warn(
-			"Not using a token because process.env.GITHUB_TOKEN was empty or didn't exist",
-		)
+		console.warn("Not using a token because process.env.GITHUB_TOKEN was empty or didn't exist")
 	}
 
 	const env = process.env as Env
@@ -61,10 +57,7 @@ async function run() {
 	const expectedFailureReason = isRolldownVite
 		? await loadExpectedFailureReason(env.SUITE)
 		: undefined
-	const status =
-		env.STATUS === 'failure' && expectedFailureReason
-			? 'expectedFailure'
-			: env.STATUS
+	const status = env.STATUS === 'failure' && expectedFailureReason ? 'expectedFailure' : env.STATUS
 
 	await setupEnvironment()
 
@@ -80,11 +73,7 @@ async function run() {
 		embeds: [
 			{
 				title: `${statusConfig[status].emoji}  ${env.SUITE}`,
-				description: await createDescription(
-					env.SUITE,
-					targetText,
-					expectedFailureReason,
-				),
+				description: await createDescription(env.SUITE, targetText, expectedFailureReason),
 				color: statusConfig[status].color,
 			},
 		],
@@ -104,10 +93,7 @@ async function run() {
 	}
 }
 
-function assertEnv<T>(
-	name: string,
-	value: T,
-): asserts value is Exclude<T, undefined> {
+function assertEnv<T>(name: string, value: T): asserts value is Exclude<T, undefined> {
 	if (!value) {
 		throw new Error(`process.env.${name} is empty or does not exist.`)
 	}
@@ -136,9 +122,7 @@ async function createRunUrl(suite: string) {
 	}
 
 	// when matrix
-	const jobM = result.jobs.find(
-		(job) => job.name === `${process.env.GITHUB_JOB} (${suite})`,
-	)
+	const jobM = result.jobs.find((job) => job.name === `${process.env.GITHUB_JOB} (${suite})`)
 	return jobM?.html_url
 }
 
@@ -160,9 +144,7 @@ async function fetchJobs() {
 		},
 	})
 	if (!res.ok) {
-		console.warn(
-			`Failed to fetch jobs (${res.status} ${res.statusText}): ${res.text()}`,
-		)
+		console.warn(`Failed to fetch jobs (${res.status} ${res.statusText}): ${res.text()}`)
 		return null
 	}
 

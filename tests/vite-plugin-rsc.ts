@@ -7,9 +7,6 @@ export async function test(options: RunOptions) {
 		repo: 'vitejs/vite-plugin-react',
 		build: 'build',
 		beforeTest: 'pnpm playwright install chromium',
-		test: [
-			'pnpm -C packages/plugin-rsc test-e2e',
-			'pnpm -C packages/plugin-rsc tsc',
-		],
+		test: ['pnpm -C packages/plugin-rsc test-e2e', 'pnpm -C packages/plugin-rsc tsc'],
 	})
 }

@@ -13,9 +13,7 @@ export async function test(options: RunOptions) {
 		beforeTest: [
 			process.env.GITHUB_ACTIONS
 				? async () => {
-						execSync(
-							'echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns',
-						)
+						execSync('echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns')
 					}
 				: null,
 			'pnpm --dir testbed/examples exec puppeteer browsers install chrome',
