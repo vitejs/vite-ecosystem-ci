@@ -636,7 +636,14 @@ export async function applyPackageOverrides(
 			} else {
 				content += '\nblockExoticSubdeps: false # added by ecosystem-ci'
 			}
-			content += '\nstrictDepBuilds: false # added by ecosystem-ci'
+			if (content.includes('strictDepBuilds:')) {
+				content = content.replace(
+					/^([ \t]*strictDepBuilds[ \t]*:)[ \t]*\w+[^\r\n]*$/m,
+					'$1 false # disabled by ecosystem-ci',
+				)
+			} else {
+				content += '\nstrictDepBuilds: false # added by ecosystem-ci'
+			}
 			await fs.promises.writeFile(pnpmWorkspaceFile, content, 'utf-8')
 		}
 	} else if (pm === 'yarn') {
