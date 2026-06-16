@@ -3,8 +3,6 @@
 	"useTabs": true,
 	"semi": false,
 	"singleQuote": true,
-	"printWidth": 80,
-	"sortPackageJson": false,
 	"ignorePatterns": [],
 	"overrides": [
 		{
