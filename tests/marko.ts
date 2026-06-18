@@ -7,7 +7,6 @@ export async function test(options: RunOptions) {
 		repo: 'marko-js/vite',
 		dir: 'marko', // default is last segment of repo, which would be vite and confusing
 		build: 'build',
-		beforeTest: 'pnpm playwright install chromium',
 		test: 'test',
 		overrides: {
 			esbuild: true,
