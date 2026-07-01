@@ -1,0 +1,327 @@
+# integration tests for the vite ecosystem - run rolldown from a rolldown PR comment
+# vite stays on main and rolldown is overridden with the PR's pkg.pr.new preview
+name: vite-ecosystem-ci-from-pr-rolldown
+
+env:
+  # 7 GiB by default on GitHub, setting to 6 GiB
+  # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+  NODE_OPTIONS: --max-old-space-size=6144
+  # configure corepack to be strict but not download newer versions or change anything
+  COREPACK_DEFAULT_TO_LATEST: 0
+  COREPACK_ENABLE_AUTO_PIN: 0
+  COREPACK_ENABLE_STRICT: 1
+  # see https://turbo.build/repo/docs/telemetry#how-do-i-opt-out
+  TURBO_TELEMETRY_DISABLED: 1
+  DO_NOT_TRACK: 1
+on:
+  workflow_dispatch:
+    inputs:
+      prNumber:
+        description: "rolldown PR number (e.g. 9705)"
+        required: true
+        type: string
+      rolldownRef:
+        description: "rolldown commit sha to use from pkg.pr.new"
+        required: true
+        type: string
+      suite:
+        description: "testsuite to run. runs all testsuites when `-`."
+        required: false
+        type: choice
+        options:
+          - "-"
+          - analogjs
+          - astro
+          # - histoire # disabled temporarily
+          - hydrogen
+          - iles
+          # - ladle # disabled until its CI is fixed
+          - laravel
+          - marko
+          - module-federation
+          - nuxt
+          - nx
+          - one
+          - quasar
+          - qwik
+          # - rakkas # disabled temporarily
+          - react-router
+          # - redwoodjs # disabled temporarily
+          - storybook
+          - sveltekit
+          - tanstack-start
+          - unocss
+          - vike
+          - vite-environment-examples
+          - vite-plugin-pwa
+          - vite-plugin-react
+          - vite-plugin-svelte
+          - vite-plugin-vue
+          - vite-plugin-cloudflare
+          - vite-plugin-rsc
+          - vite-setup-catalogue
+          - vitepress
+          - vitest
+          - vuepress
+          - waku
+jobs:
+  init:
+    runs-on: ubuntu-latest
+    outputs:
+      comment-id: ${{ steps.create-comment.outputs.result }}
+    permissions: {}
+    steps:
+      - id: generate-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+        with:
+          client-id: ${{ secrets.ECOSYSTEM_CI_GITHUB_APP_ID }}
+          private-key: ${{ secrets.ECOSYSTEM_CI_GITHUB_APP_PRIVATE_KEY }}
+          owner: rolldown
+          repositories: rolldown
+          permission-issues: write # to comment on the rolldown PR
+      - id: create-comment
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          result-encoding: string
+          script: |
+            const url = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            const urlLink = `[Open](${url})`
+
+            const { data: comment } = await github.rest.issues.createComment({
+              issue_number: context.payload.inputs.prNumber,
+              owner: 'rolldown',
+              repo: 'rolldown',
+              body: `⏳ Triggered ecosystem CI: ${urlLink}`
+            })
+            return comment.id
+
+  execute-selected-suite:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    needs: init
+    if: "inputs.suite != '-'"
+    permissions:
+      contents: read # to clone the repo
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: 24.15.0
+      - run: corepack enable
+      - run: pnpm --version
+      - run: pnpm i --frozen-lockfile
+      - run: >-
+          node ecosystem-ci.ts
+          --rolldown-ref "$ROLLDOWN_REF"
+          "$SUITE"
+        env:
+          ROLLDOWN_REF: ${{ inputs.rolldownRef }}
+          SUITE: ${{ inputs.suite }}
+
+  execute-all:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    needs: init
+    if: "inputs.suite == '-'"
+    strategy:
+      matrix:
+        suite:
+          - analogjs
+          - astro
+          # - histoire # disabled temporarily
+          # - hydrogen # disabled until they complete they migration back to Vite
+          # - iles # disabled until its CI is fixed
+          # - ladle # disabled until its CI is fixed
+          - laravel
+          - marko
+          - module-federation
+          - nuxt
+          # - nx # disabled temporarily
+          # - one # disabled until we figured out how to support bun
+          - quasar
+          - qwik
+          # - rakkas # disabled temporarily
+          - react-router
+          # - redwoodjs # disabled temporarily
+          - storybook
+          - sveltekit
+          - tanstack-start
+          - unocss
+          - vike
+          - vite-environment-examples
+          - vite-plugin-pwa
+          - vite-plugin-react
+          - vite-plugin-svelte
+          - vite-plugin-vue
+          - vite-plugin-cloudflare
+          - vite-plugin-rsc
+          - vite-setup-catalogue
+          - vitepress
+          - vitest
+          - vuepress
+          - waku
+      fail-fast: false
+    permissions:
+      contents: read # to clone the repo
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: 24.15.0
+      - run: corepack enable
+      - run: pnpm --version
+      - run: pnpm i --frozen-lockfile
+      - run: >-
+          node ecosystem-ci.ts
+          --rolldown-ref "$ROLLDOWN_REF"
+          "$SUITE"
+        env:
+          ROLLDOWN_REF: ${{ inputs.rolldownRef }}
+          SUITE: ${{ matrix.suite }}
+
+  update-comment:
+    runs-on: ubuntu-latest
+    needs: [init, execute-selected-suite, execute-all]
+    if: always()
+    permissions:
+      actions: read # to list this run's jobs and the latest scheduled run
+    steps:
+      # Build the comment body using the default token, which can read runs/jobs
+      # of this repo (vitejs/vite-ecosystem-ci). The app token below only has
+      # access to rolldown/rolldown, so it cannot be used for these calls.
+      - id: build-comment
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          ROLLDOWN_REF: ${{ inputs.rolldownRef }}
+        with:
+          script: |
+            const ref = process.env.ROLLDOWN_REF
+            const prNumber = context.payload.inputs.prNumber
+            const refLink = `[\`${ref.slice(0, 7)}\`](${context.serverUrl}/rolldown/rolldown/pull/${prNumber}/commits/${ref})`
+
+            const { data: { jobs } } = await github.rest.actions.listJobsForWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.runId,
+              per_page: 100
+            })
+
+            const selectedSuite = context.payload.inputs.suite
+            let results
+            if (selectedSuite !== '-') {
+              const { conclusion, html_url } = jobs.find(job => job.name === 'execute-selected-suite')
+              results = [{ suite: selectedSuite, conclusion, link: html_url }]
+            } else {
+              results = jobs
+                .filter(job => job.name.startsWith('execute-all '))
+                .map(job => {
+                  const suite = job.name.replace(/^execute-all \(([^)]+)\)$/, '$1')
+                  return { suite, conclusion: job.conclusion, link: job.html_url }
+                })
+            }
+
+            const url = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            const urlLink = `[Open](${url})`
+
+            const conclusionEmoji = {
+              success: ':white_check_mark:',
+              failure: ':x:',
+              cancelled: ':stop_button:'
+            }
+
+            // compare against the latest scheduled ecosystem-ci.yml run
+            // (which tests the rolldown version vite currently pins)
+            const { data: { workflow_runs } } = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'ecosystem-ci.yml'
+            })
+
+            const latestScheduledRun = workflow_runs.find(run => run.event === 'schedule' && run.status === 'completed')
+
+            let scheduledResults = []
+            if (latestScheduledRun) {
+              const { data: { jobs: scheduledJobs } } = await github.rest.actions.listJobsForWorkflowRun({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: latestScheduledRun.id
+              })
+              scheduledResults = scheduledJobs
+                .filter(job => job.name.startsWith('test-ecosystem '))
+                .map(job => {
+                  const suite = job.name.replace(/^test-ecosystem \(([^)]+)\)$/, '$1')
+                  return { suite, conclusion: job.conclusion, link: job.html_url }
+                })
+            }
+
+            const rows = []
+            const successfulSuitesWithoutChanges = []
+            results.forEach(current => {
+              const latest = scheduledResults.find(s => s.suite === current.suite) || {}
+              if (current.conclusion === 'success' && latest.conclusion === 'success') {
+                successfulSuitesWithoutChanges.push(`[${current.suite}](${current.link})`)
+              } else {
+                const firstColumn = current.suite
+                const secondColumn = `${conclusionEmoji[current.conclusion] || ''} [${current.conclusion}](${current.link})`
+                const thirdColumn = latest.conclusion
+                  ? `${conclusionEmoji[latest.conclusion] || ''} [${latest.conclusion}](${latest.link})`
+                  : 'N/A'
+                rows.push(`| ${firstColumn} | ${secondColumn} | ${thirdColumn} |`)
+              }
+            })
+
+            const scheduledHeader = latestScheduledRun
+              ? `[latest scheduled](${latestScheduledRun.html_url})`
+              : 'latest scheduled'
+
+            let body = `
+            📝 Ran ecosystem CI with rolldown ${refLink}: ${urlLink}
+
+            `
+            if (rows.length > 0) {
+              body += `| suite | result | ${scheduledHeader} |
+            |-------|--------|----------------|
+            ${rows.join('\n')}
+
+            ${conclusionEmoji.success} ${successfulSuitesWithoutChanges.join(', ')}
+            `
+            } else {
+              body += `${conclusionEmoji.success} ${successfulSuitesWithoutChanges.join(', ')}
+            `
+            }
+
+            core.setOutput('body', body)
+
+      - id: generate-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+        with:
+          client-id: ${{ secrets.ECOSYSTEM_CI_GITHUB_APP_ID }}
+          private-key: ${{ secrets.ECOSYSTEM_CI_GITHUB_APP_PRIVATE_KEY }}
+          owner: rolldown
+          repositories: rolldown
+          permission-issues: write # to update the comment on the rolldown PR
+
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          BODY: ${{ steps.build-comment.outputs.body }}
+          COMMENT_ID: ${{ needs.init.outputs.comment-id }}
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            await github.rest.issues.createComment({
+              issue_number: context.payload.inputs.prNumber,
+              owner: 'rolldown',
+              repo: 'rolldown',
+              body: process.env.BODY
+            })
+
+            await github.rest.issues.deleteComment({
+              owner: 'rolldown',
+              repo: 'rolldown',
+              comment_id: +process.env.COMMENT_ID
+            })
