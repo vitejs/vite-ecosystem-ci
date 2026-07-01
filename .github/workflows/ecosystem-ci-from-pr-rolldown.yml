@@ -78,6 +78,7 @@ jobs:
           private-key: ${{ secrets.ECOSYSTEM_CI_GITHUB_APP_PRIVATE_KEY }}
           owner: rolldown
           repositories: rolldown
+          permission-issues: write # to comment on the rolldown PR
       - id: create-comment
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
@@ -187,18 +188,17 @@ jobs:
     runs-on: ubuntu-latest
     needs: [init, execute-selected-suite, execute-all]
     if: always()
-    permissions: {}
+    permissions:
+      actions: read # to list this run's jobs and the latest scheduled run
     steps:
-      - id: generate-token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+      # Build the comment body using the default token, which can read runs/jobs
+      # of this repo (vitejs/vite-ecosystem-ci). The app token below only has
+      # access to rolldown/rolldown, so it cannot be used for these calls.
+      - id: build-comment
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          ROLLDOWN_REF: ${{ inputs.rolldownRef }}
         with:
-          client-id: ${{ secrets.ECOSYSTEM_CI_GITHUB_APP_ID }}
-          private-key: ${{ secrets.ECOSYSTEM_CI_GITHUB_APP_PRIVATE_KEY }}
-          owner: rolldown
-          repositories: rolldown
-      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
-        with:
-          github-token: ${{ steps.generate-token.outputs.token }}
           script: |
             const ref = process.env.ROLLDOWN_REF
             const prNumber = context.payload.inputs.prNumber
@@ -234,24 +234,91 @@ jobs:
               cancelled: ':stop_button:'
             }
 
-            const rows = results.map(current => {
-              const result = `${conclusionEmoji[current.conclusion] || ''} [${current.conclusion}](${current.link})`
-              return `| ${current.suite} | ${result} |`
+            // compare against the latest scheduled ecosystem-ci.yml run
+            // (which tests the rolldown version vite currently pins)
+            const { data: { workflow_runs } } = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'ecosystem-ci.yml'
             })
 
-            const body = `
+            const latestScheduledRun = workflow_runs.find(run => run.event === 'schedule' && run.status === 'completed')
+
+            let scheduledResults = []
+            if (latestScheduledRun) {
+              const { data: { jobs: scheduledJobs } } = await github.rest.actions.listJobsForWorkflowRun({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: latestScheduledRun.id
+              })
+              scheduledResults = scheduledJobs
+                .filter(job => job.name.startsWith('test-ecosystem '))
+                .map(job => {
+                  const suite = job.name.replace(/^test-ecosystem \(([^)]+)\)$/, '$1')
+                  return { suite, conclusion: job.conclusion, link: job.html_url }
+                })
+            }
+
+            const rows = []
+            const successfulSuitesWithoutChanges = []
+            results.forEach(current => {
+              const latest = scheduledResults.find(s => s.suite === current.suite) || {}
+              if (current.conclusion === 'success' && latest.conclusion === 'success') {
+                successfulSuitesWithoutChanges.push(`[${current.suite}](${current.link})`)
+              } else {
+                const firstColumn = current.suite
+                const secondColumn = `${conclusionEmoji[current.conclusion] || ''} [${current.conclusion}](${current.link})`
+                const thirdColumn = latest.conclusion
+                  ? `${conclusionEmoji[latest.conclusion] || ''} [${latest.conclusion}](${latest.link})`
+                  : 'N/A'
+                rows.push(`| ${firstColumn} | ${secondColumn} | ${thirdColumn} |`)
+              }
+            })
+
+            const scheduledHeader = latestScheduledRun
+              ? `[latest scheduled](${latestScheduledRun.html_url})`
+              : 'latest scheduled'
+
+            let body = `
             📝 Ran ecosystem CI with rolldown ${refLink}: ${urlLink}
 
-            | suite | result |
-            |-------|--------|
-            ${rows.join('\n')}
             `
+            if (rows.length > 0) {
+              body += `| suite | result | ${scheduledHeader} |
+            |-------|--------|----------------|
+            ${rows.join('\n')}
 
+            ${conclusionEmoji.success} ${successfulSuitesWithoutChanges.join(', ')}
+            `
+            } else {
+              body += `${conclusionEmoji.success} ${successfulSuitesWithoutChanges.join(', ')}
+            `
+            }
+
+            core.setOutput('body', body)
+
+      - id: generate-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+        with:
+          client-id: ${{ secrets.ECOSYSTEM_CI_GITHUB_APP_ID }}
+          private-key: ${{ secrets.ECOSYSTEM_CI_GITHUB_APP_PRIVATE_KEY }}
+          owner: rolldown
+          repositories: rolldown
+          permission-issues: write # to update the comment on the rolldown PR
+
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          BODY: ${{ steps.build-comment.outputs.body }}
+          PR_NUMBER: ${{ inputs.prNumber }}
+          COMMENT_ID: ${{ needs.init.outputs.comment-id }}
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
             await github.rest.issues.createComment({
-              issue_number: +prNumber,
+              issue_number: +process.env.PR_NUMBER,
               owner: 'rolldown',
               repo: 'rolldown',
-              body
+              body: process.env.BODY
             })
 
             await github.rest.issues.deleteComment({
@@ -259,6 +326,3 @@ jobs:
               repo: 'rolldown',
               comment_id: +process.env.COMMENT_ID
             })
-        env:
-          ROLLDOWN_REF: ${{ inputs.rolldownRef }}
-          COMMENT_ID: ${{ needs.init.outputs.comment-id }}
