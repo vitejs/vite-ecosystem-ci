@@ -168,12 +168,8 @@ async function createDescription(
 `.trim()
 	const rolldownRef = process.env.ROLLDOWN_REF
 	if (rolldownRef) {
-		const sha = await resolveRolldownSha(rolldownRef)
-		const label = sha ? sha.slice(0, 7) : rolldownRef
-		const link = sha
-			? `https://github.com/rolldown/rolldown/commit/${sha}`
-			: `https://github.com/rolldown/rolldown/commits/${rolldownRef}`
-		message += '\n' + `:package:\u00a0\u00a0[rolldown@${label}](${link})`
+		const link = `https://github.com/rolldown/rolldown/commit/${rolldownRef}`
+		message += '\n' + `:package:\u00a0\u00a0[rolldown@${rolldownRef.slice(0, 7)}](${link})`
 	}
 	if (expectedFailureReason) {
 		message +=
@@ -201,18 +197,6 @@ function createTargetText(
 	const refTypeText = refType === 'release' ? ' (release)' : ''
 	const link = `https://github.com/${repo}/commits/${ref}`
 	return `[${repoText}${ref}${refTypeText}](${link})`
-}
-
-async function resolveRolldownSha(ref: string) {
-	try {
-		const res = await fetch(`https://pkg.pr.new/rolldown@${ref}`, { method: 'HEAD' })
-		// the x-commit-key header looks like: rolldown:rolldown:<sha>
-		const sha = res.headers.get('x-commit-key')?.split(':').at(-1)
-		return sha || undefined
-	} catch (e) {
-		console.warn(`Failed to resolve rolldown sha for ${ref}: ${e}`)
-		return undefined
-	}
 }
 
 run().catch((e) => {

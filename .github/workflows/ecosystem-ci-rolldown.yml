@@ -16,7 +16,7 @@ env:
   DO_NOT_TRACK: 1
 on:
   schedule:
-    - cron: "0 4 * * *" # daily 4AM UTC
+    - cron: "0 4 * * 1-5" # monday to friday 4AM UTC
   workflow_dispatch:
     inputs:
       rolldownRef:
@@ -82,13 +82,24 @@ jobs:
       - run: corepack enable
       - run: pnpm --version
       - run: pnpm i --frozen-lockfile
+      # Resolve the rolldown ref to a concrete commit up front, so the tested sha
+      # and the reported sha stay the same even if main moves during the run.
+      - id: resolve-rolldown
+        env:
+          ROLLDOWN_REF: ${{ inputs.rolldownRef || 'main' }}
+        run: |
+          key=$(curl -fsSIL "https://pkg.pr.new/rolldown@$ROLLDOWN_REF" | tr -d '\r' | awk -F': ' 'tolower($1) == "x-commit-key" { print $2 }')
+          sha="${key##*:}"
+          if [ -z "$sha" ]; then echo "could not resolve rolldown ref: $ROLLDOWN_REF"; exit 1; fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "resolved rolldown@$ROLLDOWN_REF -> $sha"
       - run: >-
           node ecosystem-ci.ts
           --rolldown-ref "$ROLLDOWN_REF"
           "$SUITE"
         id: ecosystem-ci-run
         env:
-          ROLLDOWN_REF: ${{ inputs.rolldownRef || 'main' }}
+          ROLLDOWN_REF: ${{ steps.resolve-rolldown.outputs.sha }}
           SUITE: ${{ matrix.suite }}
       - if: always() && (inputs.sendDiscordReport || github.event_name != 'workflow_dispatch')
         run: node discord-webhook.ts
@@ -97,7 +108,7 @@ jobs:
           REF_TYPE: branch
           REF: main
           REPO: vitejs/vite
-          ROLLDOWN_REF: ${{ inputs.rolldownRef || 'main' }}
+          ROLLDOWN_REF: ${{ steps.resolve-rolldown.outputs.sha }}
           SUITE: ${{ matrix.suite }}
           STATUS: ${{ job.status }}
           DISCORD_WEBHOOK_URL: ${{ secrets.ROLLDOWN_DISCORD_WEBHOOK_URL }}
