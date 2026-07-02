@@ -30,21 +30,21 @@
     "execa": "^9.6.1"
   },
   "devDependencies": {
-    "@antfu/ni": "^30.1.0",
+    "@antfu/ni": "^30.2.0",
     "@eslint/js": "^10.0.1",
-    "@types/node": "^25.9.3",
+    "@types/node": "^25.9.4",
     "@types/pacote": "^11.1.8",
     "@types/semver": "^7.7.1",
-    "eslint": "^10.5.0",
+    "eslint": "^10.6.0",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-n": "^18.1.0",
-    "lint-staged": "^17.0.7",
-    "oxfmt": "^0.55.0",
+    "eslint-plugin-n": "^18.2.1",
+    "lint-staged": "^17.0.8",
+    "oxfmt": "^0.57.0",
     "pacote": "^21.5.1",
-    "semver": "^7.8.4",
+    "semver": "^7.8.5",
     "simple-git-hooks": "^2.13.1",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.61.1"
+    "typescript-eslint": "^8.62.1"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm exec lint-staged --concurrent false"
@@ -61,5 +61,5 @@
     "node": ">=24",
     "pnpm": "^10.0.0"
   },
-  "packageManager": "pnpm@10.34.3"
+  "packageManager": "pnpm@10.34.4"
 }
