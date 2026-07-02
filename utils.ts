@@ -624,6 +624,11 @@ export async function applyPackageOverrides(
 				pkg.devDependencies[name] = version
 			}
 		}
+	} else if (pm === 'bun') {
+		pkg.overrides = {
+			...pkg.overrides,
+			...overrides,
+		}
 	} else {
 		throw new Error(`unsupported package manager detected: ${pm}`)
 	}
@@ -637,6 +642,8 @@ export async function applyPackageOverrides(
 		await $`yarn install`
 	} else if (pm === 'npm') {
 		await $`npm install`
+	} else if (pm === 'bun') {
+		await $`bun install`
 	}
 }
 
