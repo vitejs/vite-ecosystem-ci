@@ -13,14 +13,14 @@
 1. Generate a private key. It can be generated on the same page with the App ID. The key will be downloaded when you generate it.
    ![GitHub App private key](github_app_private_key.png)
 
-## (2) Adding secrets to vitejs/vite and vitejs/vite-ecosystem-ci
+## (2) Adding secrets / vars to vitejs/vite and vitejs/vite-ecosystem-ci
 
 - vitejs/vite
-  - `ECOSYSTEM_CI_GITHUB_APP_ID`: ID of the created GitHub App
-  - `ECOSYSTEM_CI_GITHUB_APP_PRIVATE_KEY`: the content of the private key of the created GitHub App
+  - var `ECOSYSTEM_CI_GITHUB_APP_CLIENT_ID`: ID of the created GitHub App
+  - secret `ECOSYSTEM_CI_GITHUB_APP_PRIVATE_KEY`: the content of the private key of the created GitHub App
 - vitejs/vite-ecosystem-ci
-  - `PR_GITHUB_APP_ID`: ID of the created GitHub App
-  - `PR_GITHUB_APP_PRIVATE_KEY`: the content of the private key of the created GitHub App
+  - var `PR_GITHUB_APP_CLIENT_ID`: Client ID of the created GitHub App
+  - secret `PR_GITHUB_APP_PRIVATE_KEY`: the content of the private key of the created GitHub App
 
 ## (3) Adding workflows to vitejs/vite
 
