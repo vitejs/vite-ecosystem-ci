@@ -85,6 +85,7 @@ jobs:
           app-id: ${{ secrets.PR_GITHUB_APP_ID }}
           private-key: ${{ secrets.PR_GITHUB_APP_PRIVATE_KEY }}
           repositories: vite
+          permission-pull-requests: write # to comment on the vite PR
       - id: create-comment
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
@@ -232,6 +233,7 @@ jobs:
           repositories: |
             vite
             vite-ecosystem-ci
+          permission-pull-requests: write # to update the comment on the vite PR
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
