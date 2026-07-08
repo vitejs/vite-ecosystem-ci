@@ -7,6 +7,7 @@ export async function test(options: RunOptions) {
 		repo: 'nuxt/nuxt',
 		overrides: {
 			'@vitejs/plugin-vue': true,
+			postcss: true,
 		},
 		build: ['dev:prepare', 'build'],
 		beforeTest: 'pnpm playwright-core install',
