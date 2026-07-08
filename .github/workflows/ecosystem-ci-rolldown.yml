@@ -1,5 +1,7 @@
-# integration tests for vite ecosystem projects - scheduled or manual run for all suites
-name: vite-ecosystem-ci
+# integration tests for the vite ecosystem against rolldown - scheduled digest
+# vite stays on main and rolldown is overridden with its pkg.pr.new preview,
+# results are posted to the rolldown discord channel
+name: vite-ecosystem-ci-rolldown
 
 env:
   # 7 GiB by default on GitHub, setting to 6 GiB
@@ -14,37 +16,17 @@ env:
   DO_NOT_TRACK: 1
 on:
   schedule:
-    - cron: "0 5 * * 1,3,5" # monday,wednesday,friday 5AM
+    - cron: "0 4 * * 1-5" # monday to friday 4AM UTC
   workflow_dispatch:
     inputs:
-      refType:
-        description: "type of ref"
-        required: true
-        type: choice
-        options:
-          - branch
-          - tag
-          - commit
-          - release
-        default: "branch"
-      ref:
-        description: "vite ref to use"
-        required: true
-        type: string
-        default: "main"
-      repo:
-        description: "vite repository to use"
-        required: true
-        type: string
-        default: "vitejs/vite"
       rolldownRef:
-        description: "rolldown commit sha to use from pkg.pr.new"
+        description: "rolldown ref to test from pkg.pr.new (`main` = latest)"
+        required: false
         type: string
+        default: main
       sendDiscordReport:
         description: "send results to discord"
         type: boolean
-  repository_dispatch:
-    types: [ecosystem-ci]
 jobs:
   test-ecosystem:
     timeout-minutes: 30
@@ -86,7 +68,6 @@ jobs:
           - vitest
           - vuepress
           - waku
-          - wxt
       fail-fast: false
     permissions:
       contents: read # to clone the repo
@@ -101,31 +82,34 @@ jobs:
       - run: corepack enable
       - run: pnpm --version
       - run: pnpm i --frozen-lockfile
-      - name: Install Bun (wxt only)
-        if: matrix.suite == 'wxt'
-        uses: oven-sh/setup-bun@v2
+      # Resolve the rolldown ref to a concrete commit up front, so the tested sha
+      # and the reported sha stay the same even if main moves during the run.
+      - id: resolve-rolldown
+        env:
+          ROLLDOWN_REF: ${{ inputs.rolldownRef || 'main' }}
+        run: |
+          key=$(curl -fsSIL "https://pkg.pr.new/rolldown@$ROLLDOWN_REF" | tr -d '\r' | awk -F': ' 'tolower($1) == "x-commit-key" { print $2 }')
+          sha="${key##*:}"
+          if [ -z "$sha" ]; then echo "could not resolve rolldown ref: $ROLLDOWN_REF"; exit 1; fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "resolved rolldown@$ROLLDOWN_REF -> $sha"
       - run: >-
           node ecosystem-ci.ts
-          "--$REF_TYPE" "$REF"
-          --repo "$REPO"
-          ${ROLLDOWN_REF:+--rolldown-ref "$ROLLDOWN_REF"}
+          --rolldown-ref "$ROLLDOWN_REF"
           "$SUITE"
         id: ecosystem-ci-run
         env:
-          REF_TYPE: ${{ inputs.refType || github.event.client_payload.refType || 'branch' }}
-          REF: ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
-          REPO: ${{ inputs.repo || github.event.client_payload.repo || 'vitejs/vite' }}
-          ROLLDOWN_REF: ${{ inputs.rolldownRef || github.event.client_payload.rolldownRef }}
+          ROLLDOWN_REF: ${{ steps.resolve-rolldown.outputs.sha }}
           SUITE: ${{ matrix.suite }}
       - if: always() && (inputs.sendDiscordReport || github.event_name != 'workflow_dispatch')
         run: node discord-webhook.ts
         env:
-          WORKFLOW_NAME: ci
-          REF_TYPE: ${{ inputs.refType || github.event.client_payload.refType || 'branch' }}
-          REF: ${{ inputs.ref || github.event.client_payload.ref || 'main' }}
-          REPO: ${{ inputs.repo || github.event.client_payload.repo || 'vitejs/vite' }}
+          WORKFLOW_NAME: rolldown
+          REF_TYPE: branch
+          REF: main
+          REPO: vitejs/vite
+          ROLLDOWN_REF: ${{ steps.resolve-rolldown.outputs.sha }}
           SUITE: ${{ matrix.suite }}
           STATUS: ${{ job.status }}
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.ROLLDOWN_DISCORD_WEBHOOK_URL }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          IS_ROLLDOWN_VITE: "1"

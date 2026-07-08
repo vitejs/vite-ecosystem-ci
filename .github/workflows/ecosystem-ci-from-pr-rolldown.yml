@@ -1,5 +1,6 @@
-# integration tests for vite ecosystem - run from pr comments
-name: vite-ecosystem-ci-from-pr
+# integration tests for the vite ecosystem - run rolldown from a rolldown PR comment
+# vite stays on main and rolldown is overridden with the PR's pkg.pr.new preview
+name: vite-ecosystem-ci-from-pr-rolldown
 
 env:
   # 7 GiB by default on GitHub, setting to 6 GiB
@@ -16,24 +17,15 @@ on:
   workflow_dispatch:
     inputs:
       prNumber:
-        description: "PR number (e.g. 9887)"
+        description: "rolldown PR number (e.g. 9705)"
         required: true
         type: string
-      branchName:
-        description: "vite branch to use"
+      rolldownRef:
+        description: "rolldown commit sha to use from pkg.pr.new"
         required: true
-        type: string
-        default: "main"
-      repo:
-        description: "vite repository to use"
-        required: true
-        type: string
-        default: "vitejs/vite"
-      commit:
-        description: "vite commit sha to use"
         type: string
       suite:
-        description: "testsuite to run. runs all testsuits when `-`."
+        description: "testsuite to run. runs all testsuites when `-`."
         required: false
         type: choice
         options:
@@ -84,21 +76,22 @@ jobs:
         with:
           client-id: ${{ vars.PR_GITHUB_APP_CLIENT_ID }}
           private-key: ${{ secrets.PR_GITHUB_APP_PRIVATE_KEY }}
-          repositories: vite
-          permission-pull-requests: write # to comment on the vite PR
+          owner: rolldown
+          repositories: rolldown
+          permission-pull-requests: write # to comment on the rolldown PR
       - id: create-comment
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           result-encoding: string
           script: |
-            const url = `${context.serverUrl}//${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            const url = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
             const urlLink = `[Open](${url})`
 
             const { data: comment } = await github.rest.issues.createComment({
               issue_number: context.payload.inputs.prNumber,
-              owner: context.repo.owner,
-              repo: 'vite',
+              owner: 'rolldown',
+              repo: 'rolldown',
               body: `⏳ Triggered ecosystem CI: ${urlLink}`
             })
             return comment.id
@@ -108,8 +101,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: init
     if: "inputs.suite != '-'"
-    outputs:
-      ref: ${{ steps.get-ref.outputs.ref }}
     permissions:
       contents: read # to clone the repo
     steps:
@@ -124,33 +115,17 @@ jobs:
       - run: pnpm i --frozen-lockfile
       - run: >-
           node ecosystem-ci.ts
-          --branch "$BRANCH_NAME"
-          --repo "$REPO"
-          $(if [ -n "$COMMIT" ] ; then echo "--commit $COMMIT"; fi)
+          --rolldown-ref "$ROLLDOWN_REF"
           "$SUITE"
         env:
-          BRANCH_NAME: ${{ inputs.branchName }}
-          REPO: ${{ inputs.repo }}
-          COMMIT: ${{ inputs.commit }}
+          ROLLDOWN_REF: ${{ inputs.rolldownRef }}
           SUITE: ${{ inputs.suite }}
-      - id: get-ref
-        if: always()
-        run: |
-          REF="${REF:-"$(git log -1 --pretty=format:%H)"}"
-          echo "ref=$REF" >> $GITHUB_OUTPUT
-        env:
-          COMMIT: ${{ inputs.commit }}
-        working-directory: ${{ inputs.commit && '.' || 'workspace/vite' }}
 
   execute-all:
     timeout-minutes: 30
     runs-on: ubuntu-latest
     needs: init
     if: "inputs.suite == '-'"
-    outputs:
-      ref: ${{ steps.get-ref.outputs.ref }}
-    permissions:
-      contents: read # to clone the repo
     strategy:
       matrix:
         suite:
@@ -189,6 +164,8 @@ jobs:
           - vuepress
           - waku
       fail-fast: false
+    permissions:
+      contents: read # to clone the repo
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
@@ -201,64 +178,49 @@ jobs:
       - run: pnpm i --frozen-lockfile
       - run: >-
           node ecosystem-ci.ts
-          --branch "$BRANCH_NAME"
-          --repo "$REPO"
-          $(if [ -n "$COMMIT" ] ; then echo "--commit $COMMIT"; fi)
+          --rolldown-ref "$ROLLDOWN_REF"
           "$SUITE"
         env:
-          BRANCH_NAME: ${{ inputs.branchName }}
-          REPO: ${{ inputs.repo }}
-          COMMIT: ${{ inputs.commit }}
+          ROLLDOWN_REF: ${{ inputs.rolldownRef }}
           SUITE: ${{ matrix.suite }}
-      - id: get-ref
-        if: always()
-        run: |
-          REF="${REF:-"$(git log -1 --pretty=format:%H)"}"
-          echo "ref=$REF" >> $GITHUB_OUTPUT
-        env:
-          COMMIT: ${{ inputs.commit }}
-        working-directory: ${{ inputs.commit && '.' || 'workspace/vite' }}
 
   update-comment:
     runs-on: ubuntu-latest
     needs: [init, execute-selected-suite, execute-all]
     if: always()
-    permissions: {}
+    permissions:
+      actions: read # to list this run's jobs and the latest scheduled run
     steps:
-      - id: generate-token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+      # Build the comment body using the default token, which can read runs/jobs
+      # of this repo (vitejs/vite-ecosystem-ci). The app token below only has
+      # access to rolldown/rolldown, so it cannot be used for these calls.
+      - id: build-comment
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          ROLLDOWN_REF: ${{ inputs.rolldownRef }}
         with:
-          client-id: ${{ vars.PR_GITHUB_APP_CLIENT_ID }}
-          private-key: ${{ secrets.PR_GITHUB_APP_PRIVATE_KEY }}
-          repositories: |
-            vite
-            vite-ecosystem-ci
-          permission-pull-requests: write # to update the comment on the vite PR
-      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
-        with:
-          github-token: ${{ steps.generate-token.outputs.token }}
           script: |
-            const mainRepoName = 'vite'
-            const ref = process.env.REF
-            const refLink = `[\`${ref.slice(0, 7)}\`](${context.serverUrl}/${context.repo.owner}/${mainRepoName}/pull/${context.payload.inputs.prNumber}/commits/${ref})`
+            const ref = process.env.ROLLDOWN_REF
+            const prNumber = context.payload.inputs.prNumber
+            const refLink = `[\`${ref.slice(0, 7)}\`](${context.serverUrl}/rolldown/rolldown/pull/${prNumber}/commits/${ref})`
 
             const { data: { jobs } } = await github.rest.actions.listJobsForWorkflowRun({
               owner: context.repo.owner,
               repo: context.repo.repo,
               run_id: context.runId,
               per_page: 100
-            });
+            })
 
             const selectedSuite = context.payload.inputs.suite
             let results
-            if (selectedSuite !== "-") {
-              const { conclusion, html_url } = jobs.find(job => job.name === "execute-selected-suite")
+            if (selectedSuite !== '-') {
+              const { conclusion, html_url } = jobs.find(job => job.name === 'execute-selected-suite')
               results = [{ suite: selectedSuite, conclusion, link: html_url }]
             } else {
               results = jobs
                 .filter(job => job.name.startsWith('execute-all '))
                 .map(job => {
-                  const suite = job.name.replace(/^execute-all \(([^)]+)\)$/, "$1")
+                  const suite = job.name.replace(/^execute-all \(([^)]+)\)$/, '$1')
                   return { suite, conclusion: job.conclusion, link: job.html_url }
                 })
             }
@@ -267,82 +229,99 @@ jobs:
             const urlLink = `[Open](${url})`
 
             const conclusionEmoji = {
-              success: ":white_check_mark:",
-              failure: ":x:",
-              cancelled: ":stop_button:"
+              success: ':white_check_mark:',
+              failure: ':x:',
+              cancelled: ':stop_button:'
             }
 
-            // check for previous ecosystem-ci runs against the main branch
-
-            // first, list workflow runs for ecosystem-ci.yml
+            // compare against the latest scheduled ecosystem-ci.yml run
+            // (which tests the rolldown version vite currently pins)
             const { data: { workflow_runs } } = await github.rest.actions.listWorkflowRuns({
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: 'ecosystem-ci.yml'
-            });
+            })
 
-            // for simplity, we only take the latest completed scheduled run
-            // otherwise we would have to check the inputs for every maunally triggerred runs, which is an overkill
-            const latestScheduledRun = workflow_runs.find(run => run.event === "schedule" && run.status === "completed")
+            const latestScheduledRun = workflow_runs.find(run => run.event === 'schedule' && run.status === 'completed')
 
-            // get the jobs for the latest scheduled run
-            const { data: { jobs: scheduledJobs } } = await github.rest.actions.listJobsForWorkflowRun({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: latestScheduledRun.id
-            });
-            const scheduledResults = scheduledJobs
-              .filter(job => job.name.startsWith('test-ecosystem '))
-              .map(job => {
-                const suite = job.name.replace(/^test-ecosystem \(([^)]+)\)$/, "$1")
-                return { suite, conclusion: job.conclusion, link: job.html_url }
+            let scheduledResults = []
+            if (latestScheduledRun) {
+              const { data: { jobs: scheduledJobs } } = await github.rest.actions.listJobsForWorkflowRun({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: latestScheduledRun.id
               })
+              scheduledResults = scheduledJobs
+                .filter(job => job.name.startsWith('test-ecosystem '))
+                .map(job => {
+                  const suite = job.name.replace(/^test-ecosystem \(([^)]+)\)$/, '$1')
+                  return { suite, conclusion: job.conclusion, link: job.html_url }
+                })
+            }
 
             const rows = []
             const successfulSuitesWithoutChanges = []
             results.forEach(current => {
-              const latest = scheduledResults.find(s => s.suite === current.suite) || {} // in case a new suite is added after latest scheduled
-
-              if (current.conclusion === "success" && latest.conclusion === "success") {
+              const latest = scheduledResults.find(s => s.suite === current.suite) || {}
+              if (current.conclusion === 'success' && latest.conclusion === 'success') {
                 successfulSuitesWithoutChanges.push(`[${current.suite}](${current.link})`)
-              }
-              else {
+              } else {
                 const firstColumn = current.suite
-                const secondColumn = `${conclusionEmoji[current.conclusion]} [${current.conclusion}](${current.link})`
-                const thirdColumn = `${conclusionEmoji[latest.conclusion]} [${latest.conclusion}](${latest.link})`
-
+                const secondColumn = `${conclusionEmoji[current.conclusion] || ''} [${current.conclusion}](${current.link})`
+                const thirdColumn = latest.conclusion
+                  ? `${conclusionEmoji[latest.conclusion] || ''} [${latest.conclusion}](${latest.link})`
+                  : 'N/A'
                 rows.push(`| ${firstColumn} | ${secondColumn} | ${thirdColumn} |`)
               }
             })
 
+            const scheduledHeader = latestScheduledRun
+              ? `[latest scheduled](${latestScheduledRun.html_url})`
+              : 'latest scheduled'
+
             let body = `
-            📝 Ran ecosystem CI on ${refLink}: ${urlLink}
+            📝 Ran ecosystem CI with rolldown ${refLink}: ${urlLink}
 
             `
             if (rows.length > 0) {
-              body += `| suite | result | [latest scheduled](${latestScheduledRun.html_url}) |
+              body += `| suite | result | ${scheduledHeader} |
             |-------|--------|----------------|
-            ${rows.join("\n")}
+            ${rows.join('\n')}
 
-            ${conclusionEmoji.success} ${successfulSuitesWithoutChanges.join(", ")}
+            ${conclusionEmoji.success} ${successfulSuitesWithoutChanges.join(', ')}
             `
             } else {
-              body += `${conclusionEmoji.success} ${successfulSuitesWithoutChanges.join(", ")}
+              body += `${conclusionEmoji.success} ${successfulSuitesWithoutChanges.join(', ')}
             `
             }
 
+            core.setOutput('body', body)
+
+      - id: generate-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+        with:
+          client-id: ${{ vars.PR_GITHUB_APP_CLIENT_ID }}
+          private-key: ${{ secrets.PR_GITHUB_APP_PRIVATE_KEY }}
+          owner: rolldown
+          repositories: rolldown
+          permission-pull-requests: write # to update the comment on the rolldown PR
+
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          BODY: ${{ steps.build-comment.outputs.body }}
+          COMMENT_ID: ${{ needs.init.outputs.comment-id }}
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
             await github.rest.issues.createComment({
               issue_number: context.payload.inputs.prNumber,
-              owner: context.repo.owner,
-              repo: mainRepoName,
-              body
+              owner: 'rolldown',
+              repo: 'rolldown',
+              body: process.env.BODY
             })
 
             await github.rest.issues.deleteComment({
-              owner: context.repo.owner,
-              repo: mainRepoName,
+              owner: 'rolldown',
+              repo: 'rolldown',
               comment_id: +process.env.COMMENT_ID
             })
-        env:
-          REF: ${{ needs.execute-all.outputs.ref || needs.execute-selected-suite.outputs.ref }}
-          COMMENT_ID: ${{ needs.init.outputs.comment-id }}

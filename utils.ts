@@ -1,5 +1,6 @@
 import path from 'path'
 import fs from 'fs'
+import os from 'os'
 import { fileURLToPath, pathToFileURL } from 'url'
 import { execaCommand } from 'execa'
 import type {
@@ -275,7 +276,11 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			overrides.vite = options.release
 		}
 
-		if (overrides.rollup !== false || overrides.esbuild === true || overrides.vitest !== false) {
+		if (
+			overrides.rollup !== false ||
+			overrides.vitest !== false ||
+			Object.values(overrides).some((value) => value)
+		) {
 			const viteManifest = await pacote.manifest(`vite@${options.release}`, {
 				retry: {
 					// enable retry with same options with pnpm (https://pnpm.io/settings#fetchretries)
@@ -291,14 +296,19 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 				overrides.rollup = viteManifest.dependencies!.rollup
 			}
 
-			// apply if `overrides.esbuild` is `true`
-			if (overrides.esbuild === true) {
-				overrides.esbuild = viteManifest.dependencies!.esbuild
-			}
-
 			// skip if `overrides.vitest` is `false`
 			if (overrides.vitest !== false && agent === 'pnpm') {
 				overrides['vitest@<3.2.0>vite'] = '^6.3.5'
+			}
+
+			// apply if `overrides[package]` is `true`
+			for (const [pkg, version] of Object.entries(overrides)) {
+				if (pkg === 'rollup' || pkg === 'vitest') continue
+
+				const versionForVite = viteManifest.dependencies![pkg]
+				if (version === true && versionForVite) {
+					overrides[pkg] = versionForVite
+				}
 			}
 		}
 	} else {
@@ -312,14 +322,19 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			overrides.rollup = vitePackageInfo.dependencies.rollup.version
 		}
 
-		// apply if `overrides.esbuild` is `true`
-		if (vitePackageInfo.dependencies.esbuild?.version && overrides.esbuild === true) {
-			overrides.esbuild = vitePackageInfo.dependencies.esbuild.version
-		}
-
 		// skip if `overrides.vitest` is `false`
 		if (overrides.vitest !== false && agent === 'pnpm') {
 			overrides['vitest@<3.2.0>vite'] = '^6.3.5'
+		}
+
+		// apply if `overrides[package]` is `true`
+		for (const [pkg, version] of Object.entries(overrides)) {
+			if (pkg === 'rollup' || pkg === 'vitest') continue
+
+			const versionForVite = vitePackageInfo.dependencies![pkg]?.version
+			if (version === true && versionForVite) {
+				overrides[pkg] = versionForVite
+			}
 		}
 
 		// build and apply local overrides
@@ -606,9 +621,23 @@ export async function applyPackageOverrides(
 			await fs.promises.writeFile(pnpmWorkspaceFile, content, 'utf-8')
 		}
 	} else if (pm === 'yarn') {
+		// Yarn's `file:` protocol copies the referenced directory verbatim, ignoring the
+		// package's `files` field. So vite's `src` (excluded from the published package)
+		// gets copied too, and it contains test-fixture symlinks pointing to directories
+		// that yarn's node-modules linker then fails to clone (EISDIR) when it creates a
+		// per-peer-context duplicate of vite. Packing each local override into a tarball
+		// applies the `files` field, so only the real published files are shipped and the
+		// problematic fixtures never enter the install.
+		const yarnOverrides: Record<string, string> = {}
+		for (const [name, value] of Object.entries(overrides)) {
+			yarnOverrides[name] =
+				typeof value === 'string' && value.startsWith('file:')
+					? `file:${await packLocalOverride(value.slice('file:'.length))}`
+					: (value as string)
+		}
 		pkg.resolutions = {
 			...pkg.resolutions,
-			...overrides,
+			...yarnOverrides,
 		}
 	} else if (pm === 'npm') {
 		pkg.overrides = {
@@ -638,6 +667,20 @@ export async function applyPackageOverrides(
 	} else if (pm === 'npm') {
 		await $`npm install`
 	}
+}
+
+// Pack a local package directory into a tarball (honoring its `files` field) and
+// return the tarball path. `npm pack` only reads the directory (writing the tarball
+// elsewhere), so the vite checkout is left untouched. `--ignore-scripts` skips
+// lifecycle scripts since the package is already built by `buildVite`.
+async function packLocalOverride(packageDir: string): Promise<string> {
+	const destDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vite-ecosystem-ci-pack-'))
+	const { stdout } = await execaCommand(
+		`npm pack --json --ignore-scripts --pack-destination ${destDir}`,
+		{ cwd: packageDir, env },
+	)
+	const filename = JSON.parse(stdout)[0].filename
+	return path.join(destDir, filename)
 }
 
 export function dirnameFrom(url: string) {

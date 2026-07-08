@@ -11,6 +11,7 @@ type Env = {
 	STATUS?: Status
 	DISCORD_WEBHOOK_URL?: string
 	IS_ROLLDOWN_VITE?: '1'
+	ROLLDOWN_REF?: string
 }
 
 const statusConfig = {
@@ -165,6 +166,11 @@ async function createDescription(
 	let message = `
 :scroll:\u00a0\u00a0${open}\u3000\u3000:zap:\u00a0\u00a0${targetText}
 `.trim()
+	const rolldownRef = process.env.ROLLDOWN_REF
+	if (rolldownRef) {
+		const link = `https://github.com/rolldown/rolldown/commit/${rolldownRef}`
+		message += '\n' + `:package:\u00a0\u00a0[rolldown@${rolldownRef.slice(0, 7)}](${link})`
+	}
 	if (expectedFailureReason) {
 		message +=
 			'\n' +
