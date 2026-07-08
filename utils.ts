@@ -276,7 +276,11 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			overrides.vite = options.release
 		}
 
-		if (overrides.rollup !== false || overrides.esbuild === true || overrides.vitest !== false) {
+		if (
+			overrides.rollup !== false ||
+			overrides.vitest !== false ||
+			Object.values(overrides).some((value) => value)
+		) {
 			const viteManifest = await pacote.manifest(`vite@${options.release}`, {
 				retry: {
 					// enable retry with same options with pnpm (https://pnpm.io/settings#fetchretries)
@@ -292,14 +296,19 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 				overrides.rollup = viteManifest.dependencies!.rollup
 			}
 
-			// apply if `overrides.esbuild` is `true`
-			if (overrides.esbuild === true) {
-				overrides.esbuild = viteManifest.dependencies!.esbuild
-			}
-
 			// skip if `overrides.vitest` is `false`
 			if (overrides.vitest !== false && agent === 'pnpm') {
 				overrides['vitest@<3.2.0>vite'] = '^6.3.5'
+			}
+
+			// apply if `overrides[package]` is `true`
+			for (const [pkg, version] of Object.entries(overrides)) {
+				if (pkg === 'rollup' || pkg === 'vitest') continue
+
+				const versionForVite = viteManifest.dependencies![pkg]
+				if (version === true && versionForVite) {
+					overrides[pkg] = versionForVite
+				}
 			}
 		}
 	} else {
@@ -313,14 +322,19 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 			overrides.rollup = vitePackageInfo.dependencies.rollup.version
 		}
 
-		// apply if `overrides.esbuild` is `true`
-		if (vitePackageInfo.dependencies.esbuild?.version && overrides.esbuild === true) {
-			overrides.esbuild = vitePackageInfo.dependencies.esbuild.version
-		}
-
 		// skip if `overrides.vitest` is `false`
 		if (overrides.vitest !== false && agent === 'pnpm') {
 			overrides['vitest@<3.2.0>vite'] = '^6.3.5'
+		}
+
+		// apply if `overrides[package]` is `true`
+		for (const [pkg, version] of Object.entries(overrides)) {
+			if (pkg === 'rollup' || pkg === 'vitest') continue
+
+			const versionForVite = vitePackageInfo.dependencies![pkg]?.version
+			if (version === true && versionForVite) {
+				overrides[pkg] = versionForVite
+			}
 		}
 
 		// build and apply local overrides
