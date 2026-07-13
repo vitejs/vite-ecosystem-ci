@@ -5,6 +5,7 @@ export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
 		repo: 'techniq/layerchart',
+		beforeTest: 'pnpm playwright install',
 		build: 'pnpm --dir packages/layerchart build',
 		test: [
 			'pnpm --dir packages/layerchart test:unit',
