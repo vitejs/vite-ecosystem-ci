@@ -58,8 +58,7 @@
     ]
   },
   "engines": {
-    "node": ">=24",
-    "pnpm": "^10.0.0"
+    "node": ">=24"
   },
-  "packageManager": "pnpm@10.34.3"
+  "packageManager": "pnpm@11.13.0"
 }
