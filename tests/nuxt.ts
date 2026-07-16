@@ -11,6 +11,6 @@ export async function test(options: RunOptions) {
 		},
 		build: ['dev:prepare', 'build'],
 		beforeTest: 'pnpm playwright-core install',
-		test: ['test:fixtures', 'test:fixtures:dev', 'test:types'],
+		test: ['test:prepare', 'pnpm vitest run --project fixtures:vite-*', 'test:types'],
 	})
 }
