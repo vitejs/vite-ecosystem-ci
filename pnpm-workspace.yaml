@@ -1,6 +1,5 @@
 engineStrict: true
 strictPeerDependencies: false
 packageManagerStrict: false
-onlyBuiltDependencies:
-  - esbuild
-  - simple-git-hooks
+allowBuilds:
+  simple-git-hooks: true
