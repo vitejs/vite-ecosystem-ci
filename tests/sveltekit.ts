@@ -5,6 +5,7 @@ export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
 		repo: 'sveltejs/kit',
+		branch: 'version-3',
 		overrides: {
 			'@sveltejs/vite-plugin-svelte': true,
 			'@sveltejs/load-config': true,
