@@ -18,6 +18,7 @@
 		"lib": ["esnext"],
 		"sourceMap": true,
 		"erasableSyntaxOnly": true,
-		"verbatimModuleSyntax": true
+		"verbatimModuleSyntax": true,
+		"types": ["node"]
 	}
 }
