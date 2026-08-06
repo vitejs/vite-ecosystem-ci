@@ -86,6 +86,7 @@ jobs:
           - vitest
           - vuepress
           - waku
+          - wxt
       fail-fast: false
     permissions:
       contents: read # to clone the repo
@@ -100,6 +101,9 @@ jobs:
       - run: corepack enable
       - run: pnpm --version
       - run: pnpm i --frozen-lockfile
+      - name: Install Bun (wxt only)
+        if: matrix.suite == 'wxt'
+        uses: oven-sh/setup-bun@v2
       - run: >-
           node ecosystem-ci.ts
           "--$REF_TYPE" "$REF"

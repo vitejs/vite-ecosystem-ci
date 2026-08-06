@@ -83,6 +83,7 @@ on:
           - vitest
           - vuepress
           - waku
+          - wxt
       sendDiscordReport:
         description: "send results to discord"
         type: boolean
@@ -103,6 +104,9 @@ jobs:
       - run: corepack enable
       - run: pnpm --version
       - run: pnpm i --frozen-lockfile
+      - name: Install Bun (wxt only)
+        if: inputs.suite == 'wxt'
+        uses: oven-sh/setup-bun@v2
       - run: >-
           node ecosystem-ci.ts
           "--$REF_TYPE" "$REF"
