@@ -1,0 +1,33 @@
+{
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"jsPlugins": ["eslint-plugin-n"],
+	"plugins": ["typescript", "node", "unicorn"],
+	"categories": {
+		"correctness": "error"
+	},
+	"env": {
+		"node": true
+	},
+	"ignorePatterns": ["workspace/**"],
+	"rules": {
+		"eqeqeq": ["warn", "always", { "null": "never" }],
+		"no-debugger": "error",
+		"no-empty": ["warn", { "allowEmptyCatch": true }],
+		"no-undef": "error",
+		"no-useless-assignment": "error",
+		"prefer-const": ["warn", { "destructuring": "all" }],
+		"typescript/no-explicit-any": "off",
+		"n/no-deprecated-api": "error",
+		"n/no-unsupported-features/es-builtins": "error",
+		"n/no-unsupported-features/es-syntax": "error",
+		"n/no-unsupported-features/node-builtins": "error"
+	},
+	"overrides": [
+		{
+			"files": ["**/*.{ts,tsx,mts,cts}"],
+			"rules": {
+				"no-undef": "off"
+			}
+		}
+	]
+}
