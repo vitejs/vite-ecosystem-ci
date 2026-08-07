@@ -1,0 +1,35 @@
+.oxlintrc.json
+  s_f8def00b6e4ee6::t_82957896ec2731 5-7,26
+discord-webhook.ts
+  s_f8def00b6e4ee6::t_b3ac496faf8f2a 148
+package.json
+  s_c72b7704a42217::t_f598990d7681b1 41
+pnpm-lock.yaml
+  s_c72b7704a42217::t_047cfd21a3c60b 44-47,293-322,1077-1080,1539-1556,2311-2320,2341
+utils.ts
+  s_f8def00b6e4ee6::t_3c26b926d36d96 153,156,192,328,468
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "772e489d6f1e31dc153cff063256604a6c452666",
+  "prompts": {},
+  "sessions": {
+    "s_c72b7704a42217": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fdacf-11cc-7e73-bae6-ee544bea3f56",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "sapphi-red <green@sapphi.red>"
+    },
+    "s_f8def00b6e4ee6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fd5c8-63c2-7e22-84d5-89b23dc4b4a8",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "sapphi-red <green@sapphi.red>"
+    }
+  }
+}
