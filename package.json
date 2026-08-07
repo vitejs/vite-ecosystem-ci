@@ -42,7 +42,7 @@
     "pacote": "^21.5.1",
     "semver": "^7.8.4",
     "simple-git-hooks": "^2.13.1",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm exec lint-staged --concurrent false"
