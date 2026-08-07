@@ -71,6 +71,7 @@ on:
           - tanstack-start
           - unocss
           - vike
+          - vinext
           - vite-environment-examples
           - vite-plugin-pwa
           - vite-plugin-react
