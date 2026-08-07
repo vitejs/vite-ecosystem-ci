@@ -1,0 +1,21 @@
+.oxlintrc.json
+  s_c72b7704a42217::t_a8a42d14a203ba 6-7,17,20
+utils.ts
+  s_c72b7704a42217::t_7838c92512bb8b 121,135
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "e3f3b6f7743a51546a8bc4ffb5342a4e5232b03f",
+  "prompts": {},
+  "sessions": {
+    "s_c72b7704a42217": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fdacf-11cc-7e73-bae6-ee544bea3f56",
+        "model": "unknown"
+      },
+      "human_author": "sapphi-red <green@sapphi.red>"
+    }
+  }
+}
