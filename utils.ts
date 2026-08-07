@@ -2,7 +2,7 @@ import path from 'node:path'
 import fs from 'node:fs'
 import os from 'node:os'
 import { fileURLToPath, pathToFileURL } from 'url'
-import { execaCommand } from 'execa'
+import { execa, parseCommandString } from 'execa'
 import type {
 	PackageInfo,
 	EnvironmentData,
@@ -39,11 +39,7 @@ export async function $(literals: TemplateStringsArray, ...values: any[]) {
 		console.log(`${cwd} $> ${cmd}`)
 	}
 
-	const proc = execaCommand(cmd, {
-		env,
-		stdio: 'pipe',
-		cwd,
-	})
+	const proc = execa({ env, stdio: 'pipe', cwd })`${parseCommandString(cmd)}`
 	if (proc.stdin) process.stdin.pipe(proc.stdin)
 	if (proc.stdout) proc.stdout.pipe(process.stdout)
 	if (proc.stderr) proc.stderr.pipe(process.stderr)
@@ -675,10 +671,10 @@ export async function applyPackageOverrides(
 // lifecycle scripts since the package is already built by `buildVite`.
 async function packLocalOverride(packageDir: string): Promise<string> {
 	const destDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vite-ecosystem-ci-pack-'))
-	const { stdout } = await execaCommand(
-		`npm pack --json --ignore-scripts --pack-destination ${destDir}`,
-		{ cwd: packageDir, env },
-	)
+	const { stdout } = await execa({
+		cwd: packageDir,
+		env,
+	})`npm pack --json --ignore-scripts --pack-destination ${destDir}`
 	const filename = JSON.parse(stdout)[0].filename
 	return path.join(destDir, filename)
 }
