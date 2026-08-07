@@ -1,0 +1,19 @@
+docs/superpowers/specs/2026-08-07-oxlint-migration-design.md
+  s_c72b7704a42217::t_369c7c2a43459a 1-34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "9d29db242f8e80c969a1f390b91414ea73f1edf4",
+  "prompts": {},
+  "sessions": {
+    "s_c72b7704a42217": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fdacf-11cc-7e73-bae6-ee544bea3f56",
+        "model": "unknown"
+      },
+      "human_author": "sapphi-red <green@sapphi.red>"
+    }
+  }
+}
