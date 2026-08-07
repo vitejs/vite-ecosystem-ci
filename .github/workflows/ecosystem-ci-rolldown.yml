@@ -29,6 +29,7 @@ on:
         type: boolean
 jobs:
   test-ecosystem:
+    if: github.repository == 'vitejs/vite-ecosystem-ci'
     timeout-minutes: 30
     runs-on: ubuntu-latest
     strategy:
