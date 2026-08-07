@@ -3,7 +3,8 @@
 	"jsPlugins": ["eslint-plugin-n"],
 	"plugins": ["typescript", "node", "unicorn"],
 	"categories": {
-		"correctness": "error"
+		"correctness": "error",
+		"suspicious": "error"
 	},
 	"env": {
 		"node": true
@@ -13,8 +14,10 @@
 		"eqeqeq": ["warn", "always", { "null": "never" }],
 		"no-debugger": "error",
 		"no-empty": ["warn", { "allowEmptyCatch": true }],
+		"no-shadow": "off",
 		"no-undef": "error",
 		"no-useless-assignment": "error",
+		"no-useless-concat": "off",
 		"prefer-const": ["warn", { "destructuring": "all" }],
 		"typescript/no-explicit-any": "off",
 		"n/no-deprecated-api": "error",

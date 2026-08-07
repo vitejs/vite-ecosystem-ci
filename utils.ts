@@ -118,7 +118,7 @@ export async function setupRepo(options: RepoOptions) {
 
 	let needClone = true
 	if (fs.existsSync(dir)) {
-		const _cwd = cwd
+		const previousCwd = cwd
 		cd(dir)
 		let currentClonedRepo: string | undefined
 		try {
@@ -132,7 +132,7 @@ export async function setupRepo(options: RepoOptions) {
 				needClone = false
 			}
 		}
-		cd(_cwd)
+		cd(previousCwd)
 
 		if (needClone) {
 			fs.rmSync(dir, { recursive: true, force: true })
