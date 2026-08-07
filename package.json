@@ -30,17 +30,17 @@
     "execa": "^10.0.1"
   },
   "devDependencies": {
-    "@antfu/ni": "^30.1.0",
-    "@types/node": "^25.9.3",
+    "@antfu/ni": "^30.5.0",
+    "@types/node": "^25.9.5",
     "@types/pacote": "^11.1.8",
-    "@types/semver": "^7.7.1",
-    "eslint-plugin-n": "^18.1.0",
-    "lint-staged": "^17.0.7",
-    "oxfmt": "^0.55.0",
+    "@types/semver": "^7.8.0",
+    "eslint-plugin-n": "^18.2.2",
+    "lint-staged": "^17.3.0",
+    "oxfmt": "^0.62.0",
     "oxlint": "^1.77.0",
     "oxlint-tsgolint": "^7.0.2001",
     "pacote": "^21.5.1",
-    "semver": "^7.8.4",
+    "semver": "^7.8.5",
     "simple-git-hooks": "^2.13.1",
     "typescript": "^7.0.2"
   },
@@ -58,5 +58,5 @@
   "engines": {
     "node": ">=24"
   },
-  "packageManager": "pnpm@11.13.0"
+  "packageManager": "pnpm@11.20.0"
 }
