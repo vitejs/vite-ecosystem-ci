@@ -62,6 +62,7 @@ jobs:
           - laravel
           - marko
           - module-federation
+          - netlify-vite-plugin
           - nuxt
           # - one # disabled until we figured out how to support bun
           # - nx # disabled temporarily
