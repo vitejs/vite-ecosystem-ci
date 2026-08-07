@@ -150,12 +150,10 @@ export async function setupRepo(options: RepoOptions) {
 		await $`git remote set-branches origin ${branch}`
 	}
 	await $`git fetch ${shallow ? '--depth=1 --no-tags' : '--tags'} origin ${
-		tag ? `tag ${tag}` : `${commit || branch}`
+		tag ? `tag ${tag}` : commit || branch
 	}`
 	if (shallow) {
-		await $`git -c advice.detachedHead=false checkout ${
-			tag ? `tags/${tag}` : `${commit || branch}`
-		}`
+		await $`git -c advice.detachedHead=false checkout ${tag ? `tags/${tag}` : commit || branch}`
 	} else {
 		await $`git checkout ${branch}`
 		await $`git merge FETCH_HEAD`
@@ -191,7 +189,7 @@ function toCommand(
 					throw new Error(`invalid task, script "${task.script}" does not exist in package.json`)
 				}
 			} else {
-				throw new Error(`invalid task, expected string or function but got ${typeof task}: ${task}`)
+				throw new Error(`invalid task, expected string or function but got ${typeof task}`)
 			}
 		}
 	}
@@ -327,7 +325,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		for (const [pkg, version] of Object.entries(overrides)) {
 			if (pkg === 'rollup' || pkg === 'vitest') continue
 
-			const versionForVite = vitePackageInfo.dependencies![pkg]?.version
+			const versionForVite = vitePackageInfo.dependencies[pkg]?.version
 			if (version === true && versionForVite) {
 				overrides[pkg] = versionForVite
 			}
@@ -467,7 +465,7 @@ function isLocalOverride(v: string): boolean {
 		return false
 	}
 	try {
-		return !!fs.lstatSync(v)?.isDirectory()
+		return fs.lstatSync(v).isDirectory()
 	} catch (e) {
 		if (e.code !== 'ENOENT') {
 			throw e
