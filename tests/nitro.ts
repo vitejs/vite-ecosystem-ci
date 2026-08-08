@@ -7,6 +7,6 @@ export async function test(options: RunOptions) {
 		repo: 'nitrojs/nitro',
 		branch: 'main',
 		build: 'build',
-		test: 'pnpm vitest run test/vite',
+		test: 'test:vite',
 	})
 }
