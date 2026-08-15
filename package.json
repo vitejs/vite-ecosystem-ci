@@ -34,10 +34,10 @@
     "@types/node": "^25.9.5",
     "@types/pacote": "^11.1.8",
     "@types/semver": "^7.8.0",
-    "eslint-plugin-n": "^18.2.2",
+    "eslint-plugin-n": "^18.3.0",
     "lint-staged": "^17.3.0",
-    "oxfmt": "^0.62.0",
-    "oxlint": "^1.77.0",
+    "oxfmt": "^0.63.0",
+    "oxlint": "^1.78.0",
     "oxlint-tsgolint": "^7.0.2001",
     "pacote": "^21.5.1",
     "semver": "^7.8.5",
@@ -58,5 +58,5 @@
   "engines": {
     "node": ">=24"
   },
-  "packageManager": "pnpm@11.20.0"
+  "packageManager": "pnpm@11.22.0"
 }
