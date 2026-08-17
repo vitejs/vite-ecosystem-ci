@@ -1,0 +1,19 @@
+docs/superpowers/specs/2026-08-17-vinext-pnpm-workaround-design.md
+  s_a68029ae097eac::t_81f9039558c333 1-33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "d7f92df85b95da91ddc29f5dc94d93458c25356d",
+  "prompts": {},
+  "sessions": {
+    "s_a68029ae097eac": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00dc7-7845-7430-8845-7e59333efd4c",
+        "model": "unknown"
+      },
+      "human_author": "sapphi-red <green@sapphi.red>"
+    }
+  }
+}
