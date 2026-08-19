@@ -615,6 +615,19 @@ export async function applyPackageOverrides(
 			await fs.promises.writeFile(pnpmWorkspaceFile, content, 'utf-8')
 		}
 	} else if (pm === 'yarn') {
+		const yarnConfigFile = path.join(dir, '.yarnrc.yml')
+		if (fs.existsSync(yarnConfigFile)) {
+			let content = await fs.promises.readFile(yarnConfigFile, 'utf-8')
+			if (/^[ \t]*npmMinimalAgeGate[ \t]*:/m.test(content)) {
+				// disable with comment to avoid error on installation if ecosystem-ci overrides pull in violating updates
+				content = content.replace(
+					/^([ \t]*npmMinimalAgeGate[ \t]*:)[^\r\n]*$/m,
+					'$1 0 # disabled by ecosystem-ci',
+				)
+				await fs.promises.writeFile(yarnConfigFile, content, 'utf-8')
+			}
+		}
+
 		// Yarn's `file:` protocol copies the referenced directory verbatim, ignoring the
 		// package's `files` field. So vite's `src` (excluded from the published package)
 		// gets copied too, and it contains test-fixture symlinks pointing to directories
