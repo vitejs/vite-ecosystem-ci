@@ -39,6 +39,7 @@ on:
           - laravel
           - marko
           - module-federation
+          - netlify-vite-plugin
           - nuxt
           - nx
           - one
