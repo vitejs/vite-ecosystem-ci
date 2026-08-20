@@ -2,7 +2,7 @@ import path from 'node:path'
 import fs from 'node:fs'
 import os from 'node:os'
 import { fileURLToPath, pathToFileURL } from 'url'
-import { execaCommand } from 'execa'
+import { execa, parseCommandString } from 'execa'
 import type {
 	PackageInfo,
 	EnvironmentData,
@@ -39,11 +39,7 @@ export async function $(literals: TemplateStringsArray, ...values: any[]) {
 		console.log(`${cwd} $> ${cmd}`)
 	}
 
-	const proc = execaCommand(cmd, {
-		env,
-		stdio: 'pipe',
-		cwd,
-	})
+	const proc = execa({ env, stdio: 'pipe', cwd })`${parseCommandString(cmd)}`
 	if (proc.stdin) process.stdin.pipe(proc.stdin)
 	if (proc.stdout) proc.stdout.pipe(process.stdout)
 	if (proc.stderr) proc.stderr.pipe(process.stderr)
@@ -122,7 +118,7 @@ export async function setupRepo(options: RepoOptions) {
 
 	let needClone = true
 	if (fs.existsSync(dir)) {
-		const _cwd = cwd
+		const previousCwd = cwd
 		cd(dir)
 		let currentClonedRepo: string | undefined
 		try {
@@ -136,7 +132,7 @@ export async function setupRepo(options: RepoOptions) {
 				needClone = false
 			}
 		}
-		cd(_cwd)
+		cd(previousCwd)
 
 		if (needClone) {
 			fs.rmSync(dir, { recursive: true, force: true })
@@ -154,12 +150,10 @@ export async function setupRepo(options: RepoOptions) {
 		await $`git remote set-branches origin ${branch}`
 	}
 	await $`git fetch ${shallow ? '--depth=1 --no-tags' : '--tags'} origin ${
-		tag ? `tag ${tag}` : `${commit || branch}`
+		tag ? `tag ${tag}` : commit || branch
 	}`
 	if (shallow) {
-		await $`git -c advice.detachedHead=false checkout ${
-			tag ? `tags/${tag}` : `${commit || branch}`
-		}`
+		await $`git -c advice.detachedHead=false checkout ${tag ? `tags/${tag}` : commit || branch}`
 	} else {
 		await $`git checkout ${branch}`
 		await $`git merge FETCH_HEAD`
@@ -195,7 +189,7 @@ function toCommand(
 					throw new Error(`invalid task, script "${task.script}" does not exist in package.json`)
 				}
 			} else {
-				throw new Error(`invalid task, expected string or function but got ${typeof task}: ${task}`)
+				throw new Error(`invalid task, expected string or function but got ${typeof task}`)
 			}
 		}
 	}
@@ -331,7 +325,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 		for (const [pkg, version] of Object.entries(overrides)) {
 			if (pkg === 'rollup' || pkg === 'vitest') continue
 
-			const versionForVite = vitePackageInfo.dependencies![pkg]?.version
+			const versionForVite = vitePackageInfo.dependencies[pkg]?.version
 			if (version === true && versionForVite) {
 				overrides[pkg] = versionForVite
 			}
@@ -471,7 +465,7 @@ function isLocalOverride(v: string): boolean {
 		return false
 	}
 	try {
-		return !!fs.lstatSync(v)?.isDirectory()
+		return fs.lstatSync(v).isDirectory()
 	} catch (e) {
 		if (e.code !== 'ENOENT') {
 			throw e
@@ -621,6 +615,19 @@ export async function applyPackageOverrides(
 			await fs.promises.writeFile(pnpmWorkspaceFile, content, 'utf-8')
 		}
 	} else if (pm === 'yarn') {
+		const yarnConfigFile = path.join(dir, '.yarnrc.yml')
+		if (fs.existsSync(yarnConfigFile)) {
+			let content = await fs.promises.readFile(yarnConfigFile, 'utf-8')
+			if (/^[ \t]*npmMinimalAgeGate[ \t]*:/m.test(content)) {
+				// disable with comment to avoid error on installation if ecosystem-ci overrides pull in violating updates
+				content = content.replace(
+					/^([ \t]*npmMinimalAgeGate[ \t]*:)[^\r\n]*$/m,
+					'$1 0 # disabled by ecosystem-ci',
+				)
+				await fs.promises.writeFile(yarnConfigFile, content, 'utf-8')
+			}
+		}
+
 		// Yarn's `file:` protocol copies the referenced directory verbatim, ignoring the
 		// package's `files` field. So vite's `src` (excluded from the published package)
 		// gets copied too, and it contains test-fixture symlinks pointing to directories
@@ -675,10 +682,10 @@ export async function applyPackageOverrides(
 // lifecycle scripts since the package is already built by `buildVite`.
 async function packLocalOverride(packageDir: string): Promise<string> {
 	const destDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vite-ecosystem-ci-pack-'))
-	const { stdout } = await execaCommand(
-		`npm pack --json --ignore-scripts --pack-destination ${destDir}`,
-		{ cwd: packageDir, env },
-	)
+	const { stdout } = await execa({
+		cwd: packageDir,
+		env,
+	})`npm pack --json --ignore-scripts --pack-destination ${destDir}`
 	const filename = JSON.parse(stdout)[0].filename
 	return path.join(destDir, filename)
 }
