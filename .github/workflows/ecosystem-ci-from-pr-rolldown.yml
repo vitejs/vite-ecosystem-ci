@@ -39,6 +39,7 @@ on:
           - laravel
           - marko
           - module-federation
+          - nitro
           - nuxt
           - nx
           - one
@@ -139,6 +140,7 @@ jobs:
           - laravel
           - marko
           - module-federation
+          - nitro
           - nuxt
           # - nx # disabled temporarily
           # - one # disabled until we figured out how to support bun

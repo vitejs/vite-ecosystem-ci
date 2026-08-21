@@ -58,6 +58,7 @@ on:
           - laravel
           - marko
           - module-federation
+          - nitro
           - nuxt
           - nx
           # - one # disabled until we figured out how to support bun
