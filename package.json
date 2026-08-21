@@ -20,6 +20,8 @@
     "typecheck": "tsc",
     "format": "oxfmt --check",
     "format:fix": "oxfmt --write",
+    "workflow:generate": "node generate-workflows.ts",
+    "workflow:check": "node generate-workflows.ts --check",
     "test:self": "node ecosystem-ci.ts _selftest",
     "test": "node ecosystem-ci.ts",
     "bisect": "node ecosystem-ci.ts bisect"

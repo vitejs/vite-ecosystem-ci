@@ -24,6 +24,11 @@ export interface RunOptions {
 	beforeTest?: Task | Task[]
 }
 
+export interface DisableWorkflow {
+	scheduled?: string
+	selected?: string
+}
+
 type Task = string | { script: string; args?: string[] } | (() => Promise<any>)
 
 export interface CommandOptions {
