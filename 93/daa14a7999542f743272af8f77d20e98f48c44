@@ -1,0 +1,45 @@
+.github/workflows/ci.yml
+  s_28f16956718509::t_6ba6ebfac71945 49-50
+.github/workflows/ecosystem-ci-from-pr-rolldown.yml
+  s_28f16956718509::t_48f6960407008e 32-33,37-38,47,60-61,64,72,138-139,165-166,169,177
+.github/workflows/ecosystem-ci-from-pr.yml
+  s_28f16956718509::t_557f6317cf911a 40-41,45-46,55,68-69,72,80,163-164,190-191,194,202
+.github/workflows/ecosystem-ci-rolldown.yml
+  s_28f16956718509::t_cef3782add8770 38-39,52,65-66,69,77
+.github/workflows/ecosystem-ci-selected.yml
+  s_28f16956718509::t_e7f5e64a1aa772 52-53,57,59,69,71,79-80,83,91
+.github/workflows/ecosystem-ci.yml
+  s_28f16956718509::t_0282aba299a82b 56-57,70,83-84,87,95
+package.json
+  s_28f16956718509::t_a878f901e98461 23-24
+tests/iles.ts
+  s_28f16956718509::t_850069927b132c 2-6
+tests/nx.ts
+  s_28f16956718509::t_0969ee2aeef72a 2-6
+tests/one.ts
+  s_28f16956718509::t_77e39fc018bbdd 1,4-8
+tests/ladle.ts
+  s_28f16956718509::t_9fe3d28572b172 2-7
+tests/rakkas.ts
+  s_28f16956718509::t_aaef9b840a19fa 2,5-9
+tests/redwoodjs.ts
+  s_28f16956718509::t_eaf15c3bed6675 2-7
+types.d.ts
+  s_28f16956718509::t_f1c7dd161e4a13 27-31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "93daa14a7999542f743272af8f77d20e98f48c44",
+  "prompts": {},
+  "sessions": {
+    "s_28f16956718509": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a02266-5950-7e92-8854-1f67f8b34862",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "sapphi-red <green@sapphi.red>"
+    }
+  }
+}
