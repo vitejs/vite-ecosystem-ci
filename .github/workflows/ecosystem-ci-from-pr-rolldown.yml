@@ -29,11 +29,13 @@ on:
         required: false
         type: choice
         options:
+          # test-suites:start from-pr
+          # DO NOT EDIT, see generate-workflows.ts
           - "-"
           - analogjs
           - astro
-          # - histoire # disabled temporarily
-          - hydrogen
+          - histoire
+          # - hydrogen # disabled until they complete they migration back to Vite
           - iles
           # - ladle # disabled until its CI is fixed
           - laravel
@@ -42,7 +44,7 @@ on:
           - nitro
           - nuxt
           - nx
-          - one
+          # - one # disabled until we figured out how to support bun
           - quasar
           - qwik
           # - rakkas # disabled temporarily
@@ -55,17 +57,19 @@ on:
           - vike
           - vinext
           - vite-environment-examples
+          - vite-plugin-cloudflare
+          - vite-plugin-laravel
           - vite-plugin-pwa
           - vite-plugin-react
+          - vite-plugin-rsc
           - vite-plugin-svelte
           - vite-plugin-vue
-          - vite-plugin-cloudflare
-          - vite-plugin-rsc
           - vite-setup-catalogue
           - vitepress
           - vitest
           - vuepress
           - waku
+          # test-suites:end
 jobs:
   init:
     runs-on: ubuntu-latest
@@ -131,6 +135,8 @@ jobs:
     strategy:
       matrix:
         suite:
+          # test-suites:start scheduled
+          # DO NOT EDIT, see generate-workflows.ts
           - analogjs
           - astro
           # - histoire # disabled temporarily
@@ -156,17 +162,19 @@ jobs:
           - vike
           - vinext
           - vite-environment-examples
+          - vite-plugin-cloudflare
+          - vite-plugin-laravel
           - vite-plugin-pwa
           - vite-plugin-react
+          - vite-plugin-rsc
           - vite-plugin-svelte
           - vite-plugin-vue
-          - vite-plugin-cloudflare
-          - vite-plugin-rsc
           - vite-setup-catalogue
           - vitepress
           - vitest
           - vuepress
           - waku
+          # test-suites:end
       fail-fast: false
     permissions:
       contents: read # to clone the repo
