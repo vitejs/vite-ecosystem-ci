@@ -1,5 +1,10 @@
 import { runInRepo } from '../utils.ts'
-import type { RunOptions } from '../types.d.ts'
+import type { DisableWorkflow, RunOptions } from '../types.d.ts'
+
+export const disableWorkflow: DisableWorkflow = {
+	scheduled: 'disabled temporarily',
+	selected: 'disabled temporarily',
+}
 
 export async function test(options: RunOptions) {
 	await runInRepo({

@@ -49,12 +49,14 @@ on:
         required: true
         type: choice
         options:
+          # test-suites:start selected
+          # DO NOT EDIT, see generate-workflows.ts
           - analogjs
           - astro
           - histoire
-          - hydrogen
+          # - hydrogen # disabled until they complete they migration back to Vite
           - iles
-          - ladle
+          # - ladle # disabled until its CI is fixed
           - laravel
           - marko
           - module-federation
@@ -64,9 +66,9 @@ on:
           # - one # disabled until we figured out how to support bun
           - quasar
           - qwik
-          - rakkas
+          # - rakkas # disabled temporarily
           - react-router
-          - redwoodjs
+          # - redwoodjs # disabled temporarily
           - storybook
           - sveltekit
           - tanstack-start
@@ -74,17 +76,19 @@ on:
           - vike
           - vinext
           - vite-environment-examples
+          - vite-plugin-cloudflare
+          - vite-plugin-laravel
           - vite-plugin-pwa
           - vite-plugin-react
+          - vite-plugin-rsc
           - vite-plugin-svelte
           - vite-plugin-vue
-          - vite-plugin-cloudflare
-          - vite-plugin-rsc
           - vite-setup-catalogue
           - vitepress
           - vitest
           - vuepress
           - waku
+          # test-suites:end
       sendDiscordReport:
         description: "send results to discord"
         type: boolean
