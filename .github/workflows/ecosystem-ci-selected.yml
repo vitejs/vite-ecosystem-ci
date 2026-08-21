@@ -59,6 +59,7 @@ on:
           - marko
           - module-federation
           - netlify-vite-plugin
+          - nitro
           - nuxt
           - nx
           # - one # disabled until we figured out how to support bun
