@@ -8,6 +8,6 @@ export async function test(options: RunOptions) {
 		agent: 'npm',
 		build: 'npm run build -w packages/vite-plugin',
 		beforeTest: 'npx playwright install chromium',
-		test: ['env COPY_OVERRIDES_TO_FIXTURES=true npm run test -w packages/vite-plugin'],
+		test: 'test:vite-ecosystem-ci',
 	})
 }
