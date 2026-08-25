@@ -51,6 +51,7 @@ on:
         options:
           - analogjs
           - astro
+          - ember
           - histoire
           - hydrogen
           - iles
