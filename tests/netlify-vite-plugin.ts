@@ -5,7 +5,6 @@ export async function test(options: RunOptions) {
 	await runInRepo({
 		...options,
 		repo: 'netlify/framework-adapters',
-		agent: 'npm',
 		build: 'npm run build -w packages/vite-plugin',
 		beforeTest: 'npx playwright install chromium',
 		test: 'test:vite-ecosystem-ci',
