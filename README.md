@@ -39,7 +39,7 @@ See [docs/pr-comment-setup.md](./docs/pr-comment-setup.md) for how to setup this
 # how to add a new integration test
 
 - check out the existing [tests](./tests) and add one yourself. Thanks to some utilities it is really easy
-- once you are confident the suite works, add it to the lists of suites in the [workflows](../../actions/)
+- once you are confident the suite works, run `pnpm workflow:generate`
 
 # reporting results
 
