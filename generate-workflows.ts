@@ -31,6 +31,10 @@ const disableWorkflowKeys: Record<SuiteList, DisableWorkflowKey> = {
 	scheduled: 'scheduled',
 	selected: 'selected',
 }
+const testSuitesBlockRegex = new RegExp(
+	`^(\\s*)# test-suites:start (${Object.keys(disableWorkflowKeys).join('|')})\\n[\\s\\S]*?^\\1# test-suites:end$`,
+	'gm',
+)
 
 const expectedLists: Record<string, Partial<Record<SuiteList, number>>> = {
 	'ecosystem-ci-from-pr-rolldown.yml': { 'from-pr': 1, scheduled: 1 },
@@ -47,7 +51,7 @@ for (const [file, expected] of Object.entries(expectedLists)) {
 	const source = fs.readFileSync(filePath, 'utf8')
 	const counts: Partial<Record<SuiteList, number>> = {}
 	const generated = source.replace(
-		/^(\s*)# test-suites:start (from-pr|scheduled|selected)\n[\s\S]*?^\1# test-suites:end$/gm,
+		testSuitesBlockRegex,
 		(_block, indentation: string, list: SuiteList) => {
 			counts[list] = (counts[list] ?? 0) + 1
 			return generateSuiteList(indentation, list)
