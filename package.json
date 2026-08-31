@@ -37,13 +37,13 @@
     "@types/pacote": "^11.1.8",
     "@types/semver": "^7.8.0",
     "eslint-plugin-n": "^18.3.0",
-    "lint-staged": "^17.3.0",
-    "oxfmt": "^0.64.0",
-    "oxlint": "^1.79.0",
+    "lint-staged": "^17.4.1",
+    "oxfmt": "^0.65.0",
+    "oxlint": "^1.80.0",
     "oxlint-tsgolint": "^7.0.2001",
     "pacote": "^21.5.1",
     "semver": "^7.8.5",
-    "simple-git-hooks": "^2.13.1",
+    "simple-git-hooks": "^2.14.0",
     "typescript": "^7.0.2"
   },
   "simple-git-hooks": {
@@ -60,5 +60,5 @@
   "engines": {
     "node": ">=24"
   },
-  "packageManager": "pnpm@11.23.0"
+  "packageManager": "pnpm@11.24.0"
 }
