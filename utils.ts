@@ -756,8 +756,8 @@ async function getVitePackageInfo(vitePath: string): Promise<PackageInfo> {
 	try {
 		// run in vite dir to avoid package manager mismatch error from corepack
 		const current = cwd
-		cd(`${vitePath}/packages/vite`)
-		const lsOutput = $`pnpm ls --json`
+		cd(vitePath)
+		const lsOutput = $`pnpm --filter vite ls --json`
 		cd(current)
 		const lsParsed = JSON.parse(await lsOutput)
 		return lsParsed[0] as PackageInfo
