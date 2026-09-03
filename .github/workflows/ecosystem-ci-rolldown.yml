@@ -64,7 +64,6 @@ jobs:
           - vinext
           - vite-environment-examples
           - vite-plugin-cloudflare
-          - vite-plugin-laravel
           - vite-plugin-pwa
           - vite-plugin-react
           - vite-plugin-rsc
