@@ -1,5 +1,6 @@
 import { runInRepo } from '../utils.ts'
 import type { DisableWorkflow, RunOptions } from '../types.d.ts'
+import process from 'node:process'
 import { execSync } from 'node:child_process'
 
 export const disableWorkflow: DisableWorkflow = {
