@@ -70,6 +70,7 @@ export async function setupEnvironment(): Promise<EnvironmentData> {
 	cwd = process.cwd()
 	env = {
 		...process.env,
+		PATH: `${path.join(root, 'node_modules', '.bin')}${path.delimiter}${process.env.PATH || ''}`,
 		CI: 'true',
 		TURBO_FORCE: 'true', // disable turbo caching, ecosystem-ci modifies things and we don't want replays
 		YARN_ENABLE_IMMUTABLE_INSTALLS: 'false', // to avoid errors with mutated lockfile due to overrides

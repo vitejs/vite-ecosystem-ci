@@ -2,4 +2,5 @@ engineStrict: true
 strictPeerDependencies: false
 packageManagerStrict: false
 allowBuilds:
+  deno: true
   simple-git-hooks: true
