@@ -572,14 +572,13 @@ export async function applyPackageOverrides(
 				const output = await $`pnpm config list --json --location project`
 				const currentOverrides = JSON.parse(output).overrides
 				const mergedOverrides = { ...currentOverrides, ...overrides }
-				// replace all indented lines in `overrides` section
-				content = content.replace(
-					/^overrides:\n((?:[ \t]+.+\n)*)/m,
-					() =>
-						`overrides:\n${Object.entries(mergedOverrides)
-							.map(([name, version]) => `  ${JSON.stringify(name)}: ${JSON.stringify(version)}\n`)
-							.join('')}`,
-				)
+				const serializedOverrides = `overrides:\n${Object.entries(mergedOverrides)
+					.map(([name, version]) => `  ${JSON.stringify(name)}: ${JSON.stringify(version)}\n`)
+					.join('')}`
+				// replace either an inline mapping or all indented lines in the section
+				content = /^overrides:[ \t]*\S[^\r\n]*$/m.test(content)
+					? content.replace(/^overrides:[^\r\n]*\r?\n?/m, serializedOverrides)
+					: content.replace(/^overrides:\r?\n((?:[ \t]+.+\r?\n)*)/m, serializedOverrides)
 			} else {
 				content += `\noverrides:\n${Object.entries(overrides)
 					.map(([name, version]) => `  ${JSON.stringify(name)}: ${JSON.stringify(version)}\n`)
