@@ -576,9 +576,10 @@ export async function applyPackageOverrides(
 					.map(([name, version]) => `  ${JSON.stringify(name)}: ${JSON.stringify(version)}\n`)
 					.join('')}`
 				// replace either an inline mapping or all indented lines in the section
-				content = /^overrides:[ \t]*\S[^\r\n]*$/m.test(content)
-					? content.replace(/^overrides:[^\r\n]*\r?\n?/m, serializedOverrides)
-					: content.replace(/^overrides:\r?\n((?:[ \t]+.+\r?\n)*)/m, serializedOverrides)
+				content = content.replace(
+					/^overrides:(?:[ \t]*\S[^\r\n]*\r?\n?|[ \t]*\r?\n(?:[ \t]+.+\r?\n)*)/m,
+					serializedOverrides,
+				)
 			} else {
 				content += `\noverrides:\n${Object.entries(overrides)
 					.map(([name, version]) => `  ${JSON.stringify(name)}: ${JSON.stringify(version)}\n`)
