@@ -15,7 +15,7 @@
 		},
 		{
 			"matchDatasources": ["npm"],
-			"minimumReleaseAge": "1440 minutes",
+			"minimumReleaseAge": "1440 minutes"
 		}
 	],
 	"ignoreDeps": []
