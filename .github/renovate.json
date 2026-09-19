@@ -12,6 +12,10 @@
 		{
 			"matchDepTypes": ["action"],
 			"pinDigests": true
+		},
+		{
+			"matchDatasources": ["npm"],
+			"minimumReleaseAge": "1440 minutes",
 		}
 	],
 	"ignoreDeps": []
