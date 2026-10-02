@@ -2,4 +2,5 @@ engineStrict: true
 strictPeerDependencies: false
 pmOnFail: warn
 allowBuilds:
+  deno: true
   simple-git-hooks: true
