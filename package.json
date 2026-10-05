@@ -33,13 +33,13 @@
   },
   "devDependencies": {
     "@antfu/ni": "^30.6.0",
-    "@types/node": "^25.9.8",
+    "@types/node": "^25.9.9",
     "@types/pacote": "^11.1.8",
     "@types/semver": "^7.8.0",
-    "eslint-plugin-n": "^18.4.0",
+    "eslint-plugin-n": "^18.4.1",
     "lint-staged": "^17.6.0",
-    "oxfmt": "^0.70.0",
-    "oxlint": "^1.85.0",
+    "oxfmt": "^0.71.0",
+    "oxlint": "^1.86.0",
     "oxlint-tsgolint": "^7.0.2003",
     "pacote": "^21.5.1",
     "semver": "^7.8.5",
@@ -60,5 +60,5 @@
   "engines": {
     "node": ">=24"
   },
-  "packageManager": "pnpm@12.6.0"
+  "packageManager": "pnpm@12.9.1"
 }
