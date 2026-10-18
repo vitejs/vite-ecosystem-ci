@@ -1,5 +1,6 @@
 import { runInRepo } from '../utils.ts'
 import type { RunOptions } from '../types.d.ts'
+import process from 'node:process'
 import path from 'node:path'
 import fs from 'node:fs'
 
