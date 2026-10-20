@@ -10,6 +10,7 @@ export async function test(options: RunOptions) {
 		branch: 'main',
 		beforeInstall: [
 			'vite-ecosystem-ci:before-install',
+			// [workaround for https://github.com/voidzero-dev/vite-plus/issues/3135]
 			// Keep undeclared packages out of isolated test fixtures.
 			'pnpm config set extend-node-path false --location project',
 			async () => {
@@ -26,6 +27,7 @@ export async function test(options: RunOptions) {
 			},
 		],
 		build: 'vite-ecosystem-ci:build',
+	  // [workaround for https://github.com/voidzero-dev/vite-plus/issues/3135]
 		beforeTest: async () => {
 			const dir = path.join(options.workspace, 'vinext')
 			// Some tests import Vite APIs through Vite+, which re-exports its own core.
@@ -48,6 +50,7 @@ export async function test(options: RunOptions) {
 		test: 'vite-ecosystem-ci:test',
 		overrides: {
 			'@vitejs/plugin-rsc': true,
+			// [workaround for https://github.com/voidzero-dev/vite-plus/issues/3135]
 			// Pack requires Vite+'s core; vinext and Vitest still use the Vite under test.
 			'vite-plus>vite': 'catalog:',
 		},
