@@ -10,6 +10,8 @@ export async function test(options: RunOptions) {
 		branch: 'main',
 		beforeInstall: [
 			'vite-ecosystem-ci:before-install',
+			// Keep undeclared packages out of isolated test fixtures.
+			'pnpm config set extend-node-path false --location project',
 			async () => {
 				const dir = path.join(options.workspace, 'vinext')
 				for await (const file of fs.glob('packages/*/package.json', { cwd: dir })) {
@@ -35,6 +37,11 @@ export async function test(options: RunOptions) {
 					.replace(/(\bfrom\s+|\bimport\s*\()(["'])vite-plus\2/g, '$1$2vite$2')
 					// Exercise the upstream CLI in command-contract tests as well.
 					.replaceAll('execFileSync(VP_PATH, [', 'execFileSync(process.execPath, [VITE_CLI_PATH, ')
+					// Vite+ and upstream Vite have different internal CLI layouts.
+					.replaceAll(
+						'path.join(path.dirname(fileURLToPath(import.meta.resolve("vite"))), "cli.js")',
+						'fileURLToPath(new URL("bin/vite.js", import.meta.resolve("vite/package.json")))',
+					)
 				if (updated !== source) await fs.writeFile(testFile, updated)
 			}
 		},
