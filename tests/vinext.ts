@@ -27,7 +27,7 @@ export async function test(options: RunOptions) {
 			},
 		],
 		build: 'vite-ecosystem-ci:build',
-	  // [workaround for https://github.com/voidzero-dev/vite-plus/issues/3135]
+		// [workaround for https://github.com/voidzero-dev/vite-plus/issues/3135]
 		beforeTest: async () => {
 			const dir = path.join(options.workspace, 'vinext')
 			// Some tests import Vite APIs through Vite+, which re-exports its own core.
