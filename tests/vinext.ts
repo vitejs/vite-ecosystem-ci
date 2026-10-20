@@ -1,3 +1,5 @@
+import fs from 'node:fs/promises'
+import path from 'node:path'
 import { runInRepo } from '../utils.ts'
 import type { RunOptions } from '../types.d.ts'
 
@@ -6,11 +8,38 @@ export async function test(options: RunOptions) {
 		...options,
 		repo: 'cloudflare/vinext',
 		branch: 'main',
-		beforeInstall: 'vite-ecosystem-ci:before-install',
+		beforeInstall: [
+			'vite-ecosystem-ci:before-install',
+			async () => {
+				const dir = path.join(options.workspace, 'vinext')
+				for await (const file of fs.glob('packages/*/package.json', { cwd: dir })) {
+					const pkgFile = path.join(dir, file)
+					const pkg = JSON.parse(await fs.readFile(pkgFile, 'utf-8'))
+					if (pkg.scripts?.build !== 'vp pack') continue
+					// The vp dispatcher rejects the upstream Vite override. Use the same
+					// bundled pack entry directly, keeping vinext's build configuration.
+					pkg.scripts.build = 'node ../../node_modules/vite-plus/dist/pack-bin.js'
+					await fs.writeFile(pkgFile, JSON.stringify(pkg, null, 2) + '\n')
+				}
+			},
+		],
 		build: 'vite-ecosystem-ci:build',
+		beforeTest: async () => {
+			const dir = path.join(options.workspace, 'vinext')
+			// Some tests import Vite APIs through Vite+, which re-exports its own core.
+			// Point those imports at the Vite under test, preserving vite-plus/test.
+			for await (const file of fs.glob('tests/*.ts', { cwd: dir })) {
+				const testFile = path.join(dir, file)
+				const source = await fs.readFile(testFile, 'utf-8')
+				const updated = source.replace(/(\bfrom\s+|\bimport\s*\()(["'])vite-plus\2/g, '$1$2vite$2')
+				if (updated !== source) await fs.writeFile(testFile, updated)
+			}
+		},
 		test: 'vite-ecosystem-ci:test',
 		overrides: {
 			'@vitejs/plugin-rsc': true,
+			// Pack requires Vite+'s core; vinext and Vitest still use the Vite under test.
+			'vite-plus>vite': 'catalog:',
 		},
 	})
 }
