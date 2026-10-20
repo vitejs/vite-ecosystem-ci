@@ -31,7 +31,10 @@ export async function test(options: RunOptions) {
 			for await (const file of fs.glob('tests/*.ts', { cwd: dir })) {
 				const testFile = path.join(dir, file)
 				const source = await fs.readFile(testFile, 'utf-8')
-				const updated = source.replace(/(\bfrom\s+|\bimport\s*\()(["'])vite-plus\2/g, '$1$2vite$2')
+				const updated = source
+					.replace(/(\bfrom\s+|\bimport\s*\()(["'])vite-plus\2/g, '$1$2vite$2')
+					// Exercise the upstream CLI in command-contract tests as well.
+					.replaceAll('execFileSync(VP_PATH, [', 'execFileSync(process.execPath, [VITE_CLI_PATH, ')
 				if (updated !== source) await fs.writeFile(testFile, updated)
 			}
 		},
