@@ -112,6 +112,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: init
     if: "inputs.suite != '-'"
+    outputs:
+      vite-ref: ${{ steps.get-vite-ref.outputs.ref }}
     permissions:
       contents: read # to clone the repo
     steps:
@@ -133,12 +135,18 @@ jobs:
           ROLLDOWN_REF: ${{ inputs.rolldownRef }}
           VITE_BRANCH: ${{ inputs.viteBranch }}
           SUITE: ${{ inputs.suite }}
+      - id: get-vite-ref
+        if: always()
+        run: echo "ref=$(git log -1 --pretty=format:%H)" >> "$GITHUB_OUTPUT"
+        working-directory: workspace/vite
 
   execute-all:
     timeout-minutes: 30
     runs-on: ubuntu-latest
     needs: init
     if: "inputs.suite == '-'"
+    outputs:
+      vite-ref: ${{ steps.get-vite-ref.outputs.ref }}
     strategy:
       matrix:
         suite:
@@ -204,6 +212,10 @@ jobs:
           ROLLDOWN_REF: ${{ inputs.rolldownRef }}
           VITE_BRANCH: ${{ inputs.viteBranch }}
           SUITE: ${{ matrix.suite }}
+      - id: get-vite-ref
+        if: always()
+        run: echo "ref=$(git log -1 --pretty=format:%H)" >> "$GITHUB_OUTPUT"
+        working-directory: workspace/vite
 
   update-comment:
     runs-on: ubuntu-latest
@@ -220,12 +232,22 @@ jobs:
         env:
           ROLLDOWN_REF: ${{ inputs.rolldownRef }}
           VITE_BRANCH: ${{ inputs.viteBranch }}
+          VITE_REF: ${{ needs.execute-all.outputs.vite-ref || needs.execute-selected-suite.outputs.vite-ref }}
         with:
           script: |
             const ref = process.env.ROLLDOWN_REF
             const viteBranch = process.env.VITE_BRANCH
+            const viteRef = process.env.VITE_REF
             const prNumber = context.payload.inputs.prNumber
             const refLink = `[\`${ref.slice(0, 7)}\`](${context.serverUrl}/rolldown/rolldown/pull/${prNumber}/commits/${ref})`
+            const viteRefLink = viteRef && `[\`${viteRef.slice(0, 7)}\`](${context.serverUrl}/vitejs/vite/commit/${viteRef})`
+
+            let viteInfo = ''
+            if (viteBranch && viteBranch !== 'main') {
+              viteInfo = ` on vite \`${viteBranch}\`${viteRefLink ? ` (${viteRefLink})` : ''}`
+            } else if (viteRefLink) {
+              viteInfo = ` on vite ${viteRefLink}`
+            }
 
             const { data: { jobs } } = await github.rest.actions.listJobsForWorkflowRun({
               owner: context.repo.owner,
@@ -303,7 +325,7 @@ jobs:
               : 'latest scheduled'
 
             let body = `
-            📝 Ran ecosystem CI with rolldown ${refLink}${viteBranch && viteBranch !== 'main' ? ` on vite \`${viteBranch}\`` : ''}: ${urlLink}
+            📝 Ran ecosystem CI with rolldown ${refLink}${viteInfo}: ${urlLink}
 
             `
             if (rows.length > 0) {
