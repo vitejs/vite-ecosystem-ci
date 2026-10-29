@@ -1,5 +1,5 @@
 # integration tests for the vite ecosystem - run rolldown from a rolldown PR comment
-# vite stays on main and rolldown is overridden with the PR's pkg.pr.new preview
+# vite is built from `viteBranch` (main by default) and rolldown is overridden with the PR's pkg.pr.new preview
 name: vite-ecosystem-ci-from-pr-rolldown
 
 env:
@@ -24,6 +24,11 @@ on:
         description: "rolldown commit sha to use from pkg.pr.new"
         required: true
         type: string
+      viteBranch:
+        description: "vite branch to build, e.g. rolldown-canary for changes that need a vite patch"
+        required: false
+        type: string
+        default: "main"
       suite:
         description: "testsuite to run. runs all testsuites when `-`."
         required: false
@@ -107,6 +112,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: init
     if: "inputs.suite != '-'"
+    outputs:
+      vite-ref: ${{ steps.get-vite-ref.outputs.ref }}
     permissions:
       contents: read # to clone the repo
     steps:
@@ -122,16 +129,24 @@ jobs:
       - run: >-
           node ecosystem-ci.ts
           --rolldown-ref "$ROLLDOWN_REF"
+          --branch "$VITE_BRANCH"
           "$SUITE"
         env:
           ROLLDOWN_REF: ${{ inputs.rolldownRef }}
+          VITE_BRANCH: ${{ inputs.viteBranch }}
           SUITE: ${{ inputs.suite }}
+      - id: get-vite-ref
+        if: always()
+        run: echo "ref=$(git log -1 --pretty=format:%H)" >> "$GITHUB_OUTPUT"
+        working-directory: workspace/vite
 
   execute-all:
     timeout-minutes: 30
     runs-on: ubuntu-latest
     needs: init
     if: "inputs.suite == '-'"
+    outputs:
+      vite-ref: ${{ steps.get-vite-ref.outputs.ref }}
     strategy:
       matrix:
         suite:
@@ -191,10 +206,16 @@ jobs:
       - run: >-
           node ecosystem-ci.ts
           --rolldown-ref "$ROLLDOWN_REF"
+          --branch "$VITE_BRANCH"
           "$SUITE"
         env:
           ROLLDOWN_REF: ${{ inputs.rolldownRef }}
+          VITE_BRANCH: ${{ inputs.viteBranch }}
           SUITE: ${{ matrix.suite }}
+      - id: get-vite-ref
+        if: always()
+        run: echo "ref=$(git log -1 --pretty=format:%H)" >> "$GITHUB_OUTPUT"
+        working-directory: workspace/vite
 
   update-comment:
     runs-on: ubuntu-latest
@@ -210,11 +231,23 @@ jobs:
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         env:
           ROLLDOWN_REF: ${{ inputs.rolldownRef }}
+          VITE_BRANCH: ${{ inputs.viteBranch }}
+          VITE_REF: ${{ needs.execute-all.outputs.vite-ref || needs.execute-selected-suite.outputs.vite-ref }}
         with:
           script: |
             const ref = process.env.ROLLDOWN_REF
+            const viteBranch = process.env.VITE_BRANCH
+            const viteRef = process.env.VITE_REF
             const prNumber = context.payload.inputs.prNumber
             const refLink = `[\`${ref.slice(0, 7)}\`](${context.serverUrl}/rolldown/rolldown/pull/${prNumber}/commits/${ref})`
+            const viteRefLink = viteRef && `[\`${viteRef.slice(0, 7)}\`](${context.serverUrl}/vitejs/vite/commit/${viteRef})`
+
+            let viteInfo = ''
+            if (viteBranch && viteBranch !== 'main') {
+              viteInfo = ` on vite \`${viteBranch}\`${viteRefLink ? ` (${viteRefLink})` : ''}`
+            } else if (viteRefLink) {
+              viteInfo = ` on vite ${viteRefLink}`
+            }
 
             const { data: { jobs } } = await github.rest.actions.listJobsForWorkflowRun({
               owner: context.repo.owner,
@@ -292,7 +325,7 @@ jobs:
               : 'latest scheduled'
 
             let body = `
-            📝 Ran ecosystem CI with rolldown ${refLink}: ${urlLink}
+            📝 Ran ecosystem CI with rolldown ${refLink}${viteInfo}: ${urlLink}
 
             `
             if (rows.length > 0) {
