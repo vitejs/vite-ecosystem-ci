@@ -1,3 +1,4 @@
+import process from 'node:process'
 import { getPermanentRef, setupEnvironment } from './utils.ts'
 
 type RefType = 'branch' | 'tag' | 'commit' | 'release'

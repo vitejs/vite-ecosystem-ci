@@ -1,3 +1,4 @@
+import process from 'node:process'
 import { runInRepo } from '../utils.ts'
 import type { RunOptions } from '../types.d.ts'
 
