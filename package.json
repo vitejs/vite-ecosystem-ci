@@ -38,11 +38,11 @@
     "@types/semver": "^7.8.0",
     "eslint-plugin-n": "^18.5.0",
     "lint-staged": "^17.6.0",
-    "oxfmt": "^0.75.0",
-    "oxlint": "^1.90.0",
-    "oxlint-tsgolint": "^7.0.2005",
-    "pacote": "^21.5.2",
-    "semver": "^7.8.5",
+    "oxfmt": "^0.77.0",
+    "oxlint": "^1.92.0",
+    "oxlint-tsgolint": "^7.0.2006",
+    "pacote": "^21.5.3",
+    "semver": "^7.8.6",
     "simple-git-hooks": "^2.14.0",
     "typescript": "^7.0.2"
   },
@@ -60,5 +60,5 @@
   "engines": {
     "node": ">=24"
   },
-  "packageManager": "pnpm@12.16.1"
+  "packageManager": "pnpm@12.18.0"
 }
