@@ -38,9 +38,9 @@
     "@types/semver": "^7.8.0",
     "eslint-plugin-n": "^18.5.0",
     "lint-staged": "^17.6.0",
-    "oxfmt": "^0.77.0",
-    "oxlint": "^1.92.0",
-    "oxlint-tsgolint": "^7.0.2006",
+    "oxfmt": "^0.78.0",
+    "oxlint": "^1.93.0",
+    "oxlint-tsgolint": "^7.0.2007",
     "pacote": "^21.5.3",
     "semver": "^7.8.6",
     "simple-git-hooks": "^2.14.0",
@@ -60,5 +60,5 @@
   "engines": {
     "node": ">=24"
   },
-  "packageManager": "pnpm@12.18.0"
+  "packageManager": "pnpm@12.21.0"
 }
