@@ -70,6 +70,7 @@ on:
           # - rakkas # disabled temporarily
           - react-router
           # - redwoodjs # disabled temporarily
+          - seedcord
           - storybook
           - sveltekit
           - tanstack-start
