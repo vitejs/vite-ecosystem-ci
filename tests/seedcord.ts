@@ -22,7 +22,7 @@ export async function test(options: RunOptions) {
 			}
 		},
 		build: 'turbo build --filter=seedcord...',
-		test: 'pnpm --filter seedcord test',
+		test: 'pnpm --filter seedcord test:vite',
 		overrides: {
 			// [workaround for https://github.com/voidzero-dev/vite-plus/issues/3135]
 			// Pack and the test runner need Vite+'s core. seedcord still imports the Vite under test.
