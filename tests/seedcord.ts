@@ -21,7 +21,7 @@ export async function test(options: RunOptions) {
 				await fs.writeFile(pkgFile, JSON.stringify(pkg, null, 2) + '\n')
 			}
 		},
-		build: 'turbo build --filter=seedcord...',
+		build: 'pnpm exec turbo build --filter=seedcord...',
 		test: 'pnpm --filter seedcord test:vite',
 		overrides: {
 			// [workaround for https://github.com/voidzero-dev/vite-plus/issues/3135]
