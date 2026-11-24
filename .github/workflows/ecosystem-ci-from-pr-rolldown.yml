@@ -84,7 +84,7 @@ jobs:
     permissions: {}
     steps:
       - id: generate-token
-        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           client-id: ${{ vars.PR_GITHUB_APP_CLIENT_ID }}
           private-key: ${{ secrets.PR_GITHUB_APP_PRIVATE_KEY }}
@@ -92,7 +92,7 @@ jobs:
           repositories: rolldown
           permission-pull-requests: write # to comment on the rolldown PR
       - id: create-comment
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           result-encoding: string
@@ -118,10 +118,10 @@ jobs:
     permissions:
       contents: read # to clone the repo
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 26.13.1
       - run: corepack enable
@@ -196,10 +196,10 @@ jobs:
     permissions:
       contents: read # to clone the repo
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 26.13.1
       - run: corepack enable
@@ -230,7 +230,7 @@ jobs:
       # of this repo (vitejs/vite-ecosystem-ci). The app token below only has
       # access to rolldown/rolldown, so it cannot be used for these calls.
       - id: build-comment
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           ROLLDOWN_REF: ${{ inputs.rolldownRef }}
           VITE_BRANCH: ${{ inputs.viteBranch }}
@@ -345,7 +345,7 @@ jobs:
             core.setOutput('body', body)
 
       - id: generate-token
-        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           client-id: ${{ vars.PR_GITHUB_APP_CLIENT_ID }}
           private-key: ${{ secrets.PR_GITHUB_APP_PRIVATE_KEY }}
@@ -353,7 +353,7 @@ jobs:
           repositories: rolldown
           permission-pull-requests: write # to update the comment on the rolldown PR
 
-      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           BODY: ${{ steps.build-comment.outputs.body }}
           COMMENT_ID: ${{ needs.init.outputs.comment-id }}
