@@ -63,7 +63,6 @@ on:
           - unocss
           - vike
           - vinext
-          - vite-environment-examples
           - vite-plugin-cloudflare
           - vite-plugin-pwa
           - vite-plugin-react
@@ -179,7 +178,6 @@ jobs:
           - unocss
           - vike
           - vinext
-          - vite-environment-examples
           - vite-plugin-cloudflare
           - vite-plugin-pwa
           - vite-plugin-react
